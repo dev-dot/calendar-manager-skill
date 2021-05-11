@@ -7,9 +7,13 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('manager.calendar.intent')
     def handle_manager_calendar(self, message):
-        self.speak_dialog('manager.calendar')
+        date_type = message.data.('date')
+        if date_type is not None:
+            self.speak_dialog('manager.calendar' + date_type )
 
 
 def create_skill():
     return CalendarManager()
 
+    
+    
