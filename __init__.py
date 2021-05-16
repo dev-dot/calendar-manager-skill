@@ -33,7 +33,7 @@ class CalendarManager(MycroftSkill):
     def handle_manager_calendar(self, message):
         next_appointment = self.whats_my_next_appointment(self.the_same_calendar)
         title = ' '.join(regex.search("SUMMARY:.*?:", next_appointment, regex.DOTALL).group().replace(':', ' ').split()[1:-1])
-        self.speak_dialog('next.appointment', {'title':title})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
+        self.speak_dialog('next.appointment', {'title':title})
 
 def create_skill():
     return CalendarManager()
