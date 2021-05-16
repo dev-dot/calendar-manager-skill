@@ -7,7 +7,7 @@ import caldav
 from caldav.objects import Calendar
 
 class CalendarManager(MycroftSkill):
-   
+
     def __init__(self):
         MycroftSkill.__init__(self)
         self.caldav_url = 'https://si-nextcloud.social-robot.info/remote.php/dav'
@@ -23,7 +23,7 @@ class CalendarManager(MycroftSkill):
         return calendars
 
     def whats_my_next_appointment(self, calendar: Calendar):
-        all_events = calendar
+        all_events = calendar.events()
         return all_events[0].data
 
 
@@ -31,8 +31,8 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.intent')
     def handle_manager_calendar(self, message):
         next_appointment = self.whats_my_next_appointment(self.the_same_calendar)
-        print(self.get_calendars()[0])
-        self.speak_dialog('next.appointment', {'title':next_appointment["SUMMARY"]})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
+        title = next_appointment
+        self.speak_dialog('next.appointment', {'title':title})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
 
 def create_skill():
     return CalendarManager()
