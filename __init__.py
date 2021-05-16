@@ -5,6 +5,7 @@ from mycroft import MycroftSkill, intent_file_handler
 from datetime import datetime
 import caldav
 from caldav.objects import Calendar
+import regex
 
 class CalendarManager(MycroftSkill):
 
@@ -31,7 +32,7 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.intent')
     def handle_manager_calendar(self, message):
         next_appointment = self.whats_my_next_appointment(self.the_same_calendar)
-        title = next_appointment
+        title = ' '.join(regex.search("SUMMARY:.*?:", next_appointment, regex.DOTALL).group().replace(':', ' ').split()[1:-1])
         self.speak_dialog('next.appointment', {'title':title})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
 
 def create_skill():
