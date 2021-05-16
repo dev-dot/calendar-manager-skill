@@ -30,7 +30,8 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_manager_calendar(self, message):
-        self.speak_dialog('next.appointment', {'title':self.next_appointment.SUMMARY})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
+        next_appointment = self.whats_my_next_appointment()
+        self.speak_dialog('next.appointment', {'title':next_appointment["SUMMARY"]})           #{'date':self.next_appointment.DTSTART}, {'title':self.next_appointment.SUMMARY
 
 def create_skill():
     return CalendarManager()
