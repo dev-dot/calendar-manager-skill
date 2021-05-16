@@ -5,13 +5,11 @@ class CalendarManager(MycroftSkill):
    
     def __init__(self):
         MycroftSkill.__init__(self)
-       ## self.data = get_data()
-    
 
-    @intent_file_handler('ask.next.appointment.intent_next-appointment')
+    @intent_file_handler('manager.calendar.intent')
     def handle_manager_calendar(self, message):
-        next_appointment = data.GetDataFromNextcloud.whats_my_next_appointment()
-        self.speak_dialog('manager.calendar', {'date':next_appointment.DTSTART}, {'title':next_appointment.SUMMARY})
+        self.speak_dialog('manager.calendar')
+        print(data.GetDataFromNextcloud.whats_my_next_appointment())
 
 
 def create_skill():
