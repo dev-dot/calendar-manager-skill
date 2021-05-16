@@ -13,8 +13,8 @@ from caldav.objects import Calendar
 class CalendarManager(MycroftSkill):
    
     def __init__(self):
-        MycroftSkill.__init__(self)
-        
+        super(CalendarManager, self).__init__(name="CalenderManager")
+       
 
     @intent_file_handler('manager.calendar.intent')
     def handle_manager_calendar(self, message):
