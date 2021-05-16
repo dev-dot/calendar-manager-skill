@@ -4,8 +4,6 @@ from mycroft import MycroftSkill, intent_file_handler
 from datetime import datetime
 import sys
 
-import caldav
-
 from caldav.elements import dav
 from caldav.objects import Calendar
 
