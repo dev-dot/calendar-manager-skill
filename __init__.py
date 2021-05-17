@@ -33,34 +33,17 @@ class CalendarManager(MycroftSkill):
     def whats_my_next_appointment(self, calendar: Calendar):
         all_events = calendar.events()
         parse_next_event = self.parse_ics_events(all_events)
-         #ToDO change names
+      
         print(parse_next_event[0])
         return parse_next_event[0]
 
 
     def get_event_details(self, event):
-        
-        start = None
-       # if "DTSTART" in event.keys():
-         #   start = event["DTSTART"].dt
-         #   if not isinstance(start, datetime):
-          #      start = datetime.combine(start, datetime.min.time())
-         #       start = start.replace(tzinfo=Utc)
-        #    else:
-       #         start = start.astimezone(self.local_timezone)
-      #  end = None
-      #  if "DTEND" in event.keys():
-       #     end = event["DTEND"].dt
-        #    if not isinstance(end, datetime):
-         #       end = datetime.combine(end, datetime.min.time())
-          #      end = end.replace(tzinfo=Utc)
-           # else:
-            #    end = end.astimezone(self.local_timezone)
         title = "untitled event"
         if "SUMMARY" in event.keys():
             title = str(event["SUMMARY"])
 
-        return {"title": title} #"starttime": start, "endtime": end
+        return {"title": title} 
 
     def parse_ics_events(self, events):
         
