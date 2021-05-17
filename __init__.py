@@ -33,8 +33,9 @@ class CalendarManager(MycroftSkill):
     def whats_my_next_appointment(self, calendar: Calendar):
         all_events = calendar.events()
         parse_next_event = self.parse_ics_events(all_events)
-        next_event_details = self.get_event_details(parse_next_event[0]) #ToDO change names
-        return next_event_details
+         #ToDO change names
+        print(parse_next_event[0])
+        return parse_next_event[0]
 
 
     def get_event_details(self, event):
