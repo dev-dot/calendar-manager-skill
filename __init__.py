@@ -9,12 +9,14 @@ import regex
 import icalendar 
 import pytz 
 
+Utc = pytz.UTC
 class CalendarManager(MycroftSkill):
     
 
 
     def __init__(self):
         MycroftSkill.__init__(self)
+      #  self.local_timezone = local_timezone
         self.caldav_url = 'https://si-nextcloud.social-robot.info/remote.php/dav'
         self.username = 'ar140@hdm-stuttgart.de'
         self.password = 'Mycroftgruppe5'
@@ -38,26 +40,26 @@ class CalendarManager(MycroftSkill):
     def get_event_details(self, event):
         
         start = None
-        if "DTSTART" in event.keys():
-            start = event["DTSTART"].dt
-            if not isinstance(start, datetime):
-                start = datetime.combine(start, datetime.min.time())
-                start = start.replace(tzinfo=pytz.Utc)
-            else:
-                start = start.astimezone(self.local_timezone)
-        end = None
-        if "DTEND" in event.keys():
-            end = event["DTEND"].dt
-            if not isinstance(end, datetime):
-                end = datetime.combine(end, datetime.min.time())
-                end = end.replace(tzinfo=pytz.Utc)
-            else:
-                end = end.astimezone(self.local_timezone)
+       # if "DTSTART" in event.keys():
+         #   start = event["DTSTART"].dt
+         #   if not isinstance(start, datetime):
+          #      start = datetime.combine(start, datetime.min.time())
+         #       start = start.replace(tzinfo=Utc)
+        #    else:
+       #         start = start.astimezone(self.local_timezone)
+      #  end = None
+      #  if "DTEND" in event.keys():
+       #     end = event["DTEND"].dt
+        #    if not isinstance(end, datetime):
+         #       end = datetime.combine(end, datetime.min.time())
+          #      end = end.replace(tzinfo=Utc)
+           # else:
+            #    end = end.astimezone(self.local_timezone)
         title = "untitled event"
         if "SUMMARY" in event.keys():
             title = str(event["SUMMARY"])
 
-        return {"title": title, "starttime": start, "endtime": end}
+        return {"title": title} #"starttime": start, "endtime": end
 
     def parse_ics_events(self, events):
         
