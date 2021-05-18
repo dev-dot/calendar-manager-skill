@@ -27,7 +27,7 @@ class CalendarManager(MycroftSkill):
     def get_calendars(self):
         principal = self.client.principal()
         calendars = principal.calendars()
-        
+        self.log.info(calendars)
         return calendars
 
     def whats_my_next_appointment(self, calendar: Calendar):
