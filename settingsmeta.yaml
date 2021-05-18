@@ -1,17 +1,17 @@
 
 skillMetadata:
   sections:
-    - name: Options << Name of section
+    - name: Input Ical - Url
       fields:
-        - name: internal_python_variable_name
+        - name: ical_url
           type: text
-          label: Setting Friendly Display Name
+          label: Ical Url
           value: ""
           placeholder: demo prompt in the input box
-    - name: Login << Name of another section
+    - name: Login 
       fields:
         - type: label
-          label: Just a little bit of extra info for the user to understand following settings
+          label: Please enter your username and password
         - name: username
           type: text
           label: Username
