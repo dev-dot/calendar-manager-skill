@@ -21,7 +21,7 @@ class CalendarManager(MycroftSkill):
         self.username = self.settings.get('username')
         self.password = self.settings.get('password')
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
-        self.the_same_calendar = self.client.calendar(url="https://si-nextcloud.social-robot.info/remote.php/dav/calendars/ar140%40hdm-stuttgart.de/personal/")
+        self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
         
 
     def get_calendars(self):
