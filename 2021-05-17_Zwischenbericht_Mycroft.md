@@ -9,7 +9,7 @@ Auf unserem Pi:
 ## Weitere Erfahrungen 
 * Nextcloud Anbindung 
     * Anhand der verlinkten Caldav Dokumentation 
-* Neues Repo mit Becker-Asano 
+* Neues Repo 
 * Probleme mit Caldav installation auf dem RasperryPi
     * `sudo apt-get install libxml2-dev libxslt-dev python-dev` wird benötigt für die Installion von libxml2 
     * Danach konnte `pip3 install caldav` ausgeführt werden.
