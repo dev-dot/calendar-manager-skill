@@ -11,8 +11,8 @@ Auf unserem Pi:
     * Anhand der verlinkten Caldav Dokumentation 
 * Neues Repo mit Becker-Asano 
 * Probleme mit Caldav installation auf dem RasperryPi
-    * ´sudo apt-get install libxml2-dev libxslt-dev python-dev´ wird benötigt für die Installion von libxml2 
-    * Danach konnte ´pip3 install caldav´ ausgeführt werden.
+    * `sudo apt-get install libxml2-dev libxslt-dev python-dev` wird benötigt für die Installion von libxml2 
+    * Danach konnte `pip3 install caldav` ausgeführt werden.
 * Danach konnte der Skill ohne Fehler (Modul import error) geladen werden. 
 * Der Title vom Termin kann aus dem Terminkalender abegrufen und von Mycroft ausgegeben werden.
 
