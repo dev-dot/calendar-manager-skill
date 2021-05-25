@@ -66,7 +66,3 @@ class CalendarManager(MycroftSkill):
 
 def create_skill():
     return CalendarManager()
-
-
-events_fetched = my_new_calendar.date_search(
-    start=datetime(2021, 1, 1), end=datetime(2024, 1, 1), expand=True)
