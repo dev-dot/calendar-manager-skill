@@ -5,7 +5,6 @@ from mycroft import MycroftSkill, intent_file_handler
 from datetime import datetime
 import caldav
 from caldav.objects import Calendar
-import regex
 import icalendar 
 import pytz 
 
@@ -31,7 +30,9 @@ class CalendarManager(MycroftSkill):
         return calendars
 
     def whats_my_next_appointment(self, calendar: Calendar):
-        all_events = calendar.date_search(start=datetime.now(),end=None,expand=True)
+        currentDate = datetime.today()
+
+        all_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
         parse_next_event = self.parse_ics_events(all_events)
       
         print(parse_next_event[0])
