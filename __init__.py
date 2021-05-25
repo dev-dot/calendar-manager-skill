@@ -31,7 +31,7 @@ class CalendarManager(MycroftSkill):
         return calendars
 
     def whats_my_next_appointment(self, calendar: Calendar):
-        all_events = calendar.events()
+        all_events = calendar.date_search(start=datetime.now(),end=None,expand=True)
         parse_next_event = self.parse_ics_events(all_events)
       
         print(parse_next_event[0])
@@ -61,9 +61,12 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.intent')
     def handle_manager_calendar(self, message):
         next_appointment = self.whats_my_next_appointment(self.the_same_calendar)
-        #title = ' '.join(regex.search("SUMMARY:.*?:", next_appointment, regex.DOTALL).group().replace(':', ' ').split()[1:-1])
-        
+       
         self.speak_dialog('next.appointment', {'title': next_appointment['title']})
 
 def create_skill():
     return CalendarManager()
+
+
+events_fetched = my_new_calendar.date_search(
+    start=datetime(2021, 1, 1), end=datetime(2024, 1, 1), expand=True)

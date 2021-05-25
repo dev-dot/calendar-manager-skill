@@ -5,6 +5,7 @@ import caldav
 
 from caldav.elements import dav
 from caldav.objects import Calendar
+from datetime import datetime
 
 class GetDataFromNextcloud():
 
@@ -16,7 +17,8 @@ class GetDataFromNextcloud():
 
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url="https://si-nextcloud.social-robot.info/remote.php/dav/calendars/ar140%40hdm-stuttgart.de/personal/")
-
+      
+        print(datetime.now())
 
 
 
@@ -29,3 +31,4 @@ class GetDataFromNextcloud():
 
     #next_appointment = whats_my_next_appointment(the_same_calendar)
     
+GetDataFromNextcloud()    
