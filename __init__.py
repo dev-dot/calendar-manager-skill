@@ -47,7 +47,8 @@ class CalendarManager(MycroftSkill):
           
 
     def get_event_data_string(self, event):
-        starttime = event.dtstart.valueRepr()
+        eventToGetStartTimeFrom = vobject.readOne(event)
+        starttime = eventToGetStartTimeFrom.dtstart.valueRepr()
         print(starttime)
 
     def get_event_details(self, event):
