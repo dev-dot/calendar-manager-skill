@@ -74,7 +74,7 @@ class CalendarManager(MycroftSkill):
             if end is not None:
                 all_events = [i for i in all_events if 
                  i.instance.vevent.dtstart.value.astimezone() <= end.astimezone()] 
-            return all_events
+            return all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
 
         
