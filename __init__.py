@@ -47,7 +47,7 @@ class CalendarManager(MycroftSkill):
           
 
     def get_event_data_string(self, event):
-        starttime = cal.vevent.dtstart.valueRepr()
+        starttime = event   .dtstart.valueRepr()
         print(starttime)
 
     def get_event_details(self, event):
