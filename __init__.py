@@ -45,19 +45,6 @@ class CalendarManager(MycroftSkill):
         
 
 
-#vcal = """BEGIN:VCALENDAR
-#VERSION:2.0
-#PRODID:-//Example Corp.//CalDAV Client//EN
-#BEGIN:VEVENT
-#UID:1234567890
-#DTSTAMP:20100510T182145Z
-#DTSTART:20100512T170000Z
-#DTEND:20100512T180000Z
-#SUMMARY:This is an event
-#END:VEVENT
-#END:VCALENDAR
-#"""
-
 
 
     def get_event_details(self, event):
@@ -66,12 +53,12 @@ class CalendarManager(MycroftSkill):
             title = str(event["SUMMARY"])
 
         event_start = "not choosed"    
-        if "DTSTART" in event.key():
-            event_start = str(event["DTSTART"])
+       # if "DTSTART" in event.key():
+        #    event_start = str(event["DTSTART"])
 
         event_end = None     
-        if "DTEND" in event.keys():
-            event_end = str(event["DTEND"]) 
+        #if "DTEND" in event.keys():
+        #    event_end = str(event["DTEND"]) 
 
         return {"title": title, "event_start": event_start, "event_end": event_end} 
 
@@ -82,6 +69,7 @@ class CalendarManager(MycroftSkill):
             cal = icalendar.Calendar.from_ical(event.data, True)
             url = event.url
             for vevent in cal[0].walk("vevent"):
+                print(vevent)
                 event_details = self.get_event_details(vevent)
                 event_details["event_url"] = url
                 parsed_events.append(event_details)
