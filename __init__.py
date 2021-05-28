@@ -69,7 +69,7 @@ class CalendarManager(MycroftSkill):
             cal = icalendar.Calendar.from_ical(event.data, True)
             url = event.url
             for vevent in cal[0].walk("vevent"):
-                print(vevent)
+                print(vevent["DTSTART"])
                 event_details = self.get_event_details(vevent)
                 event_details["event_url"] = url
                 parsed_events.append(event_details)
