@@ -52,15 +52,15 @@ class CalendarManager(MycroftSkill):
         if "SUMMARY" in event.keys():
             title = str(event["SUMMARY"])
 
-        event_start = "not choosed"    
+       # event_start = "not choosed"    
        # if "DTSTART" in event.key():
         #    event_start = str(event["DTSTART"])
 
-        event_end = None     
+        #event_end = None     
         #if "DTEND" in event.keys():
-        #    event_end = str(event["DTEND"]) 
+        #    event_end = str(event["DTEND"]) '
 
-        return {"title": title, "event_start": event_start, "event_end": event_end} 
+        return {"title": title} 
 
     def parse_ics_events(self, events):
         
