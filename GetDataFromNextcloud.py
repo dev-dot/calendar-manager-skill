@@ -19,7 +19,7 @@ class GetDataFromNextcloud():
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url="https://si-nextcloud.social-robot.info/remote.php/dav/calendars/ar140%40hdm-stuttgart.de/personal/")
       
-        print(datetime.now())
+        print(datetime.now().astimezone())
 
 
 
@@ -28,6 +28,7 @@ class GetDataFromNextcloud():
     # def whats_my_next_appointment(calendar: Calendar):
     def whats_my_next_appointment(self):
         all_events = self.the_same_calendar.events()
+        all_events.sort(key=lambda x: x. )
         return print(all_events[0].data)
 
   #  next_appointment = whats_my_next_appointment(the_same_calendar)

@@ -67,7 +67,7 @@ class CalendarManager(MycroftSkill):
 
         event_start = "not choosed"    
         if "DTSTART" in event.key():
-            event_start = str(event["DTSART"])
+            event_start = str(event["DTSTART"])
 
         event_end = None     
         if "DTEND" in event.keys():
