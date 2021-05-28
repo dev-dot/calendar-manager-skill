@@ -34,9 +34,10 @@ class CalendarManager(MycroftSkill):
     def whats_my_next_appointment(self, calendar: Calendar):
         currentDate = datetime.today()
 
-        all_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
-        parse_next_event = self.parse_ics_events(all_events)
-        print(parse_next_event[0])
+        # all_future_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
+        # parse_next_event = self.parse_ics_events(all_events)
+        all_events = self.get_all_events()
+        # print(parse_next_event[0])
         self.get_event_data_string(all_events[0])
         return parse_next_event[0]
 
@@ -47,9 +48,37 @@ class CalendarManager(MycroftSkill):
           
 
     def get_event_data_string(self, event):
-        eventToGetStartTimeFrom = vobject.readOne(event)
-        starttime = eventToGetStartTimeFrom.dtstart.valueRepr()
+        starttime = event.instance.vevent.dtstart.value
         print(starttime)
+
+
+    def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
+        
+        all_events = []
+
+        if start is None:
+            return calendar.events()
+        else:
+            event_date = calendar.date_search(start=start, end=end)
+            
+
+            for event in event_date:
+                event_start = event.instance.vevent.dtstart.value
+
+                # for all day events
+                if not isinstance(event_start, datetime):
+                    event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
+
+                if event.instance.vevent.dtstart.value.astimezone() >= start.astimezone():
+                    all_events.append(event)
+            if end is not None:
+                all_events = [i for i in all_events if 
+                 i.instance.vevent.dtstart.value.astimezone() <= end.astimezone()] 
+            return all_events
+
+
+        
+
 
     def get_event_details(self, event):
         title = "untitled event"
