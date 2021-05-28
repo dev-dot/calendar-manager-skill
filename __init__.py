@@ -38,7 +38,7 @@ class CalendarManager(MycroftSkill):
         parse_next_event = self.parse_ics_events(all_future_events)
         all_events = self.get_all_events(calendar, start= currentDate)  
         # print(parse_next_event[0])
-        self.get_event_data_string(all_events[0])
+        print(all_events[0].data)
         return parse_next_event[0]
 
     #def filter_events(self, events):
