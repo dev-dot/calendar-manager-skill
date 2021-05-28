@@ -1,4 +1,5 @@
 
+from icalendar import cal
 from mycroft import MycroftSkill, intent_file_handler
 
 
@@ -7,6 +8,7 @@ import caldav
 from caldav.objects import Calendar
 import icalendar 
 import pytz 
+import vobject
 
 Utc = pytz.UTC
 class CalendarManager(MycroftSkill):
@@ -35,6 +37,7 @@ class CalendarManager(MycroftSkill):
         all_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
         parse_next_event = self.parse_ics_events(all_events)
         print(parse_next_event[0])
+        self.get_event_data_string(all_events[0])
         return parse_next_event[0]
 
     #def filter_events(self, events):
@@ -43,8 +46,9 @@ class CalendarManager(MycroftSkill):
       #      if "DTSTART":
           
 
-
-
+    def get_event_data_string(self, event):
+        starttime = cal.vevent.dtstart.valueRepr()
+        print(starttime)
 
     def get_event_details(self, event):
         title = "untitled event"
@@ -68,7 +72,6 @@ class CalendarManager(MycroftSkill):
             cal = icalendar.Calendar.from_ical(event.data, True)
             url = event.url
             for vevent in cal[0].walk("vevent"):
-                print(vevent["DTSTART"].data)
                 event_details = self.get_event_details(vevent)
                 event_details["event_url"] = url
                 parsed_events.append(event_details)

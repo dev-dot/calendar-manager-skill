@@ -28,7 +28,7 @@ class GetDataFromNextcloud():
     # def whats_my_next_appointment(calendar: Calendar):
     def whats_my_next_appointment(self):
         all_events = self.the_same_calendar.events()
-        all_events.sort(key=lambda x: x. )
+        print(all_events)
         return print(all_events[0].data)
 
   #  next_appointment = whats_my_next_appointment(the_same_calendar)
