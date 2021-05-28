@@ -1,4 +1,5 @@
 from datetime import datetime
+from pdb import main
 import sys
 
 import caldav
@@ -27,8 +28,9 @@ class GetDataFromNextcloud():
     # def whats_my_next_appointment(calendar: Calendar):
     def whats_my_next_appointment(self):
         all_events = self.the_same_calendar.events()
-        return all_events[0].data
+        return print(all_events[0].data)
 
-    #next_appointment = whats_my_next_appointment(the_same_calendar)
+  #  next_appointment = whats_my_next_appointment(the_same_calendar)
     
-GetDataFromNextcloud()    
+GetDataFromNextcloud().whats_my_next_appointment()
+

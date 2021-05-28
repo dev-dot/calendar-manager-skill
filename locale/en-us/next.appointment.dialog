@@ -1,1 +1,1 @@
-Your next appointment is on date not working at the moment and is entitled {title}
+Your next appointment will start at {event_start} and will end at {event_end} and is entitled {title}

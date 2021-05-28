@@ -2,7 +2,7 @@
 from mycroft import MycroftSkill, intent_file_handler
 
 
-from datetime import datetime
+from datetime import date, datetime
 import caldav
 from caldav.objects import Calendar
 import icalendar 
@@ -34,9 +34,30 @@ class CalendarManager(MycroftSkill):
 
         all_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
         parse_next_event = self.parse_ics_events(all_events)
-      
         print(parse_next_event[0])
         return parse_next_event[0]
+
+    #def filter_events(self, events):
+
+    #    for event in events:
+      #      if "DTSTART":
+                
+        
+
+
+#vcal = """BEGIN:VCALENDAR
+#VERSION:2.0
+#PRODID:-//Example Corp.//CalDAV Client//EN
+#BEGIN:VEVENT
+#UID:1234567890
+#DTSTAMP:20100510T182145Z
+#DTSTART:20100512T170000Z
+#DTEND:20100512T180000Z
+#SUMMARY:This is an event
+#END:VEVENT
+#END:VCALENDAR
+#"""
+
 
 
     def get_event_details(self, event):
@@ -44,7 +65,15 @@ class CalendarManager(MycroftSkill):
         if "SUMMARY" in event.keys():
             title = str(event["SUMMARY"])
 
-        return {"title": title} 
+        event_start = "not choosed"    
+        if "DTSTART" in event.key():
+            event_start = str(event["DTSART"])
+
+        event_end = None     
+        if "DTEND" in event.keys():
+            event_end = str(event["DTEND"]) 
+
+        return {"title": title, "event_start": event_start, "event_end": event_end} 
 
     def parse_ics_events(self, events):
         
