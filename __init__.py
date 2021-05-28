@@ -36,7 +36,7 @@ class CalendarManager(MycroftSkill):
 
         all_future_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
         parse_next_event = self.parse_ics_events(all_future_events)
-        all_events = self.get_all_events(calendar)
+        all_events = self.get_all_events(calendar, start= currentDate)  
         # print(parse_next_event[0])
         self.get_event_data_string(all_events[0])
         return parse_next_event[0]
