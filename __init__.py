@@ -3,7 +3,7 @@ from icalendar import cal
 from mycroft import MycroftSkill, intent_file_handler
 
 from dateutil import relativedelta
-from datetime import date, datetime, timedelta
+import datetime
 import caldav
 from caldav.objects import Calendar
 import icalendar 
