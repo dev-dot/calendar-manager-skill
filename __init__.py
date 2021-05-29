@@ -161,13 +161,16 @@ class CalendarManager(MycroftSkill):
     def handle_ask_weekday(self,message):
 
         weekday = message.data['weekday']
-        start = self.search_date_from_weekday(self.parse_weekday(weekday))
-        end = date(start.year,start.month,start.day+1)
+        date = self.search_date_from_weekday(self.parse_weekday(weekday))
+        start = datetime.combine(date,datetime.min.time())
+        date_end = date(start.year,start.month,start.day+1)
+        end = datetime.combine(date_end, datetime.min.time())
 
         calendar = self.get_calendars()[0]
         events = self.get_all_events(calendar= calendar, start= start, end= end)
 
-        
+        if (len(events)==0):
+            self.speak("you have no appointment on ", weekday)
 
         print(start)
         print(end)
