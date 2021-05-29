@@ -2,8 +2,8 @@
 from icalendar import cal
 from mycroft import MycroftSkill, intent_file_handler
 
-
-from datetime import date, datetime
+from dateutil import relativedelta
+from datetime import date, datetime, timedelta
 import caldav
 from caldav.objects import Calendar
 import icalendar 
@@ -128,6 +128,11 @@ class CalendarManager(MycroftSkill):
                 'sunday'    : 6
              }
         return switcher.get(i,"Invalid day of week")
+
+    def search_date_from_weekday(self, weekday_int):
+        today = datetime.today()
+        next_date = today + relativedelta.relativedelta(weekday= weekday_int)
+        return next_date
     
 
 
@@ -153,12 +158,11 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.weekday.intent')
     def handle_ask_weekday(self,message):
-        
-        date = datetime.now()
-        current_weekday = calendarday.weekday(date.year, date.month, date.day) # integer for the day
-        calendarday.day_name[current_weekday]
 
         weekday = message.data['weekday']
+        date = self.search_date_from_weekday(self.parse_weekday(weekday))
+
+        print(date)
         self.speak(weekday)
         
 

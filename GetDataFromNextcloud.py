@@ -1,9 +1,10 @@
 from datetime import datetime
 from pdb import main
 import sys
+from urllib.parse import parse_qs
 
 import caldav
-
+from dateutil import relativedelta
 from caldav.elements import dav
 from caldav.objects import Calendar
 from datetime import datetime
@@ -20,14 +21,40 @@ class GetDataFromNextcloud():
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url="https://si-nextcloud.social-robot.info/remote.php/dav/calendars/ar140%40hdm-stuttgart.de/personal/")
 
+    
+
+
         date = datetime.now()
         current_weekday = calendarday.weekday(date.year, date.month, date.day)
         print(current_weekday) #output 6
 
+        
       #  list(calendarday.day_name)['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
 
         print(calendarday.day_name[current_weekday])
+        print(self.parse_weekday("tuesday"))
+        print("Test: ",self.search_date_from_weekday(0))
 
+
+
+
+    def parse_weekday(self,i):
+        switcher={
+                'monday'    : 0,
+                'tuesday'   : 1,
+                'wednesday' : 2,
+                'thurday'   : 3,
+                'friday'    : 4,
+                'saturday'  : 5,
+                'sunday'    : 6
+             }
+        return switcher.get(i,"Invalid day of week")
+
+    def search_date_from_weekday(self, weekday):
+        today = datetime.today()
+        next_date = today + relativedelta.relativedelta(weekday= weekday)
+        return next_date
+        
        # print(datetime.now().astimezone())
 
 
