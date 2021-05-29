@@ -118,8 +118,13 @@ class CalendarManager(MycroftSkill):
         if (len(future_events) == 0):
             self.speak_dialog('no.appointments')
         else:
-            future_events.sort()
-       # self.speak_dialog('next.appointment', {'title': next_appointment['title']})
+            future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+
+            next_event = future_events[0].instance.vevent
+            summary = next_event.summery.value
+
+            
+        self.speak_dialog('next.appointment', {'title': summary})
 
 def create_skill():
     return CalendarManager()
