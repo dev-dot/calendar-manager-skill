@@ -163,7 +163,7 @@ class CalendarManager(MycroftSkill):
         weekday = message.data['weekday']
         date = self.search_date_from_weekday(self.parse_weekday(weekday))
         start = datetime.combine(date,datetime.min.time())
-        date_end = date(start.year,start.month,start.day+1)
+        date_end = date(date.year,date.month,date.day+1)
         end = datetime.combine(date_end, datetime.min.time())
 
         calendar = self.get_calendars()[0]
