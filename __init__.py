@@ -159,7 +159,7 @@ class CalendarManager(MycroftSkill):
         calendarday.day_name[current_weekday]
 
         weekday = message.data['weekday']
-        self.speak(self.parse_weekday(weekday))
+        self.speak(weekday)
         
 
 def create_skill():
