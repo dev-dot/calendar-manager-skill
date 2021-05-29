@@ -121,7 +121,7 @@ class CalendarManager(MycroftSkill):
             future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
             next_event = future_events[0].instance.vevent
-            start = next_event.dtstart.vulue
+            start = next_event.dtstart.value
             summary = next_event.summary.value
 
             
