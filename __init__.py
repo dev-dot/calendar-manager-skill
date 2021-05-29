@@ -130,10 +130,13 @@ class CalendarManager(MycroftSkill):
 
             next_event = future_events[0].instance.vevent
             start = self.date_to_string(next_event.dtstart.value)
+            end = self.date_to_string(next_event.dtend.value)
             summary = next_event.summary.value
 
             
-            self.speak_dialog('next.appointment', {'title': summary, 'start': start})
+            self.speak_dialog('next.appointment', {'title': summary, 'start': start, 'end':end})
+
+    #TODO: add Duration
 
 def create_skill():
     return CalendarManager()
