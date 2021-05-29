@@ -109,10 +109,16 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_manager_calendar(self, message):
-        next_appointment = self.whats_my_next_appointment(self.the_same_calendar)
+    def handle_next_appointment(self, message):
+        
+        calendar = self.get_calendars()[0]
+
+        future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
+
+        if (len(future_events) == 0):
+            self.speak("You haven't got an upcoming appointment")
        
-        self.speak_dialog('next.appointment', {'title': next_appointment['title']})
+       # self.speak_dialog('next.appointment', {'title': next_appointment['title']})
 
 def create_skill():
     return CalendarManager()
