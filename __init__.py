@@ -1,4 +1,5 @@
 
+
 from icalendar import cal
 from mycroft import MycroftSkill, intent_file_handler
 
@@ -166,10 +167,14 @@ class CalendarManager(MycroftSkill):
         calendar = self.get_calendars()[0]
         events = self.get_all_events(calendar= calendar, start= start, end= end)
 
-        print(date)
+        
+
+        print(start)
+        print(end)
         self.speak(weekday)
-        self.log.info("Test day:", date)
-        self.log.info(date)
+        self.log.info("Test start:", start)
+        self.log.info("Test end:", end)
+     
 
 def create_skill():
     return CalendarManager()
