@@ -160,10 +160,11 @@ class CalendarManager(MycroftSkill):
     def handle_ask_weekday(self,message):
 
         weekday = message.data['weekday']
-        date = self.search_date_from_weekday(self.parse_weekday(weekday))
+        start = self.search_date_from_weekday(self.parse_weekday(weekday))
+        end = date(start.year,start.month,start.day+1)
 
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= date, end= date(date.year, date.month, date.day +1))
+        events = self.get_all_events(calendar= calendar, start= start, end= end)
 
         print(date)
         self.speak(weekday)
