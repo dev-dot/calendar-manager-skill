@@ -164,7 +164,8 @@ class CalendarManager(MycroftSkill):
 
         print(date)
         self.speak(weekday)
-        
+        self.log.info("Test day:" + date)
+        self.log.info(date)
 
 def create_skill():
     return CalendarManager()

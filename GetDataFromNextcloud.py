@@ -33,7 +33,8 @@ class GetDataFromNextcloud():
 
         print(calendarday.day_name[current_weekday])
         print(self.parse_weekday("tuesday"))
-        print("Test: ",self.search_date_from_weekday(0))
+        print("Test: ",self.search_date_from_weekday(6))
+        
 
 
 
