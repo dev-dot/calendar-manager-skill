@@ -77,6 +77,7 @@ class CalendarManager(MycroftSkill):
             if end is not None:
                 all_events = [i for i in all_events if 
                  i.instance.vevent.dtstart.value.astimezone() <= end.astimezone()] 
+            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())     
             return all_events
 
 
@@ -147,7 +148,7 @@ class CalendarManager(MycroftSkill):
         if (len(future_events) == 0):
             self.speak_dialog('no.appointments')
         else:
-            future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+            #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
             next_event = future_events[0].instance.vevent
             start = self.date_to_string(next_event.dtstart.value) #TODO: add Duration
@@ -174,10 +175,12 @@ class CalendarManager(MycroftSkill):
 
         print(start)
         print(end)
-        self.speak(weekday)
+       # self.speak(weekday)
         self.log.info("Test start:", start)
         self.log.info("Test end:", end)
      
+        #TODO: check 173 warum er den tag nicht sagt 
+        
 
 def create_skill():
     return CalendarManager()
