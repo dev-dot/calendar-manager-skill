@@ -108,6 +108,14 @@ class CalendarManager(MycroftSkill):
         return parsed_events
 
 
+    def date_to_string(self, vevent_date: datetime, with_time: bool =True):
+   
+        date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
+        if with_time:
+            date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
+        return date_string
+
+
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self, message):
         
@@ -121,7 +129,7 @@ class CalendarManager(MycroftSkill):
             future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
             next_event = future_events[0].instance.vevent
-            start = next_event.dtstart.value
+            start = self.date_to_string(next_event.dtstart.value)
             summary = next_event.summary.value
 
             
