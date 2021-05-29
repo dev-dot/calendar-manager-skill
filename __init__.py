@@ -130,7 +130,7 @@ class CalendarManager(MycroftSkill):
         return switcher.get(i,"Invalid day of week")
 
     def search_date_from_weekday(self, weekday_int):
-        today = datetime.today()
+        today = datetime.date.today()
         next_date = today + relativedelta.relativedelta(weekday= weekday_int)
         return next_date
     
@@ -161,6 +161,9 @@ class CalendarManager(MycroftSkill):
 
         weekday = message.data['weekday']
         date = self.search_date_from_weekday(self.parse_weekday(weekday))
+
+        calendar = self.get_calendars()[0]
+        events = self.get_all_events(calendar= calendar, start= date, end= date)
 
         print(date)
         self.speak(weekday)
