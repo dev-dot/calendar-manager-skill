@@ -124,7 +124,7 @@ class CalendarManager(MycroftSkill):
             summary = next_event.summery.value
 
             
-        self.speak_dialog('next.appointment', {'title': summary})
+            self.speak_dialog('next.appointment', {'title': summary})
 
 def create_skill():
     return CalendarManager()
