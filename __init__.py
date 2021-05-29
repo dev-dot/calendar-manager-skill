@@ -9,6 +9,8 @@ from caldav.objects import Calendar
 import icalendar 
 import pytz 
 import vobject
+import calendar as calendarday
+
 
 Utc = pytz.UTC
 class CalendarManager(MycroftSkill):
@@ -115,6 +117,19 @@ class CalendarManager(MycroftSkill):
             date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
+    def parse_weekday(self,i):
+        switcher={
+                'monday'    : 0,
+                'tuesday'   : 1,
+                'wednesday' : 2,
+                'thurday'   : 3,
+                'friday'    : 4,
+                'saturday'  : 5,
+                'sunday'    : 6
+             }
+        return switcher.get(i,"Invalid day of week")
+    
+
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self, message):
@@ -129,14 +144,23 @@ class CalendarManager(MycroftSkill):
             future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
             next_event = future_events[0].instance.vevent
-            start = self.date_to_string(next_event.dtstart.value)
+            start = self.date_to_string(next_event.dtstart.value) #TODO: add Duration
             end = self.date_to_string(next_event.dtend.value)
             summary = next_event.summary.value
 
             
             self.speak_dialog('next.appointment', {'title': summary, 'start': start, 'end':end})
 
-    #TODO: add Duration
+    @intent_file_handler('ask.next.appointment.weekday.intent')
+    def handle_ask_weekday(self,message):
+        
+        date = datetime.now()
+        current_weekday = calendarday.weekday(date.year, date.month, date.day) # integer for the day
+        calendarday.day_name[current_weekday]
+
+        weekday = message.data['weekday']
+        self.speak(self.parse_weekday(weekday))
+        
 
 def create_skill():
     return CalendarManager()

@@ -7,6 +7,7 @@ import caldav
 from caldav.elements import dav
 from caldav.objects import Calendar
 from datetime import datetime
+import calendar as calendarday
 
 class GetDataFromNextcloud():
 
@@ -18,8 +19,16 @@ class GetDataFromNextcloud():
 
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url="https://si-nextcloud.social-robot.info/remote.php/dav/calendars/ar140%40hdm-stuttgart.de/personal/")
-      
-        print(datetime.now().astimezone())
+
+        date = datetime.now()
+        current_weekday = calendarday.weekday(date.year, date.month, date.day)
+        print(current_weekday) #output 6
+
+      #  list(calendarday.day_name)['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+
+        print(calendarday.day_name[current_weekday])
+
+       # print(datetime.now().astimezone())
 
 
 
@@ -28,8 +37,8 @@ class GetDataFromNextcloud():
     # def whats_my_next_appointment(calendar: Calendar):
     def whats_my_next_appointment(self):
         all_events = self.the_same_calendar.events()
-        print(all_events)
-        return print(all_events[0].data)
+       # print(all_events)
+       # return print(all_events[0].data)
 
   #  next_appointment = whats_my_next_appointment(the_same_calendar)
     
