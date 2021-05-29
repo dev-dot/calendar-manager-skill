@@ -121,7 +121,7 @@ class CalendarManager(MycroftSkill):
             future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
 
             next_event = future_events[0].instance.vevent
-            summary = next_event.summery.value
+            summary = next_event.summary.value
 
             
             self.speak_dialog('next.appointment', {'title': summary})
