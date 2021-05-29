@@ -3,7 +3,7 @@ from icalendar import cal
 from mycroft import MycroftSkill, intent_file_handler
 
 from dateutil import relativedelta
-import datetime
+from datetime import date, datetime, timedelta
 import caldav
 from caldav.objects import Calendar
 import icalendar 
@@ -38,7 +38,7 @@ class CalendarManager(MycroftSkill):
 
         all_future_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
         parse_next_event = self.parse_ics_events(all_future_events)
-        all_events = self.get_all_events(calendar, datetime.today())  
+        all_events = self.get_all_events(calendar, datetime.now())  
         # print(parse_next_event[0])
         print(all_events[0].data)
         return parse_next_event[0]
@@ -130,7 +130,7 @@ class CalendarManager(MycroftSkill):
         return switcher.get(i,"Invalid day of week")
 
     def search_date_from_weekday(self, weekday_int):
-        today = datetime.date.today()
+        today = date.today()
         next_date = today + relativedelta.relativedelta(weekday= weekday_int)
         return next_date
     
