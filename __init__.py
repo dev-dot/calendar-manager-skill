@@ -171,7 +171,7 @@ class CalendarManager(MycroftSkill):
         events = self.get_all_events(calendar= calendar, start= start, end= end)
 
         if (len(events)==0):
-            self.speak('no.appointments.weekday', {'weekday':weekday})
+            self.speak_dialog('no.appointments.weekday', {'weekday':weekday})
 
         print(start)
         print(end)
