@@ -24,7 +24,7 @@ class GetDataFromNextcloud():
    
       #  date = datetime.now()
        # current_weekday = calendarday.weekday(date.year, date.month, date.day)
-       # print(current_weekday) #output 6
+     #   print(current_weekday) #output 6
 
         
       #  list(calendarday.day_name)['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
@@ -56,7 +56,7 @@ class GetDataFromNextcloud():
         next_date = today + relativedelta.relativedelta(weekday= weekday)
         return next_date
         
-       # print(datetime.now().astimezone())
+        print(datetime.now().astimezone())
 
     
 

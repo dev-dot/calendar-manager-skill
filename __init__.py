@@ -34,15 +34,15 @@ class CalendarManager(MycroftSkill):
         self.log.info(calendars)
         return calendars
 
-    def whats_my_next_appointment(self, calendar: Calendar):
-        currentDate = datetime.today()
+    #def whats_my_next_appointment(self, calendar: Calendar):
+      #  currentDate = datetime.today()
 
-        all_future_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
-        parse_next_event = self.parse_ics_events(all_future_events)
-        all_events = self.get_all_events(calendar, datetime.now())  
+    #    all_future_events = calendar.date_search(start=datetime(currentDate.year,currentDate.month,currentDate.day),end=datetime(currentDate.year+1,currentDate.month,currentDate.day),expand=True)
+     #   parse_next_event = self.parse_ics_events(all_future_events)
+    #    all_events = self.get_all_events(calendar, datetime.now())  
         # print(parse_next_event[0])
-        print(all_events[0].data)
-        return parse_next_event[0]
+      #  print(all_events[0].data)
+       # return parse_next_event[0]
 
     #def filter_events(self, events):
 
@@ -171,7 +171,7 @@ class CalendarManager(MycroftSkill):
         events = self.get_all_events(calendar= calendar, start= start, end= end)
 
         if (len(events)==0):
-            self.speak("you have no appointment on ", weekday)
+            self.speak('no.appointments.weekday', {'weekday':weekday})
 
         print(start)
         print(end)
