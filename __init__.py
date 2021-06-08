@@ -162,7 +162,13 @@ class CalendarManager(MycroftSkill):
     def handle_ask_weekday(self,message):
 
         weekday = message.data['weekday']
-        event_date = self.search_date_from_weekday(self.parse_weekday(weekday))
+
+
+        if (self.parse_weekday() == event_date.weekday()):
+            event_date = self.search_date_from_weekday(self.parse_weekday(weekday)+7)
+        else:
+            event_date = self.search_date_from_weekday(self.parse_weekday(weekday))
+
         event_date_string = str(event_date)
         start = datetime.combine(event_date,datetime.min.time())
         date_end = date(event_date.year,event_date.month,event_date.day+1)
@@ -170,9 +176,9 @@ class CalendarManager(MycroftSkill):
 
         calendar = self.get_calendars()[0]
         events = self.get_all_events(calendar= calendar, start= start, end= end)
- 
 
-            
+
+
 
         if (len(events)==0):
             self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
