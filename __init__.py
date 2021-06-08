@@ -91,7 +91,7 @@ class CalendarManager(MycroftSkill):
 
        # event_start = "not choosed"    
        # if "DTSTART" in event.key():
-        #    event_start = str(event["DTSTART"])
+       #     event_start = str(event["DTSTART"])
 
         #event_end = None     
         #if "DTEND" in event.keys():
@@ -155,7 +155,7 @@ class CalendarManager(MycroftSkill):
             end = self.date_to_string(next_event.dtend.value)
             summary = next_event.summary.value
 
-            
+
             self.speak_dialog('next.appointment', {'title': summary, 'start': start, 'end':end})
 
     @intent_file_handler('ask.next.appointment.weekday.intent')
@@ -171,16 +171,17 @@ class CalendarManager(MycroftSkill):
         events = self.get_all_events(calendar= calendar, start= start, end= end)
 
         if (len(events)==0):
-            self.speak_dialog('no.appointments.weekday', {'weekday':weekday})
+            self.speak_dialog('no.appointments.weekday', {'weekday':weekday}, {'date':event_date})
 
         print(start)
         print(end)
        # self.speak(weekday)
         self.log.info("Test start:", start)
         self.log.info("Test end:", end)
-     
-        #TODO: check 173 warum er den tag nicht sagt 
-        
+
+        #TODO: wenn ein Termin gefunden wird soll er diesen sagen 
+        #TODO: Array checken und Termine anzahl ausgeben 
+        #TODO:
 
 def create_skill():
     return CalendarManager()
