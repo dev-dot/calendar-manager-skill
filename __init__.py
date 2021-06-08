@@ -163,11 +163,16 @@ class CalendarManager(MycroftSkill):
 
         weekday = message.data['weekday']
 
+        event_date = self.search_date_from_weekday(self.parse_weekday(weekday))
 
-        if (self.parse_weekday() == event_date.weekday()):
-            event_date = self.search_date_from_weekday(self.parse_weekday(weekday)+7)
+        if (self.parse_weekday(weekday) == event_date.today().weekday()):
+            event_date = event_date + timedelta(days=7)
+            print(self.parse_weekday(weekday))
+            print(event_date.today().weekday())
         else:
-            event_date = self.search_date_from_weekday(self.parse_weekday(weekday))
+            event_date = event_date + timedelta(days=0)
+            print(self.parse_weekday(weekday))
+            print(event_date.today().weekday())
 
         event_date_string = str(event_date)
         start = datetime.combine(event_date,datetime.min.time())
