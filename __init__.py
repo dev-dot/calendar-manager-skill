@@ -184,14 +184,9 @@ class CalendarManager(MycroftSkill):
         date_end = date(event_date.year,event_date.month,event_date.day+1)
         end_search = datetime.combine(date_end, datetime.min.time())
   
-   
-
-
         calendar = self.get_calendars()[0]
         events = self.get_all_events(calendar= calendar, start= start_search, end= end_search)
         event_len = len(events)
-
-     
 
         if (len(events)==0):
             self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
