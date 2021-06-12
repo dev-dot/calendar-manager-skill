@@ -175,24 +175,33 @@ class CalendarManager(MycroftSkill):
             print(event_date.today().weekday())
 
         event_date_string = str(event_date)
-        start = datetime.combine(event_date,datetime.min.time())
+        start_search = datetime.combine(event_date,datetime.min.time())
         date_end = date(event_date.year,event_date.month,event_date.day+1)
-        end = datetime.combine(date_end, datetime.min.time())
+        end_search = datetime.combine(date_end, datetime.min.time())
+  
+   
+
 
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start, end= end)
+        events = self.get_all_events(calendar= calendar, start= start_search, end= end_search)
+        event_len = len(events)
 
-
+        next_event = events[0].instance.vevent
+        start = self.date_to_string(next_event.dtstart.value) #TODO: add Duration
+        end = self.date_to_string(next_event.dtend.value)
+        summary = next_event.summary.value
 
 
         if (len(events)==0):
             self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
+        elif(len(events)>=1):
+              self.log.info("Appointments found: %s",event_len)
+              self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
+              self.speak_dialog('yes.appointment.weekday.first' {'title': summary, 'start': start, 'end':end})
 
-        print(start)
-        print(end)
        # self.speak(weekday)
-        self.log.info("Test start:", start)
-        self.log.info("Test end:", end)
+        self.log.info("Start date: %s", start)
+        self.log.info("End Date: %s", end)
 
         #TODO: wenn ein Termin gefunden wird soll er diesen sagen 
         #TODO: Array checken und Termine anzahl ausgeben 
