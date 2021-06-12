@@ -119,6 +119,11 @@ class CalendarManager(MycroftSkill):
             date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
+    def get_time_string(self, vevent_date: datetime, with_time: bool = True):
+        time_string = f" at {vevent_date.strftime('%H:%M')}"
+        return time_string
+
+
     def parse_weekday(self,i):
         switcher={
                 'monday'    : 0,
@@ -186,26 +191,28 @@ class CalendarManager(MycroftSkill):
         events = self.get_all_events(calendar= calendar, start= start_search, end= end_search)
         event_len = len(events)
 
-        next_event = events[0].instance.vevent
-        start = self.date_to_string(next_event.dtstart.value) #TODO: add Duration
-        end = self.date_to_string(next_event.dtend.value)
-        summary = next_event.summary.value
-
+     
 
         if (len(events)==0):
             self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
         elif(len(events)>=1):
-              self.log.info("Appointments found: %s",event_len)
-              self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
-              self.speak_dialog('yes.appointment.weekday.first' {'title': summary, 'start': start, 'end':end})
+            
+            next_event = events[0].instance.vevent
+            start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+            end = self.get_time_string(next_event.dtend.value)
+            summary = next_event.summary.value
+
+            self.log.info("Appointments found: %s",event_len)
+            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
+            self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})
 
        # self.speak(weekday)
-        self.log.info("Start date: %s", start)
-        self.log.info("End Date: %s", end)
+        self.log.info("Start date: %s", start_search)
+        self.log.info("End Date: %s", end_search)
 
-        #TODO: wenn ein Termin gefunden wird soll er diesen sagen 
-        #TODO: Array checken und Termine anzahl ausgeben 
-        #TODO:
+        #TODO: wenn ein Termin gefunden wird soll er diesen sagen - Check
+        #TODO: Array checken und Termine anzahl ausgeben - Check
+        #TODO: Timezone 
 
 def create_skill():
     return CalendarManager()
