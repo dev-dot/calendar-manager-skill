@@ -1,16 +1,16 @@
 
 
-from icalendar import cal
+from time import gmtime
+import time
 from mycroft import MycroftSkill, intent_file_handler
 
 from dateutil import relativedelta
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, tzinfo
 import caldav
 from caldav.objects import Calendar
 import icalendar 
 import pytz 
-import vobject
-import calendar as calendarday
+
 
 
 Utc = pytz.UTC
@@ -133,7 +133,7 @@ class CalendarManager(MycroftSkill):
                 'friday'    : 4,
                 'saturday'  : 5,
                 'sunday'    : 6
-             }
+            }
         return switcher.get(i,"Invalid day of week")
 
     def search_date_from_weekday(self, weekday_int):
@@ -141,7 +141,41 @@ class CalendarManager(MycroftSkill):
         next_date = today + relativedelta.relativedelta(weekday= weekday_int)
         return next_date
     
-
+    def get_ordinal_number(self,i):
+        switcher={
+            1: 'first',
+            2: 'second',
+            3: 'third',
+            4: 'fourth',
+            5: 'fifth',
+            6:  'sixth',
+            7:  'seventh',
+            8:  'eighth',
+            9:  'ninth',
+            10: 'tenth',
+            11: 'eleventh',
+            12: 'twelfth',
+            13: 'thirteenth',
+            14: 'fourteenth',
+            15: 'fifteenth',
+            16: 'sixteenth',
+            17: 'seventeenth',
+            18: 'eighteenth',
+            19: 'nineteenth',
+            20: 'twentieth',
+            21: 'twenty-first',
+            22: 'twenty-second',
+            23: 'twenty-third',
+            24: 'twenty-fourth',
+            25: 'twenty-fifth',
+            26: 'twenty-sixth',
+            27: 'twenty-seventh',
+            28: 'twenty-eighth',
+            29: 'twenty-ninth',
+            30: 'thirtieth',
+            31: 'thirty-first'
+            }
+        return switcher.get(i,"Invalid day of the month")
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self, message):
@@ -154,14 +188,17 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments')
         else:
             #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
-
+            self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
-            start = self.date_to_string(next_event.dtstart.value) #TODO: add Duration
-            end = self.date_to_string(next_event.dtend.value)
+            starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+            endtime = self.get_time_string(next_event.dtend.value)
             summary = next_event.summary.value
 
+            start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+            end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
 
-            self.speak_dialog('next.appointment', {'title': summary, 'start': start, 'end':end})
+
+            self.speak_dialog('next.appointment', {'title': summary, 'start': start_date_string, 'starttime': starttime, 'end':end_date_string, 'endtime':endtime})
 
     @intent_file_handler('ask.next.appointment.weekday.intent')
     def handle_ask_weekday(self,message):
@@ -179,7 +216,7 @@ class CalendarManager(MycroftSkill):
             print(self.parse_weekday(weekday))
             print(event_date.today().weekday())
 
-        event_date_string = str(event_date)
+        event_date_string = f"{self.get_ordinal_number(event_date.day)} of {event_date.strftime('%B')}"
         start_search = datetime.combine(event_date,datetime.min.time())
         date_end = date(event_date.year,event_date.month,event_date.day+1)
         end_search = datetime.combine(date_end, datetime.min.time())
@@ -196,7 +233,7 @@ class CalendarManager(MycroftSkill):
             start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
             end = self.get_time_string(next_event.dtend.value)
             summary = next_event.summary.value
-
+           
             self.log.info("Appointments found: %s",event_len)
             self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
             self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})

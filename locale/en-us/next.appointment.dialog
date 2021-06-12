@@ -1,1 +1,1 @@
-Your next appointment will start at {start} o'clock and will end at {end} o'clock and is entitled {title}
+Your next appointment will start on the {start} {starttime} and will end on the {end} {endtime} and is entitled {title}
