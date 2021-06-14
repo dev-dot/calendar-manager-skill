@@ -114,7 +114,7 @@ class CalendarManager(MycroftSkill):
                 'saturday'  : 5,
                 'sunday'    : 6
             }
-        return switcher.get(i,-1)
+        return switcher.get(i,"Invalid day of week")
 
     def search_date_from_weekday(self, weekday_int):
         today = date.today()
@@ -186,7 +186,7 @@ class CalendarManager(MycroftSkill):
         weekday = message.data['weekday']
 
         weekday_as_int = self.parse_weekday(weekday)
-        if weekday_as_int != -1:
+        if weekday_as_int != "Invalid day of week" :
             event_date = self.search_date_from_weekday(weekday_as_int)
 
             if (self.parse_weekday(weekday) == event_date.today().weekday()):
@@ -199,9 +199,9 @@ class CalendarManager(MycroftSkill):
                 print(event_date.today().weekday())
 
             event_date_string = f"{self.get_ordinal_number(event_date.day)} of {event_date.strftime('%B')}"
-            start_search = datetime.combine(event_date,datetime.min.time().astimezone())
+            start_search = datetime.combine(event_date,datetime.min.time()).astimezone()
             date_end = date(event_date.year,event_date.month,event_date.day+1)
-            end_search = datetime.combine(date_end, datetime.min.time().astimezone())
+            end_search = datetime.combine(date_end, datetime.min.time()).astimezone()
 
             calendar = self.get_calendars()[0]
             events = self.get_all_events(calendar= calendar, start= start_search.astimezone(), end= end_search.astimezone())
@@ -220,12 +220,12 @@ class CalendarManager(MycroftSkill):
                     self.log.info("Appointments found: %s",event_len)
 
                     self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})
-        else:
-            self.speak("This is not a weekday. Please rephrase your question.")
+                    self.log.info("Start date: %s", start_search)
+                    self.log.info("End Date: %s", end_search)
+        else: 
+            self.speak(f"{weekday} is not a weekday. Please rephrase your question.")
 
-       # self.speak(weekday)
-        self.log.info("Start date: %s", start_search)
-        self.log.info("End Date: %s", end_search)
+       
 
 
         #TODO: Timezone
