@@ -10,9 +10,9 @@ Spaeter
 * "Tell me my next three appointments"
 
 ## Credits
-Anton Richter     | ar140
-Thomas Marquardt  | tm101
-Artur Pauss       | ap096
+Anton Richter     | ar140 <br>
+Thomas Marquardt  | tm101 <br>
+Artur Pauss       | ap096 <br>
 
 ## Category
 **Daily**
