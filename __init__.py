@@ -248,7 +248,7 @@ class CalendarManager(MycroftSkill):
         
 
         result =extract_datetime(day)
-        end = result[0] + timedelta(1)
+        end = result[0].min.time() + timedelta(1)
         self.speak(f"Say something at {result[0]}, end {end}")
 
          
