@@ -218,9 +218,9 @@ class CalendarManager(MycroftSkill):
         event_len = len(events)
 
         if (len(events)==0):
-            self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':spoken_date})
+            self.speak_dialog('no.appointments.weekday', {'date':spoken_date})
         elif(len(events)>=1):
-            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':spoken_date})
+            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'date':spoken_date})
             for event in events:
                 next_event = event.instance.vevent
                 start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
@@ -230,8 +230,7 @@ class CalendarManager(MycroftSkill):
                 self.log.info("Appointments found: %s",event_len)
 
                 self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})
-                self.log.info("Start date: %s", start_search)
-                self.log.info("End Date: %s", end_search)
+              
         else: 
             self.speak(f"{weekday} is not a weekday. Please rephrase your question.")
 
@@ -243,7 +242,6 @@ class CalendarManager(MycroftSkill):
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Bonusaufgaben Prio 4
 
-    @intent_file_handler('ask.next.appointment.specific.intent')
     def handle_ask_specific_date(self,message):
 
         day = message.data['day']
