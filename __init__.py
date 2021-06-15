@@ -183,31 +183,13 @@ class CalendarManager(MycroftSkill):
 
 
 
-    @intent_file_handler('ask.next.appointment.weekday.intent')
+    @intent_file_handler('ask.next.appointment.specific.intent')
     def handle_ask_weekday(self,message):
 
-        weekday = message.data['weekday']
-        """
-        weekday_as_int = self.parse_weekday(weekday)
+        date = message.data['date']
         
-        if weekday_as_int != "Invalid day of week" :
-            event_date = self.search_date_from_weekday(weekday_as_int)
 
-            if (self.parse_weekday(weekday) == event_date.today().weekday()):
-                event_date = event_date + timedelta(days=7)
-                self.log.info(self.parse_weekday(weekday))
-                self.log.info(event_date.today().weekday())
-            else:
-                event_date = event_date + timedelta(days=0)
-                self.log.info(self.parse_weekday(weekday))
-                self.log.info(event_date.today().weekday())
-
-            event_date_string = f"{self.get_ordinal_number(event_date.day)} of {event_date.strftime('%B')}"
-            start_search = datetime.combine(event_date,datetime.min.time()).astimezone()
-            end_search = datetime.combine(date_end, datetime.min.time()).astimezone()
-"""
-
-        start_date = extract_datetime(weekday)[0]
+        start_date = extract_datetime(date)[0]
         end_date = datetime.combine(start_date,start_date.max.time())
 
         spoken_date = nice_date(start_date)
@@ -220,7 +202,7 @@ class CalendarManager(MycroftSkill):
         if (len(events)==0):
             self.speak_dialog('no.appointments.weekday', {'date':spoken_date})
         elif(len(events)>=1):
-            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'date':spoken_date})
+            self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
             for event in events:
                 next_event = event.instance.vevent
                 start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
@@ -229,35 +211,20 @@ class CalendarManager(MycroftSkill):
 
                 self.log.info("Appointments found: %s",event_len)
 
-                self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})
+                self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
               
         else: 
-            self.speak(f"{weekday} is not a weekday. Please rephrase your question.")
+            self.speak(f"{date} is not a weekday. Please rephrase your question.")
 
     
 
 
         #TODO: Timezone Prio 3
-        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1
+        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Bonusaufgaben Prio 4
 
-    def handle_ask_specific_date(self,message):
 
-        day = message.data['day']
-
-        
-
-        result =extract_datetime(day)
-        end = datetime.combine(result[0],result[0].max.time())
-        self.speak(f"Say something at {result[0]}, end {end}")
-
-         
-    def extractWithFormat(text):
-        date = datetime.now()  # Aktuelle Uhrzeit
-        [extractedDate, leftover] = extract_datetime(text, date)
-        extractedDate = extractedDate.strftime("%Y-%m-%d %H:%M:%S")
-        return [extractedDate, leftover]
             
 
 

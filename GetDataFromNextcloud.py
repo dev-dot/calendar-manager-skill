@@ -127,3 +127,19 @@ def handle_ask_weekday(self,message):
 
     
 
+def handle_ask_specific_date(self,message):
+
+    day = message.data['day']
+
+    
+
+    result =extract_datetime(day)
+    end = datetime.combine(result[0],result[0].max.time())
+    self.speak(f"Say something at {result[0]}, end {end}")
+
+      
+def extractWithFormat(text):
+    date = datetime.now()  # Aktuelle Uhrzeit
+    [extractedDate, leftover] = extract_datetime(text, date)
+    extractedDate = extractedDate.strftime("%Y-%m-%d %H:%M:%S")
+    return [extractedDate, leftover]
