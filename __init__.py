@@ -239,7 +239,7 @@ class CalendarManager(MycroftSkill):
          day = message.data['day']
          date = message.data['date']
 
-        
+    
 
         
 
