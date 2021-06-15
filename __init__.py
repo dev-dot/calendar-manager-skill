@@ -11,6 +11,7 @@ from caldav.objects import Calendar
 import icalendar 
 import pytz 
 from lingua_franca.parse import extract_datetime, normalize
+from lingua_franca.format import nice_date
 
 
 Utc = pytz.UTC
@@ -206,18 +207,20 @@ class CalendarManager(MycroftSkill):
             end_search = datetime.combine(date_end, datetime.min.time()).astimezone()
 """
 
-        start_date = extract_datetime(weekday)
-        end_date = start_date + timedelta(1)
+        start_date = extract_datetime(weekday)[0]
+        end_date = datetime.combine(start_date,start_date.max.time())
+
+        spoken_date = nice_date(start_date)
 
 
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start_search.astimezone(), end= end_search.astimezone())
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(), end= end_date.astimezone())
         event_len = len(events)
 
         if (len(events)==0):
-            self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
+            self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':spoken_date})
         elif(len(events)>=1):
-            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
+            self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':spoken_date})
             for event in events:
                 next_event = event.instance.vevent
                 start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
@@ -248,7 +251,7 @@ class CalendarManager(MycroftSkill):
         
 
         result =extract_datetime(day)
-        end = result[0].min.time() + timedelta(1)
+        end = datetime.combine(result[0],result[0].max.time())
         self.speak(f"Say something at {result[0]}, end {end}")
 
          
