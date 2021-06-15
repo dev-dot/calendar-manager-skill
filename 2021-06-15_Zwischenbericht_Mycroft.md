@@ -17,14 +17,15 @@ Beispiel <br>
  Dentist, starts at at 16:00 o'clock and will end at at 17:00 o'clock "
 
 ## Credentials
-* Username / Password / CALDav-Link werden auf der Mycroft Skill Seite angegeben.
+* Username / Password / CALDAV-Link werden auf der Mycroft Skill Seite angegeben.
 
 ## Weitere Funktionen in Planungung
- ### "Tell me my next {three} appointments?"
- ### Bonusaufgaben
- ### Inputvalidierung
+ * "Tell me my next {three} appointments?"
+ * Bonusaufgaben
+ * Inputvalidierung
 
 ## Besonderheiten
 * Einstellung der Zeitzone
 * Wochentage werden als ints 0-6 gepeichert
 * Datum wird im Dialog als Wort ausgesprochen und nicht als Zahl
+* Über Remote-SSH mit dem Pie verbunden.
