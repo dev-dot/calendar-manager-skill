@@ -10,7 +10,7 @@ import caldav
 from caldav.objects import Calendar
 import icalendar 
 import pytz 
-
+from lingua_franca.parse import extract_datetime
 
 
 Utc = pytz.UTC
@@ -228,10 +228,21 @@ class CalendarManager(MycroftSkill):
        
 
 
-        #TODO: Timezone
-        #TODO: Specific Date
-        #TODO: Bewusste Anzahl an Terminenen ausrufen
-        #TODO: Bonusaufgaben
+        #TODO: Timezone Prio 3
+        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1
+        #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
+        #TODO: Bonusaufgaben Prio 4
+
+    @intent_file_handler('ask.next.appointment.specific.intent')
+    def handle_ask_specific_date(self,message):
+
+         day = message.data['day']
+         date = message.data['date']
+
+        
+
+        
+
 
 def create_skill():
     return CalendarManager()
