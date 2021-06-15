@@ -10,7 +10,7 @@ import caldav
 from caldav.objects import Calendar
 import icalendar 
 import pytz 
-from lingua_franca.parse import extract_datetime
+from lingua_franca.parse import extract_datetime, normalize
 
 
 Utc = pytz.UTC
@@ -38,7 +38,7 @@ class CalendarManager(MycroftSkill):
 
     def get_event_data_string(self, event):
         starttime = event.instance.vevent.dtstart.value
-        print(starttime)
+        self.log.info(starttime)
 
 
     def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
@@ -191,12 +191,12 @@ class CalendarManager(MycroftSkill):
 
             if (self.parse_weekday(weekday) == event_date.today().weekday()):
                 event_date = event_date + timedelta(days=7)
-                print(self.parse_weekday(weekday))
-                print(event_date.today().weekday())
+                self.log.info(self.parse_weekday(weekday))
+                self.log.info(event_date.today().weekday())
             else:
                 event_date = event_date + timedelta(days=0)
-                print(self.parse_weekday(weekday))
-                print(event_date.today().weekday())
+                self.log.info(self.parse_weekday(weekday))
+                self.log.info(event_date.today().weekday())
 
             event_date_string = f"{self.get_ordinal_number(event_date.day)} of {event_date.strftime('%B')}"
             start_search = datetime.combine(event_date,datetime.min.time()).astimezone()
@@ -236,11 +236,19 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.specific.intent')
     def handle_ask_specific_date(self,message):
 
-         day = message.data['day']
-         date = message.data['date']
+        day = message.data['day']
+        date = message.data['date']
+        
 
-    
+        result = self.extractWithFormat(normalize(day))
+        self.speak(f"Say something at {result[0]}")
 
+         
+def extractWithFormat(text):
+    date = datetime.now()  # Aktuelle Uhrzeit
+    [extractedDate, leftover] = extract_datetime(text, date)
+    extractedDate = extractedDate.strftime("%Y-%m-%d %H:%M:%S")
+    return [extractedDate, leftover]
         
 
 
