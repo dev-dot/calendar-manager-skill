@@ -1,4 +1,4 @@
 {
-    "intent_type": "manager.calendar.intent",
+    "intent_type": "manager.calendar.intent_next-appointment",
     "utterance": "What's my next appointment"
 }
