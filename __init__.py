@@ -237,19 +237,19 @@ class CalendarManager(MycroftSkill):
     def handle_ask_specific_date(self,message):
 
         day = message.data['day']
-        date = message.data['date']
+
         
 
-        result = self.extractWithFormat(normalize(day))
+        result =extract_datetime(day)
         self.speak(f"Say something at {result[0]}")
 
          
-def extractWithFormat(text):
-    date = datetime.now()  # Aktuelle Uhrzeit
-    [extractedDate, leftover] = extract_datetime(text, date)
-    extractedDate = extractedDate.strftime("%Y-%m-%d %H:%M:%S")
-    return [extractedDate, leftover]
-        
+    def extractWithFormat(text):
+        date = datetime.now()  # Aktuelle Uhrzeit
+        [extractedDate, leftover] = extract_datetime(text, date)
+        extractedDate = extractedDate.strftime("%Y-%m-%d %H:%M:%S")
+        return [extractedDate, leftover]
+            
 
 
 def create_skill():
