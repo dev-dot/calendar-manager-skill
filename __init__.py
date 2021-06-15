@@ -14,7 +14,7 @@ from lingua_franca.parse import extract_datetime, normalize
 from lingua_franca.format import nice_date
 
 
-Utc = pytz.UTC
+
 class CalendarManager(MycroftSkill):
 
 
@@ -194,13 +194,13 @@ class CalendarManager(MycroftSkill):
 
         spoken_date = nice_date(start_date)
 
-
+      
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(), end= end_date.astimezone())
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(pytz.timezone('Europe/Amsterdam')), end= end_date.astimezone(pytz.timezone('Europe/Amsterdam')))
         event_len = len(events)
 
         if (len(events)==0):
-            self.speak_dialog('no.appointments.weekday', {'date':spoken_date})
+            self.speak_dialog('no.appointments.specific', {'date':spoken_date})
         elif(len(events)>=1):
             self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
             for event in events:
@@ -219,9 +219,10 @@ class CalendarManager(MycroftSkill):
     
 
 
-        #TODO: Timezone Prio 3
+        #TODO: Timezone - Events die Zurück kommen haben nicht die richtige Zeitzone | Die events die wir bekommen schon  Prio 3
         #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
+        #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
         #TODO: Bonusaufgaben Prio 4
 
 
