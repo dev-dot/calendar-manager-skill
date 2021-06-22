@@ -184,7 +184,7 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.specific.intent')
-    def handle_ask_weekday(self,message):
+    def handle_ask_specific(self,message):
 
         date = message.data['date']
         
@@ -217,10 +217,41 @@ class CalendarManager(MycroftSkill):
             self.speak(f"{date} is not a weekday. Please rephrase your question.")
 
     
+    @intent_file_handler('ask.next.appointment.number.intent')
+    def handle_ask_specific(self,message):
+
+        number = message.data['number']
+        
+ 
+        calendar = self.get_calendars()[0]
+
+        future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
+
+        if (len(future_events) == 0):
+            self.speak_dialog('no.appointments.number')
+        else:
+            #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+            for i in range(number):
+                self.log.info(future_events[i].instance.vevent)
+                next_event = future_events[i].instance.vevent
+                starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                endtime = self.get_time_string(next_event.dtend.value)
+                summary = next_event.summary.value
+
+                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+
+
+                self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+
+
+
+
+
 
 
         #TODO: Timezone - Events die Zurück kommen haben nicht die richtige Zeitzone | Die events die wir bekommen schon  Prio 3
-        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done
+        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done "Do i have an appointment on July first "
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
         #TODO: Bonusaufgaben Prio 4
