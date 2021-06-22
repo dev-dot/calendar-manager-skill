@@ -10,7 +10,7 @@ import caldav
 from caldav.objects import Calendar
 import icalendar 
 import pytz 
-from lingua_franca.parse import extract_datetime, normalize
+from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
 
 
@@ -191,7 +191,7 @@ class CalendarManager(MycroftSkill):
 
         start_date = extract_datetime(date)[0]
         end_date = datetime.combine(start_date,start_date.max.time())
-
+        
         spoken_date = nice_date(start_date)
 
       
@@ -219,11 +219,10 @@ class CalendarManager(MycroftSkill):
     
     @intent_file_handler('ask.next.number.intent')
     def handle_ask_number(self,message):
-        self.log.info("number")
         number_speak = message.data['number']
         
-        number = int(number_speak)
-        self.log.info(number)
+        number = extract_number(number_speak)
+ 
         calendar = self.get_calendars()[0]
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
@@ -232,18 +231,22 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments.number')
         else:
             #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
-            for i in range(number):
-                self.log.info(future_events[i].instance.vevent)
-                next_event = future_events[i].instance.vevent
-                starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                endtime = self.get_time_string(next_event.dtend.value)
-                summary = next_event.summary.value
+            if number > len(future_events):
+                self.speak("You dont have enough events")
+            else:
+                self.speak("Your following events are")
+                for i in range(number):
+                    self.log.info(future_events[i].instance.vevent)
+                    next_event = future_events[i].instance.vevent
+                    starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                    endtime = self.get_time_string(next_event.dtend.value)
+                    summary = next_event.summary.value
 
-                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                    start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                    end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
 
 
-                self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+                    self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
 
 
