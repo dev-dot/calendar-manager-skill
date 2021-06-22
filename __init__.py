@@ -94,13 +94,14 @@ class CalendarManager(MycroftSkill):
 
 
     def date_to_string(self, vevent_date: datetime, with_time: bool =True):
-
+        vevent_date.astimezone()
         date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
         if with_time:
             date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
     def get_time_string(self, vevent_date: datetime, with_time: bool = True):
+        vevent_date.astimezone()
         time_string = f" at {vevent_date.strftime('%H:%M')}"
         return time_string
 
