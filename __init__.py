@@ -220,8 +220,9 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.number.intent')
     def handle_ask_specific(self,message):
 
-        number = message.data['number']
+        number_speak = message.data['number']
         
+        number = int(number_speak)
  
         calendar = self.get_calendars()[0]
 
