@@ -217,13 +217,13 @@ class CalendarManager(MycroftSkill):
             self.speak(f"{date} is not a weekday. Please rephrase your question.")
 
     
-    @intent_file_handler('ask.next.appointment.number.intent')
-    def handle_ask_specific(self,message):
-
+    @intent_file_handler('ask.next.number.intent')
+    def handle_ask_number(self,message):
+        self.log.info("number")
         number_speak = message.data['number']
         
         number = int(number_speak)
- 
+        self.log.info(number)
         calendar = self.get_calendars()[0]
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
