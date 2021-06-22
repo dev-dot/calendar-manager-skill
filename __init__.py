@@ -188,16 +188,15 @@ class CalendarManager(MycroftSkill):
     def handle_ask_specific(self,message):
 
         date = message.data['date']
-        
-
-        start_date = extract_datetime(date)[0]
+       
+        start_date = datetime(extract_datetime(date)[0], tzinfo= pytz.timezone('Europe/Amsterdam'))
         end_date = datetime.combine(start_date,start_date.max.time())
         
         spoken_date = nice_date(start_date)
 
       
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(pytz.timezone('Europe/Amsterdam')), end= end_date.astimezone(pytz.timezone('Europe/Amsterdam')))
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(), end= end_date.astimezone())
         event_len = len(events)
 
         if (len(events)==0):
