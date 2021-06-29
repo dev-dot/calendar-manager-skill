@@ -188,6 +188,8 @@ class CalendarManager(MycroftSkill):
     def handle_ask_specific(self,message):
 
         date = message.data['date']
+
+        berlin_tz = pytz.timezone('Europe/Berlin')
        
         start_date = extract_datetime(date)[0] # fehler 
         end_date = datetime.combine(start_date,start_date.max.time())
@@ -196,7 +198,7 @@ class CalendarManager(MycroftSkill):
 
       
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start_date, end= end_date)
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(berlin_tz), end= end_date.astimezone(berlin_tz))
         event_len = len(events)
 
         if (len(events)==0):

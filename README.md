@@ -22,3 +22,7 @@ Information
 ## Tags
 #Calendar
 
+## Important Sentences
+ do i have an appointment on the "1st of july"
+  
+
