@@ -94,15 +94,16 @@ class CalendarManager(MycroftSkill):
 
 
     def date_to_string(self, vevent_date: datetime, with_time: bool =True):
-        vevent_date
+        #vevent_date
         date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
         if with_time:
             date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
     def get_time_string(self, vevent_date: datetime, with_time: bool = True):
-        vevent_date
-        time_string = f" at {vevent_date.strftime('%H:%M')}"
+       # vevent_date
+        time_string = f" at {vevent_date.astimezone(self.berlin_tz).strftime('%H:%M')}"
+        self.log.info(time_string)
         return time_string
 
 
@@ -207,8 +208,13 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
             for event in events:
                 next_event = event.instance.vevent
+
                 start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
                 end = self.get_time_string(next_event.dtend.value)
+                self.log.info(start)
+
+                self.log.info(next_event.dtstart.value)
+
                 summary = next_event.summary.value
 
                 self.log.info("Appointments found: %s",event_len)
