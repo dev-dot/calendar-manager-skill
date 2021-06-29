@@ -12,6 +12,7 @@ import icalendar
 import pytz 
 from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
+from tzlocal import get_localzone
 
 
 
@@ -27,7 +28,8 @@ class CalendarManager(MycroftSkill):
         self.password = self.settings.get('password')
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
-        self.berlin_tz = pytz.timezone('Europe/Berlin')
+      #  self.local_tz = pytz.timezone('Europe/Moscow')
+        self.local_tz = get_localzone() 
 
     def get_calendars(self):
         principal = self.client.principal()
@@ -59,12 +61,12 @@ class CalendarManager(MycroftSkill):
                 if not isinstance(event_start, datetime):
                     event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
 
-                if event.instance.vevent.dtstart.value.astimezone(self.berlin_tz) >= start.astimezone(self.berlin_tz):
+                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz):
                     all_events.append(event)
             if end is not None:
                 all_events = [i for i in all_events if
-                 i.instance.vevent.dtstart.value.astimezone(self.berlin_tz) <= end.astimezone(self.berlin_tz)]
-            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.berlin_tz))
+                 i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)]
+            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))
             return all_events
 
 
@@ -102,7 +104,7 @@ class CalendarManager(MycroftSkill):
 
     def get_time_string(self, vevent_date: datetime, with_time: bool = True):
        # vevent_date
-        time_string = f" at {vevent_date.astimezone(self.berlin_tz).strftime('%H:%M')}"
+        time_string = f" {vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
         self.log.info(time_string)
         return time_string
 
@@ -190,7 +192,7 @@ class CalendarManager(MycroftSkill):
 
         date = message.data['date']
 
-        berlin_tz = pytz.timezone('Europe/Berlin')
+        local_tz = pytz.timezone('Europe/Berlin')
        
         start_date = extract_datetime(date)[0] # fehler 
         end_date = datetime.combine(start_date,start_date.max.time())
@@ -199,7 +201,7 @@ class CalendarManager(MycroftSkill):
 
       
         calendar = self.get_calendars()[0]
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(berlin_tz), end= end_date.astimezone(berlin_tz))
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz), end= end_date.astimezone(local_tz))
         event_len = len(events)
 
         if (len(events)==0):
