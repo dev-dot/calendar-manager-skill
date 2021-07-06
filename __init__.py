@@ -3,7 +3,6 @@
 from time import gmtime
 import time
 from mycroft import MycroftSkill, intent_file_handler
-from mycroft.skills.mycroft_skill.mycroft_skill import ask_selection
 
 from dateutil import relativedelta
 from datetime import date, datetime, timedelta, tzinfo
@@ -35,13 +34,20 @@ class CalendarManager(MycroftSkill):
     def get_calendars(self):
         principal = self.client.principal()
         calendars = principal.calendars()
-        self.log.info(calendars)
         return calendars
 
     @intent_file_handler('ask.calendar.change.intent')
     def choose_calendar(self):
-        ask_selection(options=self.get_caledars(), dialog='', numeric= True)
-        ask_selection(options=self.get_caledars(), dialog='', numeric= False)
+        calendar_names = list
+        
+        for calendar in self.get_calendars():
+            calendar_names.append(calendar.name)
+        
+        self.log.info(calendar_names)
+
+
+        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= True)
+       
 
     
 
