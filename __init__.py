@@ -38,7 +38,7 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.calendar.change.intent')
     def choose_calendar(self):
-        calendar_names = list
+        calendar_names = list()
         
         for calendar in self.get_calendars():
             calendar_names.append(calendar.name)
@@ -46,7 +46,7 @@ class CalendarManager(MycroftSkill):
         self.log.info(calendar_names)
 
 
-        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= True)
+        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= False)
        
 
     
