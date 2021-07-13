@@ -22,14 +22,14 @@ class CalendarManager(MycroftSkill):
 
     def __init__(self):
         MycroftSkill.__init__(self)
-      #  self.local_timezone = local_timezone
+  
         self.caldav_url = self.settings.get('ical_url')
         self.username = self.settings.get('username')
         self.password = self.settings.get('password')
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
-     #   self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
+  
         self.current_calendar = self.get_calendars()[0]
-      #  self.local_tz = pytz.timezone('Europe/Moscow')
+      # self.local_tz = pytz.timezone('Europe/Moscow')
         self.local_tz = get_localzone() 
 
     def get_calendars(self):
@@ -200,7 +200,6 @@ class CalendarManager(MycroftSkill):
         if (len(future_events) == 0):
             self.speak_dialog('no.appointments')
         else:
-            #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
             self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
@@ -268,7 +267,7 @@ class CalendarManager(MycroftSkill):
         if (len(future_events) == 0):
             self.speak_dialog('no.appointments.number')
         else:
-            #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+         
             if number > len(future_events):
                 self.speak(f"You have only {len(future_events)} upcoming events")
 
@@ -293,11 +292,16 @@ class CalendarManager(MycroftSkill):
 
 
 
-        #TODO: Timezone - Events die Zurück kommen haben nicht die richtige Zeitzone | Die events die wir bekommen schon  Prio 3
+        #TODO: Timezone - Events die Zurück kommen haben nicht die richtige Zeitzone | Die events die wir bekommen schon  Prio 3 -> DONE
         #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done "Do i have an appointment on July first "
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
+        
+        
         #TODO: Bonusaufgaben Prio 4
+        #TODO: Dokumentation
+        #TODO: Code verschönern
+        #TODO: Code nach richtline Kommentieren 
 
 
             
