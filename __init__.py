@@ -28,6 +28,7 @@ class CalendarManager(MycroftSkill):
         self.password = self.settings.get('password')
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
         self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
+        self.current_calendar = self.get_calendars[0]
       #  self.local_tz = pytz.timezone('Europe/Moscow')
         self.local_tz = get_localzone() 
 
@@ -46,7 +47,11 @@ class CalendarManager(MycroftSkill):
         self.log.info(calendar_names)
 
 
-        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= False)
+        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= True)
+        
+        selected_calendar = self.get_calendars[selection-1]
+        self.log.info(selected_calendar)
+        self.calendar = selected_calendar
        
 
     
@@ -178,8 +183,7 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self, message):
         
-        calendar = self.get_calendars()[0]
-
+        calendar = self.current_calendar
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
 
         if (len(future_events) == 0):
@@ -213,7 +217,7 @@ class CalendarManager(MycroftSkill):
         spoken_date = nice_date(start_date)
 
       
-        calendar = self.get_calendars()[0]
+        calendar = self.current_calendar
         events = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz), end= end_date.astimezone(local_tz))
         event_len = len(events)
 
@@ -246,7 +250,7 @@ class CalendarManager(MycroftSkill):
         
         number = extract_number(number_speak)
  
-        calendar = self.get_calendars()[0]
+        calendar = self.current_calendar
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
 
