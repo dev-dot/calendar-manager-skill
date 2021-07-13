@@ -27,8 +27,8 @@ class CalendarManager(MycroftSkill):
         self.username = self.settings.get('username')
         self.password = self.settings.get('password')
         self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
-        self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
-        self.current_calendar = self.get_calendars[0]
+     #   self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
+        self.current_calendar = self.get_calendars()[0]
       #  self.local_tz = pytz.timezone('Europe/Moscow')
         self.local_tz = get_localzone() 
 
@@ -46,12 +46,23 @@ class CalendarManager(MycroftSkill):
         
         self.log.info(calendar_names)
 
+       
+        calendar_position = 0
+        counter = 0
+        selection =  self.ask_selection(options=calendar_names, dialog='Choose your calendar. Say only the Number!', numeric= True)
+       
+      
+        for calendar in self.get_calendars():
+            if calendar.name == selection:
+                calendar_position = counter
+            counter += 1
 
-        selection =  self.ask_selection(options=calendar_names, dialog='', numeric= True)
+        selected_calendar = self.get_calendars()[calendar_position]
         
-        selected_calendar = self.get_calendars[selection-1]
-        self.log.info(selected_calendar)
-        self.calendar = selected_calendar
+        self.log.info(selected_calendar.name)
+        self.log.info(calendar_position)
+        self.speak(f"You chose {selected_calendar.name}")
+        self.current_calendar = selected_calendar
        
 
     
