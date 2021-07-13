@@ -264,30 +264,28 @@ class CalendarManager(MycroftSkill):
         calendar = self.current_calendar
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
-
+   
         if (len(future_events) == 0):
             self.speak_dialog('no.appointments.number')
         else:
             #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
             if number > len(future_events):
-                if len(future_events) == 0:
-                    self.speak("You dont have no events left")
-                else:
-                    self.speak(f"You have only {len(future_events)} upcoming events")
-            elif len(future_events) != 0:
-                self.speak("Your following events are")
-                for i in range(number):
-                    self.log.info(future_events[i].instance.vevent)
-                    next_event = future_events[i].instance.vevent
-                    starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                    endtime = self.get_time_string(next_event.dtend.value)
-                    summary = next_event.summary.value
+                self.speak(f"You have only {len(future_events)} upcoming events")
 
-                    start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                    end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+            self.speak("Your following events are")
+            for i in range(len(future_events)):
+                self.log.info(future_events[i].instance.vevent)
+                next_event = future_events[i].instance.vevent
+                starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                endtime = self.get_time_string(next_event.dtend.value)
+                summary = next_event.summary.value
+
+                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
 
 
-                    self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+
+                self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
 
 
