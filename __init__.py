@@ -270,8 +270,11 @@ class CalendarManager(MycroftSkill):
         else:
             #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
             if number > len(future_events):
-                self.speak("You dont have enough events")
-            else:
+                if len(future_events) == 0:
+                    self.speak("You dont have no events left")
+                else:
+                    self.speak(f"You have only {len(future_events)} upcoming events")
+            elif len(future_events) != 0:
                 self.speak("Your following events are")
                 for i in range(number):
                     self.log.info(future_events[i].instance.vevent)
