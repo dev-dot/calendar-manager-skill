@@ -38,7 +38,7 @@ class CalendarManager(MycroftSkill):
                 self.current_calendar = self.get_calendars()[0]
                 self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") # TODO: add which calendar
             except:
-                self.speak("A connection to your calendar is currently not possivle!")
+                self.speak("A connection to your calendar is currently not possible!")
         
     def get_client(self, caldav_url, username, password):
             try: 
@@ -300,7 +300,6 @@ class CalendarManager(MycroftSkill):
         if len(future_events) == 0:
             self.speak_dialog('no.appointments.number')
         else:
-         
             if number > len(future_events):
                 self.speak(f"You have only {len(future_events)} upcoming events")
 
@@ -314,8 +313,6 @@ class CalendarManager(MycroftSkill):
 
                 start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
                 end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-
-
 
                 self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
