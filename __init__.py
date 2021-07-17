@@ -249,9 +249,18 @@ class CalendarManager(MycroftSkill):
         events = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz), end= end_date.astimezone(local_tz))
         event_len = len(events)
 
-        if (len(events)==0):
+        if len(events)==0:
+
             self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-        elif(len(events)>=1):
+            next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz))[0]
+
+            start = self.get_time_string(next_event.dtstart.value)
+           # end = self.get_time_string(next_event.dtend.value)
+
+            summary = next_event.summary.value
+            self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'start': start})
+            #TODO: use future events to pass the asked date if there are no appointments and return the following upcoming events
+        elif len(events)>=1:
             self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
             for event in events:
                 next_event = event.instance.vevent
@@ -316,7 +325,7 @@ class CalendarManager(MycroftSkill):
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
         
         
-        #TODO: LogIn Errorhandling
+        #TODO: LogIn Errorhandling -> done
         #TODO: Bonusaufgaben 
         #TODO: Dokumentation
         #TODO: Code verschönern
