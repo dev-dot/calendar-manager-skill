@@ -253,13 +253,12 @@ class CalendarManager(MycroftSkill):
 
             self.speak_dialog('no.appointments.specific', {'date':spoken_date})
             next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz))[0].instance.vevent
-
+            if len(next_event) > 0:
+                
+                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                summary = next_event.summary.value
+                self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
             
-            start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-
-            summary = next_event.summary.value
-            self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
-            #TODO: use future events to pass the asked date if there are no appointments and return the following upcoming events
         elif len(events)>=1:
             self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
             for event in events:
