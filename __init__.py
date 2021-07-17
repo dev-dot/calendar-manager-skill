@@ -38,15 +38,17 @@ class CalendarManager(MycroftSkill):
         if self.client is not None:
             try: 
                 self.current_calendar = self.get_calendars()[0]
+                self.speak("You are successfully connected to your calendar")
             except:
                 self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
         
     def get_client(self, caldav_url, username, password):
             try: 
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
+
                 return client                
             except:
-                self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
+                self.speak("Wrong credentials for calendar access! Please check you Password and Username and your ical url!")
                 
 
     def get_calendars(self):
