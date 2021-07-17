@@ -23,14 +23,24 @@ class CalendarManager(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
   
-        self.caldav_url = self.settings.get('ical_url')
-        self.username = self.settings.get('username')
-        self.password = self.settings.get('password')
-        self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
-  
+        self.get_credentials() 
         self.current_calendar = self.get_calendars()[0]
-      # self.local_tz = pytz.timezone('Europe/Moscow')
+      # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
+
+    def get_credentials(self):
+        try: 
+            self.caldav_url = self.settings.get('ical_url')
+            self.username = self.settings.get('username')
+            self.password = self.settings.get('password')
+            self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
+        except:
+            self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
+
+
+        
+
+
 
     def get_calendars(self):
         principal = self.client.principal()
@@ -298,7 +308,8 @@ class CalendarManager(MycroftSkill):
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
         
         
-        #TODO: Bonusaufgaben Prio 4
+        #TODO: LogIn Errorhandling
+        #TODO: Bonusaufgaben 
         #TODO: Dokumentation
         #TODO: Code verschönern
         #TODO: Code nach richtline Kommentieren 
