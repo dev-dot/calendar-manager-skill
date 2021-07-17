@@ -237,47 +237,44 @@ class CalendarManager(MycroftSkill):
 
         date = message.data['date']
 
-        local_tz = pytz.timezone('Europe/Berlin')
-       
-        start_date = extract_datetime(date)[0] # fehler 
-        end_date = datetime.combine(start_date,start_date.max.time())
-        
-        spoken_date = nice_date(start_date)
-
-      
-        calendar = self.current_calendar
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz), end= end_date.astimezone(local_tz))
-        event_len = len(events)
-
-        if len(events)==0:
-
-            self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-            next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz))
-            if len(next_event) > 0:
-                
-                start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-                summary = next_event[0].instance.vevent.summary.value
-                self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
+        try:
+            start_date = extract_datetime(date)[0] # fehler für thisweek
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            spoken_date = nice_date(start_date)
+            event_len = len(events)
             
-        elif len(events)>=1:
-            self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
-            for event in events:
-                next_event = event.instance.vevent
+            if len(events)==0:
 
-                start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                end = self.get_time_string(next_event.dtend.value)
-                self.log.info(start)
+                self.speak_dialog('no.appointments.specific', {'date':spoken_date})
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
+                if len(next_event) > 0:
+                    
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+                    summary = next_event[0].instance.vevent.summary.value
+                    self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
+                    
+            elif len(events)>=1:
+                self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
+                for event in events:
+                    next_event = event.instance.vevent
 
-                self.log.info(next_event.dtstart.value)
+                    start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                    end = self.get_time_string(next_event.dtend.value)
+                    self.log.info(start)
 
-                summary = next_event.summary.value
+                    self.log.info(next_event.dtstart.value)
 
-                self.log.info("Appointments found: %s",event_len)
+                    summary = next_event.summary.value
 
-                self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
-              
-        else: 
-            self.speak(f"{date} is not a weekday. Please rephrase your question.")
+                    self.log.info("Appointments found: %s",event_len)
+
+                    self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
+                
+        except:
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        
 
     
     @intent_file_handler('ask.next.number.intent')
