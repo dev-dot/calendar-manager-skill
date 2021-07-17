@@ -43,8 +43,7 @@ class CalendarManager(MycroftSkill):
                 return client                
             except:
                 self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
-                time.sleep(1) 
-
+                
 
     def get_calendars(self):
         principal = self.client.principal()
