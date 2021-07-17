@@ -35,9 +35,10 @@ class CalendarManager(MycroftSkill):
                 caldav_url = self.settings.get('ical_url')
                 username = self.settings.get('username')
                 password = self.settings.get('password')
-                client = caldav.DAVClient(url=caldav_url, username=username, password=password)
-                isNotLoggedIn = False
-                return client                
+                if caldav_url and username and password:
+                    client = caldav.DAVClient(url=caldav_url, username=username, password=password)
+                    isNotLoggedIn = False
+                    return client                
             except:
                 self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
                 time.sleep(10) 
