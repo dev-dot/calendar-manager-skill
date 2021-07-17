@@ -18,8 +18,6 @@ from tzlocal import get_localzone
 
 class CalendarManager(MycroftSkill):
 
-
-
     def __init__(self):
         super().__init__()
         self.current_calendar = None
@@ -38,9 +36,9 @@ class CalendarManager(MycroftSkill):
         if self.client is not None:
             try: 
                 self.current_calendar = self.get_calendars()[0]
-                self.speak("You are successfully connected to your calendar")
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") # TODO: add which calendar
             except:
-                self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
+                self.speak("A connection to your calendar is currently not possivle!")
         
     def get_client(self, caldav_url, username, password):
             try: 
@@ -50,7 +48,6 @@ class CalendarManager(MycroftSkill):
             except:
                 self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
                 
-
     def get_calendars(self):
         calendars = self.client.principal().calendars()
         return calendars
@@ -67,7 +64,8 @@ class CalendarManager(MycroftSkill):
        
         calendar_position = 0
         counter = 0
-        selection =  self.ask_selection(options=calendar_names, dialog='Choose your calendar by saying only the Number!', numeric= True)
+        self.speak('Choose from one of the following calendars by saying the number')
+        selection = self.ask_selection(options=calendar_names, numeric= True)
        
       
         for calendar in self.get_calendars():
@@ -75,12 +73,15 @@ class CalendarManager(MycroftSkill):
                 calendar_position = counter
             counter += 1
 
-        selected_calendar = self.get_calendars()[calendar_position]
+        if selection is not None:
+            selected_calendar = self.get_calendars()[calendar_position]
+            self.log.info(selected_calendar.name)
+            self.log.info(calendar_position)
+            self.speak(f"You chose {selected_calendar.name}")
+            self.current_calendar = selected_calendar
         
-        self.log.info(selected_calendar.name)
-        self.log.info(calendar_position)
-        self.speak(f"You chose {selected_calendar.name}")
-        self.current_calendar = selected_calendar
+        else:
+            self.speak(f"Canceled selection. Your current calendar is {self.current_calendar.name}")
        
 
     
@@ -213,9 +214,13 @@ class CalendarManager(MycroftSkill):
     def handle_next_appointment(self, message):
         
         calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
+
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
 
-        if (len(future_events) == 0):
+        if len(future_events) == 0:
             self.speak_dialog('no.appointments')
         else:
             self.log.info(future_events[0].instance.vevent)
@@ -241,6 +246,9 @@ class CalendarManager(MycroftSkill):
             start_date = extract_datetime(date)[0] 
             end_date = datetime.combine(start_date,start_date.max.time())
             calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
             events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
             spoken_date = nice_date(start_date)
             
@@ -283,10 +291,13 @@ class CalendarManager(MycroftSkill):
         number = extract_number(number_speak)
  
         calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
    
-        if (len(future_events) == 0):
+        if len(future_events) == 0:
             self.speak_dialog('no.appointments.number')
         else:
          
@@ -312,7 +323,7 @@ class CalendarManager(MycroftSkill):
 
 # Bonus "DELETE"
 
-
+'''
     @intent_file_handler('ask.delete.event.intent')
     def delete_events(self,message):
 
@@ -321,17 +332,65 @@ class CalendarManager(MycroftSkill):
         start_date = extract_datetime(date)[0] 
         end_date = datetime.combine(start_date,start_date.max.time())
         calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
         events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
         spoken_date = nice_date(start_date)
-        event_len = len(events)
+        
+        if len(events) == 0:
+            self.speak_dialog('no.appointments')
+        elif len(events) == 1:
+            next_event = events[0].instance.vevent
+            summary = next_event.summary.value
 
+            shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
+            if shall_be_deleted == 'yes':
+                # TODO: try deletion
+                self.speak_dialog('successfully deleted')
+                delete_specific_event(next_event)
+            elif shall_be_deleted == 'no':
+                self.speak_dialog('Canceled deletetion')
+            else:
+                self.speak_dialog('I could not understand you.') # TODO: is this really neccesary?
+            # ask if the user wants to delete a specific event
+        
+        else:
+            event_names = list()
+        
+            for event in events:
+                next_event = event.instance.vevent
+                summary = next_event.summary.value
 
+                event_names.append(next_event.summary.value)
+            
+            event_position = 0
+            counter = 0
+            self.speak_dialog('Which of the following events do you want to delete?')
+            selection = self.ask_selection(options=event_names, numeric= True)
+            
+            for event in events:
+                next_event = event.instance.vevent
+                summary = next_event.summary.value
 
+                if summary == selection:
+                    event_position = counter
+                counter += 1
 
+            if selection is not None:
+                selected_event = events[event_position]
+                self.speak(f"You chose {selected_event.name}")
+                # delete specific
+            
+            else:
+                self.speak(f"Cancled selection.")
 
-
-
-
+        def delete_specific_event(self, event):
+            try:
+                event.delete()
+            except:
+                self.speak('An error occured and thus selected event could not be deleted')
+'''
 
 
 
@@ -342,6 +401,7 @@ class CalendarManager(MycroftSkill):
         
         
         #TODO: LogIn Errorhandling -> done
+        #TODO: Errorhandling wenn keine Connection besteht
         #TODO: Bonusaufgaben 
         #TODO: Dokumentation
         #TODO: Code verschönern
