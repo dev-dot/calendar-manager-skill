@@ -22,9 +22,7 @@ class CalendarManager(MycroftSkill):
 
     def __init__(self):
         MycroftSkill.__init__(self)
-  
-        
-        self.current_calendar = self.get_calendars()[0]
+
       # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
 
@@ -37,9 +35,12 @@ class CalendarManager(MycroftSkill):
         self.username = self.settings.get('username')
         self.password = self.settings.get('password')
         self.client = self.get_credentials() 
-
+        self.current_calendar = self.get_calendars()[0]
+        
     def get_credentials(self):
         isNotLoggedIn = True
+
+
         while (isNotLoggedIn):
             try: 
               
