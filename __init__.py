@@ -252,11 +252,11 @@ class CalendarManager(MycroftSkill):
         if len(events)==0:
 
             self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-            next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz))[0].instance.vevent
+            next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(local_tz))
             if len(next_event) > 0:
                 
-                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                summary = next_event.summary.value
+                start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+                summary = next_event[0].instance.vevent.summary.value
                 self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
             
         elif len(events)>=1:
