@@ -238,12 +238,11 @@ class CalendarManager(MycroftSkill):
         date = message.data['date']
 
         try:
-            start_date = extract_datetime(date)[0] # fehler für thisweek
+            start_date = extract_datetime(date)[0] 
             end_date = datetime.combine(start_date,start_date.max.time())
             calendar = self.current_calendar
             events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
             spoken_date = nice_date(start_date)
-            event_len = len(events)
             
             if len(events)==0:
 
@@ -256,7 +255,7 @@ class CalendarManager(MycroftSkill):
                     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
                     
             elif len(events)>=1:
-                self.speak_dialog('yes.appointments.specific', {'number': event_len,'date':spoken_date})
+                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
                 for event in events:
                     next_event = event.instance.vevent
 
@@ -268,7 +267,7 @@ class CalendarManager(MycroftSkill):
 
                     summary = next_event.summary.value
 
-                    self.log.info("Appointments found: %s",event_len)
+                    self.log.info("Appointments found: %s",len(events))
 
                     self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
                 
@@ -308,6 +307,27 @@ class CalendarManager(MycroftSkill):
 
 
                 self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+
+
+
+# Bonus "DELETE"
+
+
+    @intent_file_handler('ask.delete.event.intent')
+    def delete_events(self,message):
+
+        date = message.data['date']
+       
+        start_date = extract_datetime(date)[0] 
+        end_date = datetime.combine(start_date,start_date.max.time())
+        calendar = self.current_calendar
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+        spoken_date = nice_date(start_date)
+        event_len = len(events)
+
+
+
+
 
 
 
