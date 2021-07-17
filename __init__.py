@@ -21,19 +21,20 @@ class CalendarManager(MycroftSkill):
 
 
     def __init__(self):
-        MycroftSkill.__init__(self)
+        super().__init__(self)
         self.current_calendar = None
       # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
 
-    def initialize(self):
+    def initialize(self): 
+        self.caldav_url = self.settings.get('ical_url')
+        self.username = self.settings.get('username')
+        self.password = self.settings.get('password')
         self.settings_change_callback = self.on_settings_changed
         self.on_settings_changed()
 
     def on_settings_changed(self):
-        caldav_url = self.settings.get('ical_url')
-        username = self.settings.get('username')
-        password = self.settings.get('password')
+      
         self.client = self.get_credentials(caldav_url, username, password) 
         if self.client is not None:
             self.current_calendar = self.get_calendars()[0]
