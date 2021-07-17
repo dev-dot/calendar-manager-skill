@@ -308,6 +308,7 @@ class CalendarManager(MycroftSkill):
 
             
             for i in range(number):
+                audio.wait_while_speaking()
                 self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
                 starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
@@ -318,7 +319,6 @@ class CalendarManager(MycroftSkill):
                 end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
 
                 self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
-                audio.wait_while_speaking()
 
 
 
