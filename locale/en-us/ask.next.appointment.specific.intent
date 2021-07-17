@@ -1,4 +1,4 @@
-Do I have an appointment {date}
-what are my appoinments  {date}
-Do I have an appointment at {date}
-what are my appoinments at {date}
+do I have any appointments {date}
+do I have an appointment {date}
+do I have an appointment at {date}
+do I have any appointments at {date}
