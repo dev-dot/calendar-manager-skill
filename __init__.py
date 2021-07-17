@@ -34,12 +34,14 @@ class CalendarManager(MycroftSkill):
         caldav_url = self.settings.get('ical_url')
         username = self.settings.get('username')
         password = self.settings.get('password')
-        self.client = self.get_credentials(caldav_url, username, password) 
+        self.client = self.get_client(caldav_url, username, password) 
         if self.client is not None:
-            self.current_calendar = self.get_calendars()[0]
-    
+            try: 
+                self.current_calendar = self.get_calendars()[0]
+            except:
+                self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
         
-    def get_credentials(self, caldav_url, username, password):
+    def get_client(self, caldav_url, username, password):
             try: 
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
                 return client                
@@ -48,8 +50,7 @@ class CalendarManager(MycroftSkill):
                 
 
     def get_calendars(self):
-        principal = self.client.principal()
-        calendars = principal.calendars()
+        calendars = self.client.principal().calendars()
         return calendars
 
     @intent_file_handler('ask.calendar.change.intent')
@@ -64,7 +65,7 @@ class CalendarManager(MycroftSkill):
        
         calendar_position = 0
         counter = 0
-        selection =  self.ask_selection(options=calendar_names, dialog='Choose your calendar. Say only the Number!', numeric= True)
+        selection =  self.ask_selection(options=calendar_names, dialog='Choose your calendar by saying only the Number!', numeric= True)
        
       
         for calendar in self.get_calendars():
