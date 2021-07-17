@@ -35,7 +35,9 @@ class CalendarManager(MycroftSkill):
         self.username = self.settings.get('username')
         self.password = self.settings.get('password')
         self.client = self.get_credentials() 
-        self.current_calendar = self.get_calendars()[0]
+        if self.client is not None:
+            self.current_calendar = self.get_calendars()[0]
+    
         
     def get_credentials(self):
             try: 
