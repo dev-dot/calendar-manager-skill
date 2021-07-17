@@ -305,8 +305,10 @@ class CalendarManager(MycroftSkill):
                 number = len(future_events)
             else:
                 self.speak("Your following events are")    
+
             
             for i in range(number):
+                self.wait_while_speaking()
                 self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
                 starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
