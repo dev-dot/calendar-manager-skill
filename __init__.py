@@ -301,10 +301,11 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments.number')
         else:
             if number > len(future_events):
-                self.speak(f"You have only {len(future_events)} upcoming events")
+                self.speak(f"You have only {len(future_events)} upcoming events and they are")
                 number = len(future_events)
-
-            self.speak("Your following events are")
+            else:
+                self.speak("Your following events are")    
+            
             for i in range(number):
                 self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
