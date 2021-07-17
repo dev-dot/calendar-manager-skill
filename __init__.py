@@ -23,25 +23,32 @@ class CalendarManager(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
   
-        self.client = self.get_credentials() 
+        
         self.current_calendar = self.get_calendars()[0]
       # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
+
+    def initialize(self):
+        self.settings_change_callback = self.on_settings_changed
+        self.on_settings_changed()
+
+    def on_settings_changed(self):
+        self.caldav_url = self.settings.get('ical_url')
+        self.username = self.settings.get('username')
+        self.password = self.settings.get('password')
+        self.client = self.get_credentials() 
 
     def get_credentials(self):
         isNotLoggedIn = True
         while (isNotLoggedIn):
             try: 
-                caldav_url = self.settings.get('ical_url')
-                username = self.settings.get('username')
-                password = self.settings.get('password')
-                if caldav_url and username and password:
-                    client = caldav.DAVClient(url=caldav_url, username=username, password=password)
-                    isNotLoggedIn = False
-                    return client                
+              
+                client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
+                isNotLoggedIn = False
+                return client                
             except:
                 self.speak("Wrong credentials! Please check you Password and Username and your ical url!")
-                time.sleep(10) 
+                time.sleep(1) 
 
 
     def get_calendars(self):
