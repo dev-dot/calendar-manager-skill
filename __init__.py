@@ -21,7 +21,7 @@ class CalendarManager(MycroftSkill):
 
 
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         self.current_calendar = None
       # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
