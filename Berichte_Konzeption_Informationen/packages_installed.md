@@ -1,3 +1,7 @@
+# Wichtige Packeges <br>
+* Die folgenden Packeges müssen auf dem Raspberry Pi installiert werden müssen
+
+
 ## Packages Installed
 ### lingua-franca 0.4.2
 * `pip install lingua-franca`

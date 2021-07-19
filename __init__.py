@@ -400,7 +400,11 @@ class CalendarManager(MycroftSkill):
         #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
         
-        
+
+
+        #TODO: Applikation Crasht bei einem ganztäglichen termin und zeigt das falsche Datum bei einem mehrtagigen termin
+                # Bei ganztägigen Terminen wird keine Timezone mitgegeben 
+                # Problem taucht beim end_date auf 
         #TODO: LogIn Errorhandling -> done
         #TODO: Errorhandling wenn keine Connection besteht
         #TODO: Bonusaufgaben 
