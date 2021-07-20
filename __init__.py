@@ -45,12 +45,10 @@ class CalendarManager(MycroftSkill):
         if self.client is not None:
             try:
                 self.current_calendar = self.get_calendars()[0]
-                self.speak(f"You are successfully connected to your calendar:\
-                {self.current_calendar.name}")
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}")
             except AuthorizationError as authorization_error:
                 self.log.error(authorization_error)
-                self.speak("A connection to your calendar is currently not possible!\
-                Check your crendentials!")
+                self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
             except Exception as exception:
                 self.log.error(exception)
                 self.speak("Unexpected error! Check Logs! Check URL!")
@@ -73,8 +71,7 @@ class CalendarManager(MycroftSkill):
             return client
         except Exception as exception:
             self.log.error(exception)
-            self.speak("Wrong credentials for calendar access! \
-            Please check your Password and Username and your ical url!")
+            self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
             return
 
 
@@ -106,18 +103,14 @@ class CalendarManager(MycroftSkill):
 
                 # for all day events
                 if not isinstance(event_start, datetime):
-                    event.instance.vevent.dtstart.value = \
-                    datetime.combine(event_start, datetime.min.time())
+                    event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
 
-                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= \
-                   start.astimezone(self.local_tz):
+                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz):
                     all_events.append(event)
             if end is not None:
                 all_events = [i for i in all_events if
-                 i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= \
-                 end.astimezone(self.local_tz)]
-            all_events.sort(key=lambda event: \
-            event.instance.vevent.dtstart.value.astimezone(self.local_tz))
+                  i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)]
+            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))
             return all_events
 
 
@@ -147,10 +140,8 @@ class CalendarManager(MycroftSkill):
             [type]: [description]
         """
         #vevent_date
-        date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, \
-             {vevent_date.strftime('%Y')}"
-        if with_time:
-            date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
+        date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
+        if with_time: date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
 
@@ -230,43 +221,32 @@ class CalendarManager(MycroftSkill):
         end_date = event.dtend.value
 
         title = self.get_event_title(event)
-        start_date_string = f"{self.get_ordinal_number(start_date.day)} of \
-             {event.dtstart.value.strftime('%B')}"
+        start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
 
         starttime = self.get_time_string(start_date)
         endtime = self.get_time_string(end_date)
 
         if starttime is not None and endtime is not None:
 
-            end_date_string = f"{self.get_ordinal_number(end_date.day)} of \
-                 {event.dtend.value.strftime('%B')}"
+            end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
 
             if start_date.day == end_date.day:
-                self.speak_dialog('yes.same.day.appointment.with.times', \
-                {'title': title, 'startdate': start_date_string, \
-                     'starttime': starttime, 'endtime':endtime})
+                self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
 
                 if is_handle_specific:
                     self.speak_dialog('specific.yes.same.day.appointment.with.times')
             else:
-                self.speak_dialog('yes.multiple.days.appointment.with.times', \
-                {'title': title, 'startdate': start_date_string,
-                 'starttime': starttime,
-                 'enddate':end_date_string,
-                 'endtime':endtime})
+                self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate': end_date_string, 'endtime' : endtime })
 
         else:
             # For all day events
-            start_date_string = f"{self.get_ordinal_number(start_date.day)} of \
-                {event.dtstart.value.strftime('%B')}"
+            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
 
-            amount_of_days = date(end_date.year, end_date.month, end_date.day) - \
-                date(start_date.year,start_date.month, start_date.day)
+            amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
 
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
-                self.speak_dialog('yes.appointment.same.day.all.day', \
-                     {'title': title,'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.same.day.all.day',{'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
                 self.speak_dialog('yes.appointment.all.day',
@@ -352,13 +332,10 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, \
-                     start= start_date.astimezone(self.local_tz))
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
                 if len(next_event) > 0:
 
-                    start_date_string = \
-                         f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)}\
-                    of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
 
                     summary = self.get_event_title(next_event[0].instance.vevent)
 
@@ -367,8 +344,7 @@ class CalendarManager(MycroftSkill):
 
 
             elif len(events)>=1:
-                self.speak_dialog('yes.appointments.specific', \
-                    {'number': len(events),'date':spoken_date})
+                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
                 for event in events:
                     next_event = event.instance.vevent
 
