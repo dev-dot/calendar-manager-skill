@@ -1,7 +1,5 @@
-
-
 from time import gmtime
-import time #FIXME: Yes for delete
+import time 
 from mycroft import MycroftSkill, intent_file_handler, audio
 
 from dateutil import relativedelta
@@ -15,8 +13,14 @@ from tzlocal import get_localzone
 from caldav.lib.error import AuthorizationError
 
 class CalendarManager(MycroftSkill):
+    """[summary]
 
+    Args:
+        MycroftSkill ([type]): [description]
+    """
     def __init__(self):
+        """[summary]
+        """
         super().__init__()
         self.current_calendar = None
       # self.local_tz = pytz.timezone('Europe/Berlin')
