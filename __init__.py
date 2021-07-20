@@ -24,11 +24,15 @@ class CalendarManager(MycroftSkill):
 
 
     def initialize(self): 
+        """[summary]
+        """
         self.settings_change_callback = self.on_settings_changed
         self.on_settings_changed()
 
 
     def on_settings_changed(self):
+        """[summary]
+        """
         caldav_url = self.settings.get('ical_url')
         username = self.settings.get('username')
         password = self.settings.get('password')
@@ -61,7 +65,16 @@ class CalendarManager(MycroftSkill):
 
 
     def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
-        
+        """[summary]
+
+        Args:
+            calendar (Calendar): [description]
+            start (datetime, optional): [description]. Defaults to None.
+            end (datetime, optional): [description]. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
         all_events = []
 
         if start is None:
@@ -86,6 +99,14 @@ class CalendarManager(MycroftSkill):
 
 
     def get_event_title(self, event):
+        """[summary]
+
+        Args:
+            event ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         try:
             return event.summary.value
         except:
@@ -93,6 +114,15 @@ class CalendarManager(MycroftSkill):
 
 
     def date_to_string(self, vevent_date: datetime, with_time: bool =True):
+        """[summary]
+
+        Args:
+            vevent_date (datetime): [description]
+            with_time (bool, optional): [description]. Defaults to True.
+
+        Returns:
+            [type]: [description]
+        """
         #vevent_date
         date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
         if with_time:
@@ -101,7 +131,15 @@ class CalendarManager(MycroftSkill):
 
 
     def get_time_string(self, vevent_date: datetime):
-       # vevent_date
+        """[summary]
+
+        Args:
+            vevent_date (datetime): [description]
+
+        Returns:
+            [type]: [description]
+        """
+     
         try:
             time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
             return time_string
@@ -110,6 +148,14 @@ class CalendarManager(MycroftSkill):
 
 
     def get_ordinal_number(self,i):
+        """[summary]
+
+        Args:
+            i ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         switcher={
             1: 'first',
             2: 'second',
@@ -152,6 +198,12 @@ class CalendarManager(MycroftSkill):
     # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
 
     def helper_speak_event(self, event, is_handle_specific = False):
+        """[summary]
+
+        Args:
+            event ([type]): [description]
+            is_handle_specific (bool, optional): [description]. Defaults to False.
+        """
         audio.wait_while_speaking()
 
         start_date = event.dtstart.value
@@ -177,7 +229,6 @@ class CalendarManager(MycroftSkill):
 
         else:
             # For all day events
-
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
 
             amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
@@ -192,11 +243,13 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.calendar.change.intent')
     def choose_calendar(self):
+        """[summary]
+        """
         calendar_names = list()
-        
+
         for calendar in self.get_calendars():
             calendar_names.append(calendar.name)
-        
+
         self.log.info(calendar_names)
 
         calendar_position = 0
@@ -230,20 +283,7 @@ class CalendarManager(MycroftSkill):
         
         start_date = datetime.now().astimezone()
 
-       # if start_is_specific is not None:
-       #     start_date=start_is_specific
-
-     #   self.log.info(start_date)
         future_events = self.get_all_events(calendar=calendar, start=start_date)
-
-        #if len(future_events) == 0 and start_is_specific is None:
-       #     self.speak_dialog('no.appointments')
-       # elif len(future_events) == 0 and start_is_specific is not None:
-       #     return
-       # else:
-         #   self.speak("Your next appointment is")
-        #    next_event = future_events[0].instance.vevent
-         #   self.helper_speak_event(next_event)
 
         if len(future_events) == 0:
             self.speak_dialog('no.appointments')
@@ -255,7 +295,11 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.specific.intent')
     def handle_ask_specific(self, message):
+        """[summary]
 
+        Args:
+            message ([type]): [description]
+        """
         date = message.data['date']
 
         try:
@@ -270,23 +314,16 @@ class CalendarManager(MycroftSkill):
             
             if len(events)==0:
 
-                #self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-
-               # self.handle_next_appointment(start_is_specific = start_date.astimezone(self.local_tz))
-
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
                 next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
                 if len(next_event) > 0:
                     
                     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-
                     
                     summary = self.get_event_title(next_event[0].instance.vevent)
 
-                  
-
                     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
-                    
+
 
             elif len(events)>=1:
                 self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
@@ -305,6 +342,11 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.number.intent')
     def handle_ask_number(self,message):
+        """[summary]
+
+        Args:
+            message ([type]): [description]
+        """
         number_speak = message.data['number']
         
         number = extract_number(number_speak)
