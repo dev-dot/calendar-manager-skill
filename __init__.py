@@ -42,7 +42,7 @@ class CalendarManager(MycroftSkill):
                 self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
             except Exception as exception:
                 self.log.error(exception)
-                self.speak("Unexpected error! Check Logs!")
+                self.speak("Unexpected error! Check Logs! Check URL!")
 
     def get_client(self, caldav_url, username, password):
             try: 
@@ -149,27 +149,48 @@ class CalendarManager(MycroftSkill):
     # -> 2 outputs for short events and for events over multiple days
     # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
     
-    def helper_speak_all_day_event(self, summary, startdate, enddate, starttime=None, endtime=None):
+    def helper_speak_event(self, event, is_handle_specific = False):
+        start_date = event.dtstart.value
+        end_date = event.dtend.value
+        self.log.info(start_date)
+        self.log.info(end_date)
+        title = self.get_event_title(event)
+        start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
+
+        try:
+            end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
+            # hier versuche die Zeit aufzulösen
+
+            # 1. am gleichen Tag mit times
+            # 2. multiple days -> with times -> 2. date fehlt
+            starttime = self.get_time_string(start_date) # TODO: check if there is a try in get_time_string
+            endtime = self.get_time_string(end_date)
+
+            if start_date.day == end_date.day:
+                self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
+
+                if is_handle_specific:
+                    self.speak_dialog('specific.yes.same.day.appointment.with.times')
+            else:
+                self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+
+        except:
         # 1. one whole day -> no times
         # 2. multiple days -> no times
-        # 3. multiple days -> with times -> 2. date fehlt 
-        if startdate == enddate and starttime is None and endtime is None:
-            # case one whole day & no times
-            return startdate
+            end_date_for_whole_day_events = end_date.day - 1 # has to be one day less, because caldav counts till the follwing day at 0 o'clock
+            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
+            # IDEE: anzahl der Tage sagen
+            
+            
+            amount_of_days = date(end_date_for_whole_day_events) - date(start_date)
 
-        elif startdate != enddate and starttime is None and endtime is None:
-            # case two multiple days with times
-            return startdate
-
-        elif startdate != enddate and starttime is not None and endtime is not None:
-            # case three multiple days with times
-            return starttime
-
-        # Appointment whole day without time 
-            self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
-
-        # Appointment whole day with time stamps
-        self.speak_dialog('yes.appointment.days.timestamp.dialog', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+            if amount_of_days.days == 0:
+                # case one whole day & no times
+                # TODO: add dialog
+                self.speak_dialog('yes.appointment.all.day.same.day.dialog', {'title': title, 'startdate': start_date_string})
+            else:
+                # case multiple days & no times
+                self.speak_dialog('yes.appointment.all.day.dialog', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
 
 
     @intent_file_handler('ask.calendar.change.intent')
@@ -203,7 +224,7 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, message):  
+    def handle_next_appointment(self):  
         
         calendar = self.current_calendar
         if calendar is None:
@@ -217,19 +238,11 @@ class CalendarManager(MycroftSkill):
         else:
             self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
-            starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-            endtime = self.get_time_string(next_event.dtend.value)
-            summary = self.get_event_title(next_event)
-
-            start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-            end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
-
-
-            self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+            self.helper_speak_event(next_event)
 
 
     @intent_file_handler('ask.next.appointment.specific.intent')
-    def handle_ask_specific(self,message):
+    def handle_ask_specific(self, message):
 
         date = message.data['date']
 
@@ -246,7 +259,7 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
                 if len(next_event) > 0:
                     
                     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
