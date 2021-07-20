@@ -221,18 +221,19 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, start_is_specific=None):
+    def handle_next_appointment(self, start_is_specific: datetime = None):
         
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
         
-        start_date=datetime.now().astimezone()
+        start_date = datetime.now().astimezone()
 
         if start_is_specific is not None:
             start_date=start_is_specific
 
+        self.log.info(start_date)
         future_events = self.get_all_events(calendar=calendar, start=start_date)
 
         if len(future_events) == 0 and start_is_specific is None:
@@ -264,7 +265,7 @@ class CalendarManager(MycroftSkill):
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
 
-                self.handle_next_appointment(start_date.astimezone(self.local_tz))
+                self.handle_next_appointment(start_is_specific = start_date.astimezone(self.local_tz))
                     
             elif len(events)>=1:
                 self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
