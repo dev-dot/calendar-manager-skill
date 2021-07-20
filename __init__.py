@@ -177,12 +177,12 @@ class CalendarManager(MycroftSkill):
         except:
         # 1. one whole day -> no times
         # 2. multiple days -> no times
-            end_date_for_whole_day_events = end_date.day - 1 # has to be one day less, because caldav counts till the follwing day at 0 o'clock
+
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
             # IDEE: anzahl der Tage sagen
             
             
-            amount_of_days = date(end_date_for_whole_day_events) - date(start_date)
+            amount_of_days = date(end_date) - date(start_date) - 1   # has to be one day less, because caldav counts till the follwing day at 0 o'clock
 
             if amount_of_days.days == 0:
                 # case one whole day & no times
