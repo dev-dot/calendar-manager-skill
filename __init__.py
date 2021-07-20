@@ -184,7 +184,7 @@ class CalendarManager(MycroftSkill):
 
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
-                self.speak_dialog('yes.appointment.all.day.same.day',{'title': title,'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.same.day.all.day', {'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
                 self.speak_dialog('yes.appointment.all.day', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
@@ -259,14 +259,6 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                # next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
-                # if len(next_event) > 0:
-                    
-                #     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-                    
-                #     summary = self.get_event_title(next_event[0].instance.vevent)
-
-                #     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
 
                 self.handle_next_appointment(start_date.astimezone(self.local_tz), True)
                     
