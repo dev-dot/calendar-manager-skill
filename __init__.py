@@ -179,12 +179,10 @@ class CalendarManager(MycroftSkill):
         # 2. multiple days -> no times
 
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
-            # IDEE: anzahl der Tage sagen
-            
-            
-            amount_of_days = date(end_date) - date(start_date) - 1   # has to be one day less, because caldav counts till the follwing day at 0 o'clock
 
-            if amount_of_days.days == 0:
+            amount_of_days = date(end_date) - date(start_date)
+
+            if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
                 # TODO: add dialog
                 self.speak_dialog('yes.appointment.all.day.same.day.dialog', {'title': title, 'startdate': start_date_string})
