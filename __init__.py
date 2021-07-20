@@ -1,9 +1,10 @@
 from time import gmtime
 import time
+from datetime import date, datetime, timedelta, tzinfo
 from mycroft import MycroftSkill, intent_file_handler, audio
 
 from dateutil import relativedelta
-from datetime import date, datetime, timedelta, tzinfo
+
 import caldav
 from caldav.objects import Calendar
 import pytz
@@ -74,6 +75,7 @@ class CalendarManager(MycroftSkill):
             self.log.error(exception)
             self.speak("Wrong credentials for calendar access! \
                  Please check your Password and Username and your ical url!")
+            return
 
 
     def get_calendars(self):
@@ -119,7 +121,7 @@ class CalendarManager(MycroftSkill):
             return all_events
 
 
-    def get_event_title(self, event):
+    def get_event_title(event):
         """[summary]
 
         Args:
@@ -134,7 +136,7 @@ class CalendarManager(MycroftSkill):
             return "without a title"
 
 
-    def date_to_string(self, vevent_date: datetime, with_time: bool =True):
+    def date_to_string(vevent_date: datetime, with_time: bool =True):
         """[summary]
 
         Args:
@@ -169,7 +171,7 @@ class CalendarManager(MycroftSkill):
             return None
 
 
-    def get_ordinal_number(self,i):
+    def get_ordinal_number(i):
         """[summary]
 
         Args:
@@ -307,7 +309,8 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self):
-
+        """[summary]
+        """
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
