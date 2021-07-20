@@ -8,13 +8,10 @@ from dateutil import relativedelta
 from datetime import date, datetime, timedelta, tzinfo
 import caldav
 from caldav.objects import Calendar
-import icalendar 
 import pytz 
 from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
 from tzlocal import get_localzone
-
-
 
 class CalendarManager(MycroftSkill):
 
@@ -24,9 +21,11 @@ class CalendarManager(MycroftSkill):
       # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone() 
 
+
     def initialize(self): 
         self.settings_change_callback = self.on_settings_changed
         self.on_settings_changed()
+
 
     def on_settings_changed(self):
         caldav_url = self.settings.get('ical_url')
@@ -39,7 +38,8 @@ class CalendarManager(MycroftSkill):
                 self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") # TODO: add which calendar
             except:
                 self.speak("A connection to your calendar is currently not possible!")
-        
+
+
     def get_client(self, caldav_url, username, password):
             try: 
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
@@ -47,49 +47,11 @@ class CalendarManager(MycroftSkill):
                 return client                
             except:
                 self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
-                
+
+
     def get_calendars(self):
         calendars = self.client.principal().calendars()
         return calendars
-
-    @intent_file_handler('ask.calendar.change.intent')
-    def choose_calendar(self):
-        calendar_names = list()
-        
-        for calendar in self.get_calendars():
-            calendar_names.append(calendar.name)
-        
-        self.log.info(calendar_names)
-
-       
-        calendar_position = 0
-        counter = 0
-        self.speak('Choose from one of the following calendars by saying the number')
-        selection = self.ask_selection(options=calendar_names, numeric= True)
-       
-      
-        for calendar in self.get_calendars():
-            if calendar.name == selection:
-                calendar_position = counter
-            counter += 1
-
-        if selection is not None:
-            selected_calendar = self.get_calendars()[calendar_position]
-            self.log.info(selected_calendar.name)
-            self.log.info(calendar_position)
-            self.speak(f"You chose {selected_calendar.name}")
-            self.current_calendar = selected_calendar
-        
-        else:
-            self.speak(f"Canceled selection. Your current calendar is {self.current_calendar.name}")
-       
-
-    
-
-
-    def get_event_data_string(self, event):
-        starttime = event.instance.vevent.dtstart.value
-        self.log.info(starttime)
 
 
     def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
@@ -100,7 +62,6 @@ class CalendarManager(MycroftSkill):
             return calendar.events()
         else:
             event_date = calendar.date_search(start=start, end=end)
-
 
             for event in event_date:
                 event_start = event.instance.vevent.dtstart.value
@@ -118,29 +79,11 @@ class CalendarManager(MycroftSkill):
             return all_events
 
 
-
-        
-
-    def get_event_details(self, event):
-        title = "untitled event"
-        if "SUMMARY" in event.keys():
-            title = str(event["SUMMARY"])
-
-     
-
-        return {"title": title}
-
-    def parse_ics_events(self, events):
-        
-        parsed_events = []
-        for event in events:
-            cal = icalendar.Calendar.from_ical(event.data, True)
-            url = event.url
-            for vevent in cal[0].walk("vevent"):
-                event_details = self.get_event_details(vevent)
-                event_details["event_url"] = url
-                parsed_events.append(event_details)
-        return parsed_events
+    def get_event_title(self, event):
+        try:
+            return event.summary.value
+        except:
+            return "without a title"
 
 
     def date_to_string(self, vevent_date: datetime, with_time: bool =True):
@@ -150,29 +93,13 @@ class CalendarManager(MycroftSkill):
             date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
         return date_string
 
+
     def get_time_string(self, vevent_date: datetime, with_time: bool = True):
        # vevent_date
         time_string = f" {vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
         self.log.info(time_string)
         return time_string
 
-
-    def parse_weekday(self,i):
-        switcher={
-                'monday'    : 0,
-                'tuesday'   : 1,
-                'wednesday' : 2,
-                'thurday'   : 3,
-                'friday'    : 4,
-                'saturday'  : 5,
-                'sunday'    : 6
-            }
-        return switcher.get(i,"Invalid day of week")
-
-    def search_date_from_weekday(self, weekday_int):
-        today = date.today()
-        next_date = today + relativedelta.relativedelta(weekday= weekday_int)
-        return next_date
 
     def get_ordinal_number(self,i):
         switcher={
@@ -210,8 +137,56 @@ class CalendarManager(MycroftSkill):
             }
         return switcher.get(i,"Invalid day of the month")
 
+
+    # TODO: if the event is over multiple days the output is wrong -> only the start date and the start time are correct
+    # the end date is missing and the end time is correct but it seems at it is on the same day as the start date
+    # -> 2 outputs for short events and for events over multiple days
+    # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
+    
+    def helper_speak_all_day_event(self, summary, startdate, enddate, starttime, endtime):
+        # 1. one whole day -> no times
+        # 2. multiple days -> no times
+        # 3. multiple days -> with times
+    
+        # Appointment whole day without time 
+        self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
+
+        # Appointment whole day with time stamps
+        self.speak_dialog('yes.appointment.days.timestamp.dialog', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+
+
+    @intent_file_handler('ask.calendar.change.intent')
+    def choose_calendar(self):
+        calendar_names = list()
+        
+        for calendar in self.get_calendars():
+            calendar_names.append(calendar.name)
+        
+        self.log.info(calendar_names)
+
+        calendar_position = 0
+        counter = 0
+        self.speak('Choose from one of the following calendars by saying the number')
+        selection = self.ask_selection(options=calendar_names, numeric= True)       
+      
+        for calendar in self.get_calendars():
+            if calendar.name == selection:
+                calendar_position = counter
+            counter += 1
+
+        if selection is not None:
+            selected_calendar = self.get_calendars()[calendar_position]
+            self.log.info(selected_calendar.name)
+            self.log.info(calendar_position)
+            self.speak(f"You chose {selected_calendar.name}")
+            self.current_calendar = selected_calendar
+        
+        else:
+            self.speak(f"Canceled selection. Your current calendar is {self.current_calendar.name}")
+
+
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, message):
+    def handle_next_appointment(self, message):  
         
         calendar = self.current_calendar
         if calendar is None:
@@ -227,29 +202,13 @@ class CalendarManager(MycroftSkill):
             next_event = future_events[0].instance.vevent
             starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
             endtime = self.get_time_string(next_event.dtend.value)
-            summary = next_event.summary.value
+            summary = self.get_event_title(next_event)
 
             start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
             end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
 
 
             self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
-
-
-    # TODO: if the event is over multiple days the output is wrong -> only the start date and the start time are correct
-    # the end date is missing and the end time is correct but it seems at it is on the same day as the start date
-    # -> 2 outputs for short events and for events over multiple days
-    # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
-    def helper_speak_all_day_event(self):
-        # 1. one whole day -> no times
-        # 2. multiple days -> no times
-        # 3. multiple days -> with times
-    
-        # Appointment whole day without time 
-        self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
-
-        # Appointment whole day with time stamps
-        self.speak_dialog('yes.appointment.days.timestamp.dialog', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
 
     @intent_file_handler('ask.next.appointment.specific.intent')
@@ -274,7 +233,8 @@ class CalendarManager(MycroftSkill):
                 if len(next_event) > 0:
                     
                     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-                    summary = next_event[0].instance.vevent.summary.value
+                   
+                    summary = self.get_event_title(next_event[0].instance.vevent)
                     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
                     
             elif len(events)>=1:
@@ -288,7 +248,7 @@ class CalendarManager(MycroftSkill):
 
                     self.log.info(next_event.dtstart.value)
 
-                    summary = next_event.summary.value
+                    summary = self.get_event_title(next_event)
 
                     self.log.info("Appointments found: %s",len(events))
 
@@ -296,9 +256,8 @@ class CalendarManager(MycroftSkill):
                 
         except:
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        
 
-    
+
     @intent_file_handler('ask.next.number.intent')
     def handle_ask_number(self,message):
         number_speak = message.data['number']
@@ -320,16 +279,14 @@ class CalendarManager(MycroftSkill):
                 number = len(future_events)
             else:
                 self.speak("Your following events are")    
-
-            
+        
             for i in range(number):
                 audio.wait_while_speaking()
                 self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
                 starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
                 endtime = self.get_time_string(next_event.dtend.value)
-                summary = next_event.summary.value
-
+                summary = self.get_event_title(next_event)
                 start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
                 end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
 
@@ -358,7 +315,7 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments')
         elif len(events) == 1:
             next_event = events[0].instance.vevent
-            summary = next_event.summary.value
+            summary = self.get_event_title(next_event
 
             shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
             if shall_be_deleted == 'yes':
@@ -376,9 +333,9 @@ class CalendarManager(MycroftSkill):
         
             for event in events:
                 next_event = event.instance.vevent
-                summary = next_event.summary.value
+                summary = self.get_event_title(next_event)
 
-                event_names.append(next_event.summary.value)
+                event_names.append(summary)
             
             event_position = 0
             counter = 0
@@ -387,7 +344,7 @@ class CalendarManager(MycroftSkill):
             
             for event in events:
                 next_event = event.instance.vevent
-                summary = next_event.summary.value
+                summary = self.get_event_title(next_event)
 
                 if summary == selection:
                     event_position = counter
@@ -408,27 +365,17 @@ class CalendarManager(MycroftSkill):
                 self.speak('An error occured and thus selected event could not be deleted')
 '''
 
-
-
-        #TODO: Timezone - Events die Zurück kommen haben nicht die richtige Zeitzone | Die events die wir bekommen schon  Prio 3 -> DONE
-        #TODO: Specific Date - Haben wir "morgen" ein Termin | "day after tomorrow" | Abfrage nach Datum  Prio 1 -> Done "Do i have an appointment on July first "
-        #TODO: Bewusste Anzahl an Terminenen ausrufen - Prio 2
         #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
-        
-
-
+        #TODO: handle if summary is empty -> summary key is missing
+        #TODO: Dokumentation
         #TODO: Applikation Crasht bei einem ganztäglichen termin und zeigt das falsche Datum bei einem mehrtagigen termin
                 # Bei ganztägigen Terminen wird keine Timezone mitgegeben -> es gibt für DTSTART keine Uhrzeit in ms sondern ein datum 
                 # Problem taucht beim end_date auf -> das Enddate bei mehrtägigen Terminen ist das selbe im Output wie das Startdate, lediglich die endtime ist richtig
-        #TODO: LogIn Errorhandling -> done
-        #TODO: Errorhandling wenn keine Connection besteht
-        #TODO: Bonusaufgaben 
-        #TODO: Dokumentation
+        #TODO: Errorhandling
         #TODO: Code verschönern
         #TODO: Code nach richtline Kommentieren 
 
-
-            
+        #TODO: Bonusaufgaben             
 
 
 def create_skill():
