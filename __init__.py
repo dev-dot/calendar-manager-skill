@@ -303,6 +303,7 @@ class CalendarManager(MycroftSkill):
         if len(future_events) == 0:
             self.speak_dialog('no.appointments')
         else:
+            self.speak('Your next event is')
             self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             self.helper_speak_event(next_event)
