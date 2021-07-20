@@ -185,7 +185,7 @@ class CalendarManager(MycroftSkill):
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
                 # TODO: add dialog
-                self.speak_dialog('yes.appointment.all.day.same.day',{'title': title,'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.all.day.same.day.dialog',{'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
                 self.speak_dialog('yes.appointment.all.day', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
