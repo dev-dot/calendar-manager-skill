@@ -95,3 +95,5 @@ Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und könn
 ## Probleme 
 
 ## Weiteres
+
+## Screenshot Pylint
