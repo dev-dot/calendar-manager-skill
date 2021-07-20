@@ -100,10 +100,13 @@ class CalendarManager(MycroftSkill):
         return date_string
 
 
-    def get_time_string(self, vevent_date: datetime, with_time: bool = True):
+    def get_time_string(self, vevent_date: datetime):
        # vevent_date
-        time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
-        return time_string
+        try:
+            time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
+            return time_string
+        except:
+            return None
 
 
     def get_ordinal_number(self,i):
@@ -155,14 +158,16 @@ class CalendarManager(MycroftSkill):
         title = self.get_event_title(event)
         start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
 
-        try:
+        starttime = self.get_time_string(start_date)
+        endtime = self.get_time_string(end_date)
+
+        if starttime is not None and endtime is not None:
+        
             end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
             # hier versuche die Zeit aufzulösen
 
             # 1. am gleichen Tag mit times
             # 2. multiple days -> with times -> 2. date fehlt
-            starttime = self.get_time_string(start_date) # TODO: check if there is a try in get_time_string
-            endtime = self.get_time_string(end_date)
 
             if start_date.day == end_date.day:
                 self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
@@ -172,10 +177,8 @@ class CalendarManager(MycroftSkill):
             else:
                 self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
-        except:
+        else:
             # For all day events
-        # 1. one whole day -> no times
-        # 2. multiple days -> no times
 
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
 
@@ -184,7 +187,6 @@ class CalendarManager(MycroftSkill):
 
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
-                # TODO: add dialog
                 self.speak_dialog('yes.appointment.all.day.same.day.dialog',{'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
