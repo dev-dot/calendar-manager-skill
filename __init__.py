@@ -230,11 +230,26 @@ class CalendarManager(MycroftSkill):
             summary = next_event.summary.value
 
             start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-            end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+            end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
 
 
             self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
+
+    # TODO: if the event is over multiple days the output is wrong -> only the start date and the start time are correct
+    # the end date is missing and the end time is correct but it seems at it is on the same day as the start date
+    # -> 2 outputs for short events and for events over multiple days
+    # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
+    def helper_speak_all_day_event(self):
+        # 1. one whole day -> no times
+        # 2. multiple days -> no times
+        # 3. multiple days -> with times
+    
+        # Appointment whole day without time 
+        self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
+
+        # Appointment whole day with time stamps
+        self.speak_dialog('yes.appointment.days.timestamp.dialog', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
 
     @intent_file_handler('ask.next.appointment.specific.intent')
@@ -316,7 +331,7 @@ class CalendarManager(MycroftSkill):
                 summary = next_event.summary.value
 
                 start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
 
                 self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
@@ -403,8 +418,8 @@ class CalendarManager(MycroftSkill):
 
 
         #TODO: Applikation Crasht bei einem ganztäglichen termin und zeigt das falsche Datum bei einem mehrtagigen termin
-                # Bei ganztägigen Terminen wird keine Timezone mitgegeben 
-                # Problem taucht beim end_date auf 
+                # Bei ganztägigen Terminen wird keine Timezone mitgegeben -> es gibt für DTSTART keine Uhrzeit in ms sondern ein datum 
+                # Problem taucht beim end_date auf -> das Enddate bei mehrtägigen Terminen ist das selbe im Output wie das Startdate, lediglich die endtime ist richtig
         #TODO: LogIn Errorhandling -> done
         #TODO: Errorhandling wenn keine Connection besteht
         #TODO: Bonusaufgaben 
