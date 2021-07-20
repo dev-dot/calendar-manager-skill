@@ -221,7 +221,7 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, start_is_specific: datetime = None):
+    def handle_next_appointment(self):
         
         calendar = self.current_calendar
         if calendar is None:
@@ -230,18 +230,25 @@ class CalendarManager(MycroftSkill):
         
         start_date = datetime.now().astimezone()
 
-        if start_is_specific is not None:
-            start_date=start_is_specific
+       # if start_is_specific is not None:
+       #     start_date=start_is_specific
 
-        self.log.info(start_date)
+     #   self.log.info(start_date)
         future_events = self.get_all_events(calendar=calendar, start=start_date)
 
-        if len(future_events) == 0 and start_is_specific is None:
+        #if len(future_events) == 0 and start_is_specific is None:
+       #     self.speak_dialog('no.appointments')
+       # elif len(future_events) == 0 and start_is_specific is not None:
+       #     return
+       # else:
+         #   self.speak("Your next appointment is")
+        #    next_event = future_events[0].instance.vevent
+         #   self.helper_speak_event(next_event)
+
+        if len(future_events) == 0:
             self.speak_dialog('no.appointments')
-        elif len(future_events) == 0 and start_is_specific is not None:
-            return
         else:
-            self.speak("Your next appointment is")
+            self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             self.helper_speak_event(next_event)
 
@@ -263,10 +270,24 @@ class CalendarManager(MycroftSkill):
             
             if len(events)==0:
 
-                self.speak_dialog('no.appointments.specific', {'date':spoken_date})
+                #self.speak_dialog('no.appointments.specific', {'date':spoken_date})
 
-                self.handle_next_appointment(start_is_specific = start_date.astimezone(self.local_tz))
+               # self.handle_next_appointment(start_is_specific = start_date.astimezone(self.local_tz))
+
+                self.speak_dialog('no.appointments.specific', {'date':spoken_date})
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
+                if len(next_event) > 0:
                     
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+
+                    
+                    summary = self.get_event_title(next_event[0].instance.vevent)
+
+                  
+
+                    self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
+                    
+
             elif len(events)>=1:
                 self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
                 for event in events:
