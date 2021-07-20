@@ -228,7 +228,7 @@ class CalendarManager(MycroftSkill):
             self.speak('No calendar accessible')
             return
         self.log.info(start_date)
-        future_events = self.get_all_events(calendar=calendar, start_date=start_date)
+        future_events = self.get_all_events(calendar=calendar, start=start_date)
 
         if len(future_events) == 0 and is_ask_specific == False:
             self.speak_dialog('no.appointments')
