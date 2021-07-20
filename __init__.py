@@ -12,6 +12,7 @@ import pytz
 from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
 from tzlocal import get_localzone
+from caldav.lib.error import AuthorizationError
 
 class CalendarManager(MycroftSkill):
 
@@ -35,18 +36,25 @@ class CalendarManager(MycroftSkill):
         if self.client is not None:
             try: 
                 self.current_calendar = self.get_calendars()[0]
-                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") # TODO: add which calendar
-            except:
-                self.speak("A connection to your calendar is currently not possible!")
-
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") 
+            except AuthorizationError as authorizationError:
+                self.log.error(authorizationError)
+                self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
+            except Exception as exception:
+                self.log.error(exception)
+                self.speak("Unexpected error! Check Logs!")
 
     def get_client(self, caldav_url, username, password):
             try: 
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
 
                 return client                
-            except:
+            except AuthorizationError as authorizationError:
+                self.log.error(authorizationError)
                 self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
+            except Exception as exception:
+                self.log.error(exception)
+                self.speak("Unexpected error! Check Logs!")
 
 
     def get_calendars(self):
@@ -143,13 +151,24 @@ class CalendarManager(MycroftSkill):
     # -> 2 outputs for short events and for events over multiple days
     # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
     
-    def helper_speak_all_day_event(self, summary, startdate, enddate, starttime, endtime):
+    def helper_speak_all_day_event(self, summary, startdate, enddate, starttime=None, endtime=None):
         # 1. one whole day -> no times
         # 2. multiple days -> no times
-        # 3. multiple days -> with times
-    
+        # 3. multiple days -> with times -> 2. date fehlt 
+        if startdate == enddate and starttime is None and endtime is None:
+            # case one whole day & no times
+            return startdate
+
+        elif startdate != enddate and starttime is None and endtime is None:
+            # case two multiple days with times
+            return startdate
+
+        elif startdate != enddate and starttime is not None and endtime is not None:
+            # case three multiple days with times
+            return starttime
+
         # Appointment whole day without time 
-        self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
+            self.speak_dialog('yes.appointment.all.day.dialog', {'title': summary, 'startdate': start_date_string, 'enddate': end_date_string})
 
         # Appointment whole day with time stamps
         self.speak_dialog('yes.appointment.days.timestamp.dialog', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
@@ -167,7 +186,7 @@ class CalendarManager(MycroftSkill):
         calendar_position = 0
         counter = 0
         self.speak('Choose from one of the following calendars by saying the number')
-        selection = self.ask_selection(options=calendar_names, numeric= True)       
+        selection = self.ask_selection(options=calendar_names, numeric=True)       
       
         for calendar in self.get_calendars():
             if calendar.name == selection:
@@ -254,8 +273,12 @@ class CalendarManager(MycroftSkill):
 
                     self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
                 
-        except:
+        except TypeError as typeError:
+            self.log.error(typeError)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")  
 
 
     @intent_file_handler('ask.next.number.intent')
