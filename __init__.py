@@ -60,14 +60,14 @@ class CalendarManager(MycroftSkill):
         return calendars
 
 
-    def get_all_events(self, calendar: Calendar, start_date: datetime = None, end_date: datetime = None):
+    def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
         
         all_events = []
 
-        if start_date is None:
+        if start is None:
             return calendar.events()
         else:
-            event_date = calendar.date_search(start=start_date, end=end_date)
+            event_date = calendar.date_search(start=start, end=end)
 
             for event in event_date:
                 event_start = event.instance.vevent.dtstart.value
@@ -76,11 +76,11 @@ class CalendarManager(MycroftSkill):
                 if not isinstance(event_start, datetime):
                     event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
 
-                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start_date.astimezone(self.local_tz):
+                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz):
                     all_events.append(event)
-            if end_date is not None:
+            if end is not None:
                 all_events = [i for i in all_events if
-                 i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end_date.astimezone(self.local_tz)]
+                 i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)]
             all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))
             return all_events
 
@@ -221,18 +221,23 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, start_date=datetime.now().astimezone(), is_ask_specific=False):  
+    def handle_next_appointment(self, start_is_specific=None):  
         
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
-        self.log.info(start_date)
+        
+        if start_is_specific is not None:
+            start_date=start_is_specific
+        else:
+            start_date=datetime.now().astimezone()
+
         future_events = self.get_all_events(calendar=calendar, start=start_date)
 
-        if len(future_events) == 0 and is_ask_specific == False:
+        if len(future_events) == 0 and start_is_specific is None:
             self.speak_dialog('no.appointments')
-        elif len(future_events) == 0 and is_ask_specific == True:
+        elif len(future_events) == 0 and start_is_specific is not None:
             return
         else:
             self.speak("Your next appointment is")
@@ -252,14 +257,14 @@ class CalendarManager(MycroftSkill):
             if calendar is None:
                 self.speak('No calendar accessible')
                 return
-            events = self.get_all_events(calendar= calendar, start_date= start_date.astimezone(self.local_tz), end_date= end_date.astimezone(self.local_tz))
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
             spoken_date = nice_date(start_date)
             
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
 
-                self.handle_next_appointment(start_date.astimezone(self.local_tz), True)
+                self.handle_next_appointment(start_date.astimezone(self.local_tz))
                     
             elif len(events)>=1:
                 self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
@@ -287,7 +292,7 @@ class CalendarManager(MycroftSkill):
             self.speak('No calendar accessible')
             return
 
-        future_events = self.get_all_events(calendar=calendar, start_date=datetime.now().astimezone())
+        future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
    
         if len(future_events) == 0:
             self.speak_dialog('no.appointments.number')
