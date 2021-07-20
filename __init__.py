@@ -46,11 +46,11 @@ class CalendarManager(MycroftSkill):
             try:
                 self.current_calendar = self.get_calendars()[0]
                 self.speak(f"You are successfully connected to your calendar:\
-                    {self.current_calendar.name}")
+                {self.current_calendar.name}")
             except AuthorizationError as authorization_error:
                 self.log.error(authorization_error)
                 self.speak("A connection to your calendar is currently not possible!\
-                  Check your crendentials!")
+                Check your crendentials!")
             except Exception as exception:
                 self.log.error(exception)
                 self.speak("Unexpected error! Check Logs! Check URL!")
@@ -74,7 +74,7 @@ class CalendarManager(MycroftSkill):
         except Exception as exception:
             self.log.error(exception)
             self.speak("Wrong credentials for calendar access! \
-                 Please check your Password and Username and your ical url!")
+            Please check your Password and Username and your ical url!")
             return
 
 
@@ -121,7 +121,7 @@ class CalendarManager(MycroftSkill):
             return all_events
 
 
-    def get_event_title(event):
+    def get_event_title(self,event):
         """[summary]
 
         Args:
@@ -136,7 +136,7 @@ class CalendarManager(MycroftSkill):
             return "without a title"
 
 
-    def date_to_string(vevent_date: datetime, with_time: bool =True):
+    def date_to_string(self,vevent_date: datetime, with_time: bool =True):
         """[summary]
 
         Args:
@@ -171,7 +171,7 @@ class CalendarManager(MycroftSkill):
             return None
 
 
-    def get_ordinal_number(i):
+    def get_ordinal_number(self,i):
         """[summary]
 
         Args:
