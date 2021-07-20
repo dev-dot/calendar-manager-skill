@@ -44,6 +44,7 @@ class CalendarManager(MycroftSkill):
                 self.log.error(exception)
                 self.speak("Unexpected error! Check Logs! Check URL!")
 
+
     def get_client(self, caldav_url, username, password):
             try: 
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
@@ -52,7 +53,6 @@ class CalendarManager(MycroftSkill):
             except Exception as exception:
                 self.log.error(exception)
                 self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
-         
 
 
     def get_calendars(self):
@@ -150,7 +150,7 @@ class CalendarManager(MycroftSkill):
     # the end date is missing and the end time is correct but it seems at it is on the same day as the start date
     # -> 2 outputs for short events and for events over multiple days
     # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
-    
+
     def helper_speak_event(self, event, is_handle_specific = False):
         audio.wait_while_speaking()
 
@@ -300,20 +300,9 @@ class CalendarManager(MycroftSkill):
                 self.speak("Your following events are")    
         
             for i in range(number):
-                # audio.wait_while_speaking()
-                # self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
 
                 self.helper_speak_event(next_event)
-                # starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                # endtime = self.get_time_string(next_event.dtend.value)
-                # summary = self.get_event_title(next_event)
-                # start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                # end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
-
-                # self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
-
-
 
 # Bonus "DELETE"
 
