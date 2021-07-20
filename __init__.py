@@ -102,8 +102,7 @@ class CalendarManager(MycroftSkill):
 
     def get_time_string(self, vevent_date: datetime, with_time: bool = True):
        # vevent_date
-        time_string = f" {vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
-        self.log.info(time_string)
+        time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
         return time_string
 
 
@@ -152,8 +151,7 @@ class CalendarManager(MycroftSkill):
     def helper_speak_event(self, event, is_handle_specific = False):
         start_date = event.dtstart.value
         end_date = event.dtend.value
-        self.log.info(start_date)
-        self.log.info(end_date)
+
         title = self.get_event_title(event)
         start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
 
@@ -175,20 +173,22 @@ class CalendarManager(MycroftSkill):
                 self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
         except:
+            # For all day events
         # 1. one whole day -> no times
         # 2. multiple days -> no times
 
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
 
-            amount_of_days = date(end_date) - date(start_date)
+
+            amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
 
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
                 # TODO: add dialog
-                self.speak_dialog('yes.appointment.all.day.same.day.dialog', {'title': title, 'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.all.day.same.day',{'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
-                self.speak_dialog('yes.appointment.all.day.dialog', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
+                self.speak_dialog('yes.appointment.all.day', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
 
 
     @intent_file_handler('ask.calendar.change.intent')
