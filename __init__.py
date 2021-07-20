@@ -49,12 +49,10 @@ class CalendarManager(MycroftSkill):
                 client = caldav.DAVClient(url=caldav_url, username=username, password=password)
 
                 return client                
-            except AuthorizationError as authorizationError:
-                self.log.error(authorizationError)
-                self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
             except Exception as exception:
                 self.log.error(exception)
-                self.speak("Unexpected error! Check Logs!")
+                self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
+         
 
 
     def get_calendars(self):
