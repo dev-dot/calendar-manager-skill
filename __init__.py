@@ -164,10 +164,6 @@ class CalendarManager(MycroftSkill):
         if starttime is not None and endtime is not None:
         
             end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
-            # hier versuche die Zeit aufzulösen
-
-            # 1. am gleichen Tag mit times
-            # 2. multiple days -> with times -> 2. date fehlt
 
             if start_date.day == end_date.day:
                 self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
@@ -263,8 +259,12 @@ class CalendarManager(MycroftSkill):
                 if len(next_event) > 0:
                     
                     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-                   
+
+                    
                     summary = self.get_event_title(next_event[0].instance.vevent)
+
+                  
+
                     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
                     
             elif len(events)>=1:
@@ -272,17 +272,19 @@ class CalendarManager(MycroftSkill):
                 for event in events:
                     next_event = event.instance.vevent
 
-                    start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                    end = self.get_time_string(next_event.dtend.value)
-                    self.log.info(start)
+                    # start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                    # end = self.get_time_string(next_event.dtend.value)
+                    # self.log.info(start)
 
-                    self.log.info(next_event.dtstart.value)
+                    # self.log.info(next_event.dtstart.value)
 
-                    summary = self.get_event_title(next_event)
+                    # summary = self.get_event_title(next_event)
 
-                    self.log.info("Appointments found: %s",len(events))
+                    # self.log.info("Appointments found: %s",len(events))
 
-                    self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
+                  
+                    # self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
+                    self.helper_speak_event(next_event)
                 
         except TypeError as typeError:
             self.log.error(typeError)
