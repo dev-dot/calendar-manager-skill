@@ -1,14 +1,14 @@
 
 
 from time import gmtime
-import time #FIXME: Do we need it?
+import time #FIXME: Yes for delete
 from mycroft import MycroftSkill, intent_file_handler, audio
 
 from dateutil import relativedelta
 from datetime import date, datetime, timedelta, tzinfo
 import caldav
 from caldav.objects import Calendar
-import pytz 
+import pytz
 from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
 from tzlocal import get_localzone
@@ -20,10 +20,10 @@ class CalendarManager(MycroftSkill):
         super().__init__()
         self.current_calendar = None
       # self.local_tz = pytz.timezone('Europe/Berlin')
-        self.local_tz = get_localzone() 
+        self.local_tz = get_localzone()
 
 
-    def initialize(self): 
+    def initialize(self):
         """[summary]
         """
         self.settings_change_callback = self.on_settings_changed
@@ -36,13 +36,13 @@ class CalendarManager(MycroftSkill):
         caldav_url = self.settings.get('ical_url')
         username = self.settings.get('username')
         password = self.settings.get('password')
-        self.client = self.get_client(caldav_url, username, password) 
+        self.client = self.get_client(caldav_url, username, password)
         if self.client is not None:
-            try: 
+            try:
                 self.current_calendar = self.get_calendars()[0]
-                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") 
-            except AuthorizationError as authorizationError:
-                self.log.error(authorizationError)
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}")
+            except AuthorizationError as authorization_error:
+                self.log.error(authorization_error)
                 self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
             except Exception as exception:
                 self.log.error(exception)
@@ -50,13 +50,23 @@ class CalendarManager(MycroftSkill):
 
 
     def get_client(self, caldav_url, username, password):
-            try: 
-                client = caldav.DAVClient(url=caldav_url, username=username, password=password)
+        """[summary]
 
-                return client                
-            except Exception as exception:
-                self.log.error(exception)
-                self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
+        Args:
+            caldav_url ([type]): [description]
+            username ([type]): [description]
+            password ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        try:
+            client = caldav.DAVClient(url=caldav_url, username=username, password=password)
+
+            return client
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
 
 
     def get_calendars(self):
@@ -139,7 +149,7 @@ class CalendarManager(MycroftSkill):
         Returns:
             [type]: [description]
         """
-     
+
         try:
             time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
             return time_string
@@ -192,10 +202,6 @@ class CalendarManager(MycroftSkill):
         return switcher.get(i,"Invalid day of the month")
 
 
-    # TODO: if the event is over multiple days the output is wrong -> only the start date and the start time are correct
-    # the end date is missing and the end time is correct but it seems at it is on the same day as the start date
-    # -> 2 outputs for short events and for events over multiple days
-    # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
 
     def helper_speak_event(self, event, is_handle_specific = False):
         """[summary]
@@ -216,7 +222,7 @@ class CalendarManager(MycroftSkill):
         endtime = self.get_time_string(end_date)
 
         if starttime is not None and endtime is not None:
-        
+
             end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
 
             if start_date.day == end_date.day:
@@ -229,7 +235,7 @@ class CalendarManager(MycroftSkill):
 
         else:
             # For all day events
-            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
+            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
 
             amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
 
@@ -255,8 +261,8 @@ class CalendarManager(MycroftSkill):
         calendar_position = 0
         counter = 0
         self.speak('Choose from one of the following calendars by saying the number')
-        selection = self.ask_selection(options=calendar_names, numeric=True)       
-      
+        selection = self.ask_selection(options=calendar_names, numeric=True)
+
         for calendar in self.get_calendars():
             if calendar.name == selection:
                 calendar_position = counter
@@ -268,19 +274,19 @@ class CalendarManager(MycroftSkill):
             self.log.info(calendar_position)
             self.speak(f"You chose {selected_calendar.name}")
             self.current_calendar = selected_calendar
-        
+
         else:
             self.speak(f"Canceled selection. Your current calendar is {self.current_calendar.name}")
 
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self):
-        
+
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
-        
+
         start_date = datetime.now().astimezone()
 
         future_events = self.get_all_events(calendar=calendar, start=start_date)
@@ -303,7 +309,7 @@ class CalendarManager(MycroftSkill):
         date = message.data['date']
 
         try:
-            start_date = extract_datetime(date)[0] 
+            start_date = extract_datetime(date)[0]
             end_date = datetime.combine(start_date,start_date.max.time())
             calendar = self.current_calendar
             if calendar is None:
@@ -311,15 +317,15 @@ class CalendarManager(MycroftSkill):
                 return
             events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
             spoken_date = nice_date(start_date)
-            
+
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
                 if len(next_event) > 0:
-                    
+
                     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-                    
+
                     summary = self.get_event_title(next_event[0].instance.vevent)
 
                     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
@@ -331,13 +337,13 @@ class CalendarManager(MycroftSkill):
                     next_event = event.instance.vevent
 
                     self.helper_speak_event(next_event)
-                
-        except TypeError as typeError:
-            self.log.error(typeError)
+
+        except TypeError as type_error:
+            self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
         except Exception as exception:
             self.log.error(exception)
-            self.speak("Unexpected error! Check Logs!")  
+            self.speak("Unexpected error! Check Logs!")
 
 
     @intent_file_handler('ask.next.number.intent')
@@ -348,16 +354,16 @@ class CalendarManager(MycroftSkill):
             message ([type]): [description]
         """
         number_speak = message.data['number']
-        
+
         number = extract_number(number_speak)
- 
+
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
 
         future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
-   
+
         if len(future_events) == 0:
             self.speak_dialog('no.appointments.number')
         else:
@@ -365,8 +371,8 @@ class CalendarManager(MycroftSkill):
                 self.speak(f"You have only {len(future_events)} upcoming events and they are")
                 number = len(future_events)
             else:
-                self.speak("Your following events are")    
-        
+                self.speak("Your following events are")
+
             for i in range(number):
                 next_event = future_events[i].instance.vevent
 
@@ -379,8 +385,8 @@ class CalendarManager(MycroftSkill):
     def delete_events(self,message):
 
         date = message.data['date']
-       
-        start_date = extract_datetime(date)[0] 
+
+        start_date = extract_datetime(date)[0]
         end_date = datetime.combine(start_date,start_date.max.time())
         calendar = self.current_calendar
         if calendar is None:
@@ -388,7 +394,7 @@ class CalendarManager(MycroftSkill):
             return
         events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
         spoken_date = nice_date(start_date)
-        
+
         if len(events) == 0:
             self.speak_dialog('no.appointments')
         elif len(events) == 1:
@@ -405,21 +411,21 @@ class CalendarManager(MycroftSkill):
             else:
                 self.speak_dialog('I could not understand you.') # TODO: is this really neccesary?
             # ask if the user wants to delete a specific event
-        
+
         else:
             event_names = list()
-        
+
             for event in events:
                 next_event = event.instance.vevent
                 summary = self.get_event_title(next_event)
 
                 event_names.append(summary)
-            
+
             event_position = 0
             counter = 0
             self.speak_dialog('Which of the following events do you want to delete?')
             selection = self.ask_selection(options=event_names, numeric= True)
-            
+
             for event in events:
                 next_event = event.instance.vevent
                 summary = self.get_event_title(next_event)
@@ -432,7 +438,7 @@ class CalendarManager(MycroftSkill):
                 selected_event = events[event_position]
                 self.speak(f"You chose {selected_event.name}")
                 # delete specific
-            
+
             else:
                 self.speak(f"Cancled selection.")
 
@@ -443,17 +449,6 @@ class CalendarManager(MycroftSkill):
                 self.speak('An error occured and thus selected event could not be deleted')
 '''
 
-        #TODO: Fehlerbehandlung sobald "morgen abend" keine Termine mehr vorhanden sind
-        #TODO: handle if summary is empty -> summary key is missing
-        #TODO: Dokumentation
-        #TODO: Applikation Crasht bei einem ganztäglichen termin und zeigt das falsche Datum bei einem mehrtagigen termin
-                # Bei ganztägigen Terminen wird keine Timezone mitgegeben -> es gibt für DTSTART keine Uhrzeit in ms sondern ein datum 
-                # Problem taucht beim end_date auf -> das Enddate bei mehrtägigen Terminen ist das selbe im Output wie das Startdate, lediglich die endtime ist richtig
-        #TODO: Errorhandling
-        #TODO: Code verschönern
-        #TODO: Code nach richtline Kommentieren 
-
-        #TODO: Bonusaufgaben             
 
 
 def create_skill():
