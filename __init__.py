@@ -1,7 +1,7 @@
 
 
 from time import gmtime
-import time
+import time #FIXME: Do we need it?
 from mycroft import MycroftSkill, intent_file_handler, audio
 
 from dateutil import relativedelta

@@ -1,5 +1,5 @@
 # Wichtige Packeges <br>
-* Die folgenden Packeges müssen auf dem Raspberry Pi installiert werden müssen
+* Die folgenden Packages müssen auf dem Raspberry Pi installiert werden damit der Calendar Manager Skill nicht von Mycroft deaktiviert wird, wegen fehlender Dependencies
 
 
 ## Packages Installed
@@ -21,3 +21,9 @@
 
 ### dateutil (relativdelta)
 * `pip install python-dateutil`
+
+### tzlocal
+* `pip install tzlocal`
+
+### msk (Falls nicht schon vorhanden)
+* `pip install msk`
