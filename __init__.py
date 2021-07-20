@@ -300,16 +300,18 @@ class CalendarManager(MycroftSkill):
                 self.speak("Your following events are")    
         
             for i in range(number):
-                audio.wait_while_speaking()
-                self.log.info(future_events[i].instance.vevent)
+                # audio.wait_while_speaking()
+                # self.log.info(future_events[i].instance.vevent)
                 next_event = future_events[i].instance.vevent
-                starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                endtime = self.get_time_string(next_event.dtend.value)
-                summary = self.get_event_title(next_event)
-                start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-                end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
 
-                self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+                self.helper_speak_event(next_event)
+                # starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
+                # endtime = self.get_time_string(next_event.dtend.value)
+                # summary = self.get_event_title(next_event)
+                # start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+                # end_date_string = f"{self.get_ordinal_number(next_event.dtend.value.day)} of {next_event.dtend.value.strftime('%B')}"
+
+                # self.speak_dialog('yes.appointments', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
 
 
 
