@@ -221,17 +221,17 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, start_is_specific=None):  
+    def handle_next_appointment(self, start_is_specific=None):
         
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
         
+        start_date=datetime.now().astimezone()
+
         if start_is_specific is not None:
             start_date=start_is_specific
-        else:
-            start_date=datetime.now().astimezone()
 
         future_events = self.get_all_events(calendar=calendar, start=start_date)
 
