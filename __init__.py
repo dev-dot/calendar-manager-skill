@@ -152,6 +152,8 @@ class CalendarManager(MycroftSkill):
     # TODO: helper method to check wether an event is over multiple days and use in all handle methods, maybe also state the output here directly
     
     def helper_speak_event(self, event, is_handle_specific = False):
+        audio.wait_while_speaking()
+
         start_date = event.dtstart.value
         end_date = event.dtend.value
 
@@ -178,12 +180,11 @@ class CalendarManager(MycroftSkill):
 
             start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" 
 
-
             amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
 
             if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
                 # case one whole day & no times
-                self.speak_dialog('yes.appointment.all.day.same.day.dialog',{'title': title,'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.all.day.same.day',{'title': title,'startdate': start_date_string})
             else:
                 # case multiple days & no times
                 self.speak_dialog('yes.appointment.all.day', {'title': title, 'startdate': start_date_string, 'duration': amount_of_days.days})
@@ -220,18 +221,21 @@ class CalendarManager(MycroftSkill):
 
 
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self):  
+    def handle_next_appointment(self, start_date=datetime.now().astimezone(), is_ask_specific=False):  
         
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
 
-        future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
+        future_events = self.get_all_events(calendar=calendar, start=start_date)
 
-        if len(future_events) == 0:
+        if len(future_events) == 0 and is_ask_specific == False:
             self.speak_dialog('no.appointments')
+        elif len(future_events) == 0 and is_ask_specific == True:
+            return
         else:
+            self.speak("Your next appointment is")
             self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             self.helper_speak_event(next_event)
@@ -255,35 +259,22 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
-                if len(next_event) > 0:
+                # next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # TODO: try to use next_appointment func
+                # if len(next_event) > 0:
                     
-                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
-
+                #     start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
                     
-                    summary = self.get_event_title(next_event[0].instance.vevent)
+                #     summary = self.get_event_title(next_event[0].instance.vevent)
 
-                  
+                #     self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
 
-                    self.speak_dialog('yes.next.appointment.specific', {'title': summary, 'date': start_date_string})
+                self.handle_next_appointment(start_date.astimezone(self.local_tz), True)
                     
             elif len(events)>=1:
                 self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
                 for event in events:
                     next_event = event.instance.vevent
 
-                    # start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                    # end = self.get_time_string(next_event.dtend.value)
-                    # self.log.info(start)
-
-                    # self.log.info(next_event.dtstart.value)
-
-                    # summary = self.get_event_title(next_event)
-
-                    # self.log.info("Appointments found: %s",len(events))
-
-                  
-                    # self.speak_dialog('yes.appointment.specific.all', {'title': summary, 'start': start, 'end':end})
                     self.helper_speak_event(next_event)
                 
         except TypeError as typeError:
