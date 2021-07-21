@@ -1,6 +1,7 @@
-can you delete an event
-can i delete an event 
-can i delete an event {date}
-i want to delete an event {date}
-i want to delete an appointment
-i want to delete an appointment {date}
+can you delete an (event|events)
+can i delete an (event|events)
+can i delete an (event|events) {date}
+i want to delete an (event|events)
+i want to delete an (event|events) {date}
+i want to delete an (appointments|appointment)
+i want to delete an (appointments|appointment) {date}
