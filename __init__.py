@@ -444,74 +444,81 @@ class CalendarManager(MycroftSkill):
     def delete_events(self,message):
 
         date = message.data.get('date',None)
+        try:
+                
+            if date is None:
+                date = self.get_response('Please tell me the date of the event')
 
-        if date is None:
-           date = self.get_response('Please tell me the date of the event')
 
+            start_date = extract_datetime(date)[0]
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
 
-        start_date = extract_datetime(date)[0]
-        end_date = datetime.combine(start_date,start_date.max.time())
-        calendar = self.current_calendar
-        if calendar is None:
-            self.speak('No calendar accessible')
-            return
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            if len(events) == 0:
+                self.speak_dialog(f"You have no appointments  {date}")
+            elif len(events) == 1:
+                next_event = events[0]
+                summary = self.get_event_title(next_event.instance.vevent)
 
-        if len(events) == 0:
-            self.speak_dialog('no.appointments')
-        elif len(events) == 1:
-            next_event = events[0]
-            summary = self.get_event_title(next_event.instance.vevent)
-
-            shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
-            if shall_be_deleted == 'yes':
-
-                next_event.delete()
-                self.speak_dialog('Successfully deleted')
-
-            elif shall_be_deleted == 'no':
-                self.speak_dialog('Canceled deletion')
-            else:
-                self.speak_dialog('I could not understand you. Deletion is canceled')
-        else:
-            event_names = list()
-
-            for event in events:
-                next_event = event.instance.vevent
-                summary = self.get_event_title(next_event)
-
-                event_names.append(summary)
-
-            event_position = 0
-            counter = 0
-            self.speak_dialog('Which of the following events do you want to delete?')
-            selection = self.ask_selection(options=event_names, numeric= True)
-            self.log.info(selection)
-            for event in events:
-                next_event = event.instance.vevent
-                summary = self.get_event_title(next_event)
-
-                if summary == selection:
-                    event_position = counter
-                counter += 1
-
-            if selection is not None:
-                selected_event = events[event_position]
-                self.speak(f"You chose {selection}")
-                shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
+                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
                 if shall_be_deleted == 'yes':
 
-                    selected_event.delete()
+                    next_event.delete()
                     self.speak_dialog('Successfully deleted')
 
                 elif shall_be_deleted == 'no':
                     self.speak_dialog('Canceled deletion')
                 else:
-                     self.speak_dialog('I could not understand you. Deletion is canceled')
-
+                    self.speak_dialog('I could not understand you. Deletion is canceled')
             else:
-                self.speak(f"Cancled selection.")
+                event_names = list()
 
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    event_names.append(summary)
+
+                event_position = 0
+                counter = 0
+                self.speak_dialog('Which of the following events do you want to delete?')
+                selection = self.ask_selection(options=event_names, numeric= True)
+                self.log.info(selection)
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    if summary == selection:
+                        event_position = counter
+                    counter += 1
+
+                if selection is not None:
+                    selected_event = events[event_position]
+                    self.speak(f"You chose {selection}")
+                    shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
+                    if shall_be_deleted == 'yes':
+
+                        selected_event.delete()
+                        self.speak_dialog('Successfully deleted')
+
+                    elif shall_be_deleted == 'no':
+                        self.speak_dialog('Canceled deletion')
+                    else:
+                        self.speak_dialog('I could not understand you. Deletion is canceled')
+
+                else:
+                    self.speak(f"Cancled selection.")
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
 
 
 
