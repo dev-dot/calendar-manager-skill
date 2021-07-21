@@ -440,12 +440,59 @@ class CalendarManager(MycroftSkill):
 
 # Bonus "DELETE"
 
+    @intent_file_handler('ask.create.event.intent')
+    def handle_create_event(self):
+
+        calendar = self.current_calendar
+
+        event_name = self.get_response('Please tell me the name of the event?')
+
+        event_start = extract_datetime(self.get_response('What date and time does the event start?'))
+        event_end = extract_datetime(self.get_response('At what date and time ended the event?'))
+        create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
+
+        new_event = f"""BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTAMP:{create_date}
+DTSTART:{event_start}
+DTEND:{event_end}
+SUMMARY:{event_name}
+END:VEVENT
+END:VCALENDAR
+"""
+        calendar.add_event(new_event)
+        self.speak(f"Succesfully created the event {event_name}")
+
+
+
+
+
+
+
+
+
+
+
     @intent_file_handler('ask.delete.event.intent')
     def delete_events(self,message):
+        """Intend handler to delete an event.
+
+        This method allows the user to delete any appointments from his nextcloud calendar.
+        The user can optional say a date or will be asked. When there is only one appointment,
+        Mycroft will ask directy if he should delete the event.
+        When there is more than one appointment, Mycroft will create a list of the events
+        and the user can choose with saying the number of the list which appointment Mycroft
+        should delete.
+
+        Args:
+            message: Optional; Ther User can say the date, on which he want to delete an event.
+            If the date is not given, Mycroft will ask the date he should delete an event.
+        """
 
         date = message.data.get('date',None)
         try:
-                
+
             if date is None:
                 date = self.get_response('Please tell me the date of the event')
 
