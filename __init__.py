@@ -440,7 +440,7 @@ class CalendarManager(MycroftSkill):
 
                 self.helper_speak_event(next_event)
 
-# Bonus "DELETE"
+
 
     @intent_file_handler('ask.create.event.intent')
     def handle_create_event(self):
@@ -455,15 +455,16 @@ class CalendarManager(MycroftSkill):
             event_start = self.get_response('What date and time does the event start?')
 
             if   'all day' in event_start:
+
                 start = extract_datetime(event_start)[0].strftime("%Y%m%d")
-                end = extract_datetime(event_start)[0].strftime("%Y%m%d")+1
+                end = (extract_datetime(event_start)[0] + timedelta(days=1)).strftime("%Y%m%d")
             else:
+
                 event_end =  self.get_response('At what date and time ended the event?')
                 end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
                 start =extract_datetime(event_start)[0].strftime("%Y%m%dT%H%M%S")
+
             create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
-
-
 
             new_event = f"""BEGIN:VCALENDAR
 VERSION:2.0
@@ -476,10 +477,12 @@ END:VEVENT
 END:VCALENDAR
 """
 
-            if start<end:
+            if start<end :
+
                 calendar.add_event(new_event)
                 self.speak(f"Succesfully created the event {event_name}")
             else:
+
                 self.speak(f"Your event {event_name} will end in the past. Please create a correct event")
 
         except TypeError as type_error:
@@ -487,6 +490,7 @@ END:VCALENDAR
             self.log.error(type_error)
             self.speak("not a valid input. Please rephrase your question.")
         except Exception as exception:
+
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
 
