@@ -447,8 +447,8 @@ class CalendarManager(MycroftSkill):
 
         event_name = self.get_response('Please tell me the name of the event?')
 
-        event_start = extract_datetime(self.get_response('What date and time does the event start?')).strftime("%Y%m%dT%H%M%S")
-        event_end = extract_datetime(self.get_response('At what date and time ended the event?')).strftime("%Y%m%dT%H%M%S")
+        event_start = "2021-07.22 20:00"  #extract_datetime(self.get_response('What date and time does the event start?')).strftime("%Y%m%d%H%M%S")
+        event_end =  "2021-07.22 20:20"#extract_datetime(self.get_response('At what date and time ended the event?')).strftime("%Y%m%d%H%M%S")
         create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
 
         new_event = f"""BEGIN:VCALENDAR
@@ -469,9 +469,16 @@ END:VCALENDAR
 
 
 
-
-
-
+"""
+    def update_event_summary(self, id, summary):
+        calendar = self.principal.calendars()[0]
+        for event in calendar.events():
+            if id in event.instance.vevent.uid.value:
+                summary_old = event.instance.vevent.summary.value
+                event.vobject_instance.vevent.summary.value = summary
+                event.save()
+                return summary_old
+"""
 
 
     @intent_file_handler('ask.delete.event.intent')
