@@ -442,7 +442,13 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.create.event.intent')
     def handle_create_event(self):
+        """summray
 
+
+        Args:
+            message: Optional; Ther User can say the date, on which he want to delete an event.
+            If the date is not given, Mycroft will ask the date he should delete an event.
+        """
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
@@ -593,6 +599,11 @@ END:VCALENDAR
 
     @intent_file_handler('ask.rename.event.intent')
     def rename_event(self,message):
+        """[summary]
+
+        Args:
+            message ([type]): [description]
+        """
 
         date = message.data.get('date',None)
         try:
