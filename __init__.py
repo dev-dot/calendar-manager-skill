@@ -1,12 +1,8 @@
 
 
 from time import gmtime
-import time
 from datetime import date, datetime, timedelta, tzinfo
 from mycroft import MycroftSkill, intent_file_handler, audio
-
-from dateutil import relativedelta
-
 import caldav
 from caldav.objects import Calendar
 import pytz
@@ -29,8 +25,10 @@ class CalendarManager(MycroftSkill):
 
         super().__init__()
         self.current_calendar = None
-      # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone()
+        # If the PI cant change timezone of the device use this variable
+       #self.local_tz = pytz.timezone('Europe/Berlin')
+
 
 
     def initialize(self):
@@ -591,6 +589,87 @@ END:VCALENDAR
             self.speak("Unexpected error! Check Logs!")
 
 
+
+
+    @intent_file_handler('ask.rename.event.intent')
+    def rename_event(self,message):
+
+        date = message.data.get('date',None)
+        try:
+
+            if date is None:
+                date = self.get_response('Please tell me the date of the event you want to rename')
+
+
+            start_date = extract_datetime(date)[0]
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+
+            if len(events) == 0:
+                self.speak_dialog(f"You have no appointments  {date}")
+            elif len(events) == 1:
+                next_event = events[0]
+                summary = self.get_event_title(next_event.instance.vevent)
+
+                shall_be_deleted = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
+                if shall_be_deleted == 'yes':
+                    new_name = self.get_response("How do you want to call it?")
+                    next_event.instance.vevent.summary.value = name
+                    next_event.save
+                    self.speak_dialog('Successfully renamed')
+
+                elif shall_be_deleted == 'no':
+                    self.speak_dialog('Canceled renaming')
+                else:
+                    self.speak_dialog('I could not understand you. Deletion is canceled')
+            else:
+                event_names = list()
+
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    event_names.append(summary)
+
+                event_position = 0
+                counter = 0
+                self.speak_dialog('Which of the following events do you want to delete?')
+                selection = self.ask_selection(options=event_names, numeric= True)
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    if summary == selection:
+                        event_position = counter
+                    counter += 1
+
+                if selection is not None:
+                    selected_event = events[event_position]
+                    self.speak(f"You chose {selection}")
+                    shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
+                    if shall_be_deleted == 'yes':
+
+                        selected_event.delete()
+                        self.speak_dialog('Successfully deleted')
+
+                    elif shall_be_deleted == 'no':
+                        self.speak_dialog('Canceled deletion')
+                    else:
+                        self.speak_dialog('I could not understand you. Deletion is canceled')
+
+                else:
+                    self.speak(f"Cancled selection.")
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
 
 
 def create_skill():
