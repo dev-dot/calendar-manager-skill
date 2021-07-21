@@ -1,3 +1,5 @@
+
+
 from time import gmtime
 import time
 from datetime import date, datetime, timedelta, tzinfo
@@ -444,28 +446,43 @@ class CalendarManager(MycroftSkill):
     def handle_create_event(self):
 
         calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
+        try:
+            event_name = self.get_response('Please tell me the name of the event?')
 
-        event_name = self.get_response('Please tell me the name of the event?')
+            event_start = self.get_response('What date and time does the event start?')
+            event_end =  self.get_response('At what date and time ended the event?')
+            create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
 
-        event_start = self.get_response('What date and time does the event start?')
-        event_end =  self.get_response('At what date and time ended the event?')
-        create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
-        
-        start =extract_datetime(event_start)[0].strftime("%Y%m%dT%H%M%S")
-        end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
+            start =extract_datetime(event_start)[0].strftime("%Y%m%dT%H%M%S")
+            end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
 
-        new_event = f"""BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTAMP:{create_date}
-DTSTART:{start}
-DTEND:{end}
-SUMMARY:{event_name}
-END:VEVENT
-END:VCALENDAR
-"""
-        calendar.add_event(new_event)
-        self.speak(f"Succesfully created the event {event_name}")
+            new_event = f"""BEGIN:VCALENDAR
+    VERSION:2.0
+    BEGIN:VEVENT
+    DTSTAMP:{create_date}
+    DTSTART:{start}
+    DTEND:{end}
+    SUMMARY:{event_name}
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+            if start<end:
+                calendar.add_event(new_event)
+                self.speak(f"Succesfully created the event {event_name}")
+            else:
+                self.speak(f"Your event {event_name} will end in the past. Please create a correct event")
+
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
 
 
 
