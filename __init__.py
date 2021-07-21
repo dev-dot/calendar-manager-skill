@@ -625,7 +625,7 @@ END:VCALENDAR
                 elif shall_be_deleted == 'no':
                     self.speak_dialog('Canceled renaming')
                 else:
-                    self.speak_dialog('I could not understand you. Deletion is canceled')
+                    self.speak_dialog('I could not understand you. Renaming is canceled')
             else:
                 event_names = list()
 
@@ -637,7 +637,7 @@ END:VCALENDAR
 
                 event_position = 0
                 counter = 0
-                self.speak_dialog('Which of the following events do you want to delete?')
+                self.speak_dialog('Which of the following events do you want to rename?')
                 selection = self.ask_selection(options=event_names, numeric= True)
                 for event in events:
                     next_event = event.instance.vevent
@@ -650,16 +650,20 @@ END:VCALENDAR
                 if selection is not None:
                     selected_event = events[event_position]
                     self.speak(f"You chose {selection}")
-                    shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
+                    shall_be_deleted = self.ask_yesno(f"Are you sure to rename this event? ")
                     if shall_be_deleted == 'yes':
 
-                        selected_event.delete()
+                        new_name = self.get_response("How do you want to call it?")
+
+                        selected_event.instance.vevent.summary.value = new_name
+                        selected_event.save()
+
                         self.speak_dialog('Successfully deleted')
 
                     elif shall_be_deleted == 'no':
-                        self.speak_dialog('Canceled deletion')
+                        self.speak_dialog('Canceled renaming')
                     else:
-                        self.speak_dialog('I could not understand you. Deletion is canceled')
+                        self.speak_dialog('I could not understand you. Renaming is canceled')
 
                 else:
                     self.speak(f"Cancled selection.")
