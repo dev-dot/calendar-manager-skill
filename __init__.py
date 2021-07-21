@@ -447,8 +447,8 @@ class CalendarManager(MycroftSkill):
 
         event_name = self.get_response('Please tell me the name of the event?')
 
-        event_start = extract_datetime(self.get_response('What date and time does the event start?'))
-        event_end = extract_datetime(self.get_response('At what date and time ended the event?'))
+        event_start = extract_datetime(self.get_response('What date and time does the event start?')).strftime("%Y%m%dT%H%M%S")
+        event_end = extract_datetime(self.get_response('At what date and time ended the event?')).strftime("%Y%m%dT%H%M%S")
         create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
 
         new_event = f"""BEGIN:VCALENDAR
@@ -534,7 +534,6 @@ END:VCALENDAR
                 counter = 0
                 self.speak_dialog('Which of the following events do you want to delete?')
                 selection = self.ask_selection(options=event_names, numeric= True)
-                self.log.info(selection)
                 for event in events:
                     next_event = event.instance.vevent
                     summary = self.get_event_title(next_event)
