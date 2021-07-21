@@ -619,7 +619,7 @@ END:VCALENDAR
                 if shall_be_deleted == 'yes':
                     new_name = self.get_response("How do you want to call it?")
                     next_event.instance.vevent.summary.value = new_name
-                    next_event.save
+                    next_event.save()
                     self.speak_dialog('Successfully renamed')
 
                 elif shall_be_deleted == 'no':
