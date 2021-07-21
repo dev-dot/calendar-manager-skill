@@ -615,15 +615,16 @@ END:VCALENDAR
                 next_event = events[0]
                 summary = self.get_event_title(next_event.instance.vevent)
 
-                shall_be_deleted = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
-                if shall_be_deleted == 'yes':
-                    next_event.instance.vevent.add('SUMMARY:filler')
+                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
+                if shall_be_renamed == 'yes':
+                    if summary is "without a title":
+                        next_event.instance.vevent.add('summary')
                     new_name = self.get_response("How do you want to call it?")
                     next_event.instance.vevent.summary.value = new_name
                     next_event.save()
                     self.speak_dialog('Successfully renamed')
 
-                elif shall_be_deleted == 'no':
+                elif shall_be_renamed == 'no':
                     self.speak_dialog('Canceled renaming')
                 else:
                     self.speak_dialog('I could not understand you. Renaming is canceled')
@@ -651,8 +652,8 @@ END:VCALENDAR
                 if selection is not None:
                     selected_event = events[event_position]
                     self.speak(f"You chose {selection}")
-                    shall_be_deleted = self.ask_yesno(f"Are you sure to rename this event? ")
-                    if shall_be_deleted == 'yes':
+                    shall_be_renamed = self.ask_yesno(f"Are you sure to rename this event? ")
+                    if shall_be_renamed == 'yes':
 
                         new_name = self.get_response("How do you want to call it?")
 
@@ -661,7 +662,7 @@ END:VCALENDAR
 
                         self.speak_dialog('Successfully renamed')
 
-                    elif shall_be_deleted == 'no':
+                    elif shall_be_renamed == 'no':
                         self.speak_dialog('Canceled renaming')
                     else:
                         self.speak_dialog('I could not understand you. Renaming is canceled')
