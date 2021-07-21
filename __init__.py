@@ -453,11 +453,16 @@ class CalendarManager(MycroftSkill):
             event_name = self.get_response('Please tell me the name of the event?')
 
             event_start = self.get_response('What date and time does the event start?')
-            event_end =  self.get_response('At what date and time ended the event?')
+
+            if "wholdeday" or "all day" in event_start:
+                start = extract_datetime(event_start)[0].strftime("%Y%m%d")
+                end = extract_datetime(event_start)[0].strftime("%Y%m%d")+1
+            else:
+                event_end =  self.get_response('At what date and time ended the event?')
+                end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
             create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
 
             start =extract_datetime(event_start)[0].strftime("%Y%m%dT%H%M%S")
-            end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
 
             new_event = f"""BEGIN:VCALENDAR
 VERSION:2.0
