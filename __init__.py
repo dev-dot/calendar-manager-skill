@@ -460,15 +460,15 @@ class CalendarManager(MycroftSkill):
             end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
 
             new_event = f"""BEGIN:VCALENDAR
-    VERSION:2.0
-    BEGIN:VEVENT
-    DTSTAMP:{create_date}
-    DTSTART:{start}
-    DTEND:{end}
-    SUMMARY:{event_name}
-    END:VEVENT
-    END:VCALENDAR
-    """
+VERSION:2.0
+BEGIN:VEVENT
+DTSTAMP:{create_date}
+DTSTART:{start}
+DTEND:{end}
+SUMMARY:{event_name}
+END:VEVENT
+END:VCALENDAR
+"""
 
             if start<end:
                 calendar.add_event(new_event)
@@ -479,7 +479,7 @@ class CalendarManager(MycroftSkill):
         except TypeError as type_error:
 
             self.log.error(type_error)
-            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+            self.speak("not a valid input. Please rephrase your question.")
         except Exception as exception:
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
