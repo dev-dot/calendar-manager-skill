@@ -452,7 +452,6 @@ class CalendarManager(MycroftSkill):
             self.speak('No calendar accessible')
             return
         events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
-        spoken_date = nice_date(start_date)
 
         if len(events) == 0:
             self.speak_dialog('no.appointments')
@@ -469,9 +468,7 @@ class CalendarManager(MycroftSkill):
             elif shall_be_deleted == 'no':
                 self.speak_dialog('Canceled deletion')
             else:
-                self.speak_dialog('I could not understand you.') # TODO: is this really neccesary?
-            # ask if the user wants to delete a specific event
-
+                self.speak_dialog('I could not understand you. Deletion is canceled')
         else:
             event_names = list()
 
@@ -497,7 +494,7 @@ class CalendarManager(MycroftSkill):
             if selection is not None:
                 selected_event = events[event_position]
                 self.speak(f"You chose {selection}")
-                shall_be_deleted = self.ask_yesno(f"Are you sure to delete event {selection}?")
+                shall_be_deleted = self.ask_yesno(f"Are you sure to delete? ")
                 if shall_be_deleted == 'yes':
 
                     selected_event.delete()
@@ -506,7 +503,7 @@ class CalendarManager(MycroftSkill):
                 elif shall_be_deleted == 'no':
                     self.speak_dialog('Canceled deletion')
                 else:
-                     self.speak_dialog('I could not understand you.')
+                     self.speak_dialog('I could not understand you. Deletion is canceled')
 
             else:
                 self.speak(f"Cancled selection.")
