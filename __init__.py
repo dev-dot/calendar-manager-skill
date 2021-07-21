@@ -445,6 +445,10 @@ class CalendarManager(MycroftSkill):
 
         date = message.data['date']
 
+        if date is None:
+           date = self.get_response('Please tell me the date of the event')
+            
+
         start_date = extract_datetime(date)[0]
         end_date = datetime.combine(start_date,start_date.max.time())
         calendar = self.current_calendar
@@ -463,7 +467,7 @@ class CalendarManager(MycroftSkill):
             if shall_be_deleted == 'yes':
 
                 next_event.delete()
-                self.speak_dialog('successfully deleted')
+                self.speak_dialog('Successfully deleted')
 
             elif shall_be_deleted == 'no':
                 self.speak_dialog('Canceled deletion')
@@ -494,11 +498,11 @@ class CalendarManager(MycroftSkill):
             if selection is not None:
                 selected_event = events[event_position]
                 self.speak(f"You chose {selection}")
-                shall_be_deleted = self.ask_yesno(f"Are you sure to delete? ")
+                shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
                 if shall_be_deleted == 'yes':
 
                     selected_event.delete()
-                    self.speak_dialog('successfully deleted')
+                    self.speak_dialog('Successfully deleted')
 
                 elif shall_be_deleted == 'no':
                     self.speak_dialog('Canceled deletion')
