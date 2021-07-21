@@ -1,47 +1,120 @@
-
-
 from time import gmtime
 import time
-from mycroft import MycroftSkill, intent_file_handler
+from datetime import date, datetime, timedelta, tzinfo
+from mycroft import MycroftSkill, intent_file_handler, audio
 
 from dateutil import relativedelta
-from datetime import date, datetime, timedelta, tzinfo
+
 import caldav
 from caldav.objects import Calendar
-import icalendar 
-import pytz 
+import pytz
+from lingua_franca.parse import extract_datetime, normalize, extract_number
+from lingua_franca.format import nice_date
+from tzlocal import get_localzone
+from caldav.lib.error import AuthorizationError
 
-
-
-Utc = pytz.UTC
 class CalendarManager(MycroftSkill):
+    """A Mycroft skill for a nextcloud calendar with 4 intent handler.
 
-
+    This class includes all important intent and helper function for the nextcloud calendar skill.
+    The user can change his calendar, ask what's his next appointment,
+    appointments on specific dates and his next e.g five appointments.
+    """
 
     def __init__(self):
-        MycroftSkill.__init__(self)
-      #  self.local_timezone = local_timezone
-        self.caldav_url = self.settings.get('ical_url')
-        self.username = self.settings.get('username')
-        self.password = self.settings.get('password')
-        self.client = caldav.DAVClient(url=self.caldav_url, username=self.username, password=self.password)
-        self.the_same_calendar = self.client.calendar(url = self.get_calendars()[0].url)
+        """Inits class TODO
+        """
+
+        super().__init__()
+        self.current_calendar = None
+      # self.local_tz = pytz.timezone('Europe/Berlin')
+        self.local_tz = get_localzone()
+
+
+    def initialize(self):
+        """A lifecycle method from Mycroft.
+
+        The user data is automatically retrieved online if anything has changed.
+        """
+
+        self.settings_change_callback = self.on_settings_changed
+        self.on_settings_changed()
+
+
+    def on_settings_changed(self):
+        """Get all credentials for the nextcloud calendar and change it.
+
+        This method changes the settings.js with the credentials,
+        if the user changes the credentials online.
+        With correct credentilas we can connect to the calendar.
+        We catch the authorization error if the credentials are wrong
+        and we are not able to connect to the calendar.
+        """
+
+        caldav_url = self.settings.get('ical_url')
+        username = self.settings.get('username')
+        password = self.settings.get('password')
+        self.client = self.get_client(caldav_url, username, password)
+        if self.client is not None:
+            try:
+                self.current_calendar = self.get_calendars()[0]
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}")
+            except AuthorizationError as authorization_error:
+                self.log.error(authorization_error)
+                self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
+            except Exception as exception:
+                self.log.error(exception)
+                self.speak("Unexpected error! Check Logs! Check URL!")
+
+
+    def get_client(self, caldav_url, username, password):
+        """Connects to a calendar with caldav.
+
+        Args:
+            caldav_url: valid caldav url from nextcloud calender.
+            username: username from nextcloud.
+            password: password from nextcloud.
+
+        Returns:
+            Returns a client if the user input was successful and a connection could be established.
+        """
+
+        try:
+            client = caldav.DAVClient(url=caldav_url, username=username, password=password)
+
+            return client
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
+            return
 
 
     def get_calendars(self):
-        principal = self.client.principal()
-        calendars = principal.calendars()
-        self.log.info(calendars)
+        """Get all calenders from nextcloud client
+
+        Returns:
+            Returns a list of all calenders
+        """
+
+        calendars = self.client.principal().calendars()
         return calendars
 
 
-
-    def get_event_data_string(self, event):
-        starttime = event.instance.vevent.dtstart.value
-        print(starttime)
-
-
     def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
+        """Get all events from nextcloud calendar.
+
+        If the start is None the calendar returns all events.
+        If the start and endtime are not None, we are getting all events from this time period.
+
+        Args:
+            calendar : The nextcloud calendar
+            start: Optional; Search starttime for the events.
+            If not set we get all events. Defaults to None.
+            end: Optional; Search endtime for the events. Defaults to None.
+
+        Returns:
+            list: Returns a list with the events from the calendar.
+        """
 
         all_events = []
 
@@ -50,7 +123,6 @@ class CalendarManager(MycroftSkill):
         else:
             event_date = calendar.date_search(start=start, end=end)
 
-
             for event in event_date:
                 event_start = event.instance.vevent.dtstart.value
 
@@ -58,70 +130,64 @@ class CalendarManager(MycroftSkill):
                 if not isinstance(event_start, datetime):
                     event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
 
-                if event.instance.vevent.dtstart.value.astimezone() >= start.astimezone():
+                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz):
                     all_events.append(event)
             if end is not None:
                 all_events = [i for i in all_events if
-                 i.instance.vevent.dtstart.value.astimezone() <= end.astimezone()]
-            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+                  i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)]
+            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))
             return all_events
 
 
+    def get_event_title(self,event):
+        """Gets the event title from event.
+
+        Args:
+            event ([type]): [description]
+
+        Returns:
+            Returns a string with the summary value or if not existing a string.
+            For example:
+
+            SUMMARY:Speech Interaction
+        """
+
+        try:
+            return event.summary.value
+        except:
+            return "without a title"
 
 
+    def get_time_string(self, vevent_date: datetime):
+        """Get the time und returns only the the hour and minutes.
 
-    def get_event_details(self, event):
-        title = "untitled event"
-        if "SUMMARY" in event.keys():
-            title = str(event["SUMMARY"])
+        Args:
+            vevent_date: A datetime object.
 
-     
+        Returns:
+            Returns a string with the hour and minutes for the event as a string.
+        """
 
-        return {"title": title}
+        try:
+            time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
+            return time_string
+        except:
+            return None
 
-    def parse_ics_events(self, events):
-        
-        parsed_events = []
-        for event in events:
-            cal = icalendar.Calendar.from_ical(event.data, True)
-            url = event.url
-            for vevent in cal[0].walk("vevent"):
-                event_details = self.get_event_details(vevent)
-                event_details["event_url"] = url
-                parsed_events.append(event_details)
-        return parsed_events
-
-
-    def date_to_string(self, vevent_date: datetime, with_time: bool =True):
-
-        date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
-        if with_time:
-            date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
-        return date_string
-
-    def get_time_string(self, vevent_date: datetime, with_time: bool = True):
-        time_string = f" at {vevent_date.strftime('%H:%M')}"
-        return time_string
-
-
-    def parse_weekday(self,i):
-        switcher={
-                'monday'    : 0,
-                'tuesday'   : 1,
-                'wednesday' : 2,
-                'thurday'   : 3,
-                'friday'    : 4,
-                'saturday'  : 5,
-                'sunday'    : 6
-            }
-        return switcher.get(i,"Invalid day of week")
-
-    def search_date_from_weekday(self, weekday_int):
-        today = date.today()
-        next_date = today + relativedelta.relativedelta(weekday= weekday_int)
-        return next_date
 
     def get_ordinal_number(self,i):
+        """Changes integer numbers to written numbers.
+
+        Args:
+            i: The Numbers for the days of the month.
+
+        Returns:
+            Returns a day of the month as written numbers.
+            For Example:
+            1 as first.
+            2 as second.
+        """
+
         switcher={
             1: 'first',
             2: 'second',
@@ -157,81 +223,299 @@ class CalendarManager(MycroftSkill):
             }
         return switcher.get(i,"Invalid day of the month")
 
+
+
+    def helper_speak_event(self, event):
+        """Helper method for the Mycroft dialogs.
+
+        This Method checks if the event is an all day event,
+        goes over more than a day or only for a period of time.
+        For every specific case Mycroft has his dialog to speak.
+
+        Args:
+            event: The event object from the nextcloud calendar.
+        """
+
+        audio.wait_while_speaking()
+
+        start_date = event.dtstart.value
+        end_date = event.dtend.value
+
+        title = self.get_event_title(event)
+        start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
+
+        starttime = self.get_time_string(start_date)
+        endtime = self.get_time_string(end_date)
+
+        if starttime is not None and endtime is not None:
+
+            end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
+
+            if start_date.day == end_date.day:
+                self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
+
+            else:
+                self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate': end_date_string, 'endtime' : endtime })
+
+        else:
+            # For all day events
+            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
+
+            amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
+
+            if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
+                # case one whole day & no times
+                self.speak_dialog('yes.appointment.same.day.all.day',{'title': title,'startdate': start_date_string})
+            else:
+                # case multiple days & no times
+                self.speak_dialog('yes.appointment.all.day',
+                {'title': title,
+                 'startdate': start_date_string,
+                 'duration': amount_of_days.days})
+
+
+    @intent_file_handler('ask.calendar.change.intent')
+    def choose_calendar(self):
+        """User can change the current calendar
+
+        The method returns a selection of calendars to the user,
+        who can then select them numerically. After the user has
+        selected a new calendar, it becomes the new current calendar.
+        For Example:
+        Choose from one of the following calendars by saying the number
+        >> one, Persönlich
+        >> two, SpeeceInteraction
+        >> three, Arbeit
+        """
+
+        calendar_names = list()
+
+        for calendar in self.get_calendars():
+            calendar_names.append(calendar.name)
+
+        self.log.info(calendar_names)
+
+        calendar_position = 0
+        counter = 0
+        self.speak('Choose from one of the following calendars by saying the number')
+        selection = self.ask_selection(options=calendar_names, numeric=True)
+
+        for calendar in self.get_calendars():
+            if calendar.name == selection:
+                calendar_position = counter
+            counter += 1
+
+        if selection is not None:
+            selected_calendar = self.get_calendars()[calendar_position]
+            self.log.info(selected_calendar.name)
+            self.log.info(calendar_position)
+            self.speak(f"You chose {selected_calendar.name}")
+            self.current_calendar = selected_calendar
+
+        else:
+            self.speak(f"Canceled selection. Your current calendar is {self.current_calendar.name}")
+
+
     @intent_file_handler('ask.next.appointment.intent')
-    def handle_next_appointment(self, message):
-        
-        calendar = self.get_calendars()[0]
+    def handle_next_appointment(self):
+        """Intent handler to tell the user his next appointment.
 
-        future_events = self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
+        Gets executed with the right user input.
+        The user gets his next appointment in the calendar.
+        If there is no appointments left, the user gets a dialog with a fitting message.
+        """
 
-        if (len(future_events) == 0):
+        calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
+
+        start_date = datetime.now().astimezone()
+
+        future_events = self.get_all_events(calendar=calendar, start=start_date)
+
+        if len(future_events) == 0:
             self.speak_dialog('no.appointments')
         else:
-            #future_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone())
+            self.speak('Your next event is')
             self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
-            starttime = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-            endtime = self.get_time_string(next_event.dtend.value)
-            summary = next_event.summary.value
-
-            start_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
-            end_date_string = f"{self.get_ordinal_number(next_event.dtstart.value.day)} of {next_event.dtstart.value.strftime('%B')}"
+            self.helper_speak_event(next_event)
 
 
-            self.speak_dialog('next.appointment', {'title': summary, 'startdate': start_date_string, 'starttime': starttime, 'enddate':end_date_string, 'endtime':endtime})
+    @intent_file_handler('ask.next.appointment.specific.intent')
+    def handle_ask_specific(self, message):
+        """Intent handler to tell the user his appointments on specific days.
 
-    @intent_file_handler('ask.next.appointment.weekday.intent')
-    def handle_ask_weekday(self,message):
+        Gets executed with the right user input.
+        The user can ask e.g for a specific day, or if he has any appointments in two weeks.
 
-        weekday = message.data['weekday']
 
-        weekday_as_int = self.parse_weekday(weekday)
-        if weekday_as_int != "Invalid day of week" :
-            event_date = self.search_date_from_weekday(weekday_as_int)
+        Args:
+            message: A message object, which contains the user inputs.
+                     In this case the message contains the specific date.
+        """
 
-            if (self.parse_weekday(weekday) == event_date.today().weekday()):
-                event_date = event_date + timedelta(days=7)
-                print(self.parse_weekday(weekday))
-                print(event_date.today().weekday())
-            else:
-                event_date = event_date + timedelta(days=0)
-                print(self.parse_weekday(weekday))
-                print(event_date.today().weekday())
+        date = message.data['date']
 
-            event_date_string = f"{self.get_ordinal_number(event_date.day)} of {event_date.strftime('%B')}"
-            start_search = datetime.combine(event_date,datetime.min.time()).astimezone()
-            date_end = date(event_date.year,event_date.month,event_date.day+1)
-            end_search = datetime.combine(date_end, datetime.min.time()).astimezone()
+        try:
+            start_date = extract_datetime(date)[0]
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
+            events = self.get_all_events(calendar= calendar,
+             start= start_date.astimezone(self.local_tz),
+             end= end_date.astimezone(self.local_tz))
+            spoken_date = nice_date(start_date)
 
-            calendar = self.get_calendars()[0]
-            events = self.get_all_events(calendar= calendar, start= start_search.astimezone(), end= end_search.astimezone())
-            event_len = len(events)
+            if len(events)==0:
 
-            if (len(events)==0):
-                self.speak_dialog('no.appointments.weekday', {'weekday':weekday, 'date':event_date_string})
-            elif(len(events)>=1):
-                self.speak_dialog('yes.appointments.weekday', {'number': event_len,'weekday':weekday, 'date':event_date_string})
+                self.speak_dialog('no.appointments.specific', {'date':spoken_date})
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
+                if len(next_event) > 0:
+
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+
+                    summary = self.get_event_title(next_event[0].instance.vevent)
+
+                    self.speak_dialog('yes.next.appointment.specific', {'title': summary,
+                     'date': start_date_string})
+
+
+            elif len(events)>=1:
+                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
                 for event in events:
                     next_event = event.instance.vevent
-                    start = self.get_time_string(next_event.dtstart.value) #TODO: add Duration
-                    end = self.get_time_string(next_event.dtend.value)
-                    summary = next_event.summary.value
 
-                    self.log.info("Appointments found: %s",event_len)
+                    self.helper_speak_event(next_event)
 
-                    self.speak_dialog('yes.appointment.weekday.first', {'title': summary, 'start': start, 'end':end})
-                    self.log.info("Start date: %s", start_search)
-                    self.log.info("End Date: %s", end_search)
-        else: 
-            self.speak(f"{weekday} is not a weekday. Please rephrase your question.")
-
-       
+        except TypeError as type_error:
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
 
 
-        #TODO: Timezone
-        #TODO: Specific Date
-        #TODO: Bewusste Anzahl an Terminenen ausrufen
-        #TODO: Bonusaufgaben
+    @intent_file_handler('ask.next.number.intent')
+    def handle_ask_number(self,message):
+        """Intend handler that the user can ask for the next number/amounts of events.
+
+        Gets executed with the right user input.
+        The user can ask a specific number of events.
+        For example what's his next five events.
+        If there es less events than the user asked, Mycroft will tell the remaining events.
+
+        Args:
+            message: A message object, which contains the user inputs.
+                     In this case the message contains the asked amounts of events. .
+        """
+
+        number_speak = message.data['number']
+
+        number = extract_number(number_speak)
+
+        calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
+
+        future_events=self.get_all_events(calendar=calendar, start=datetime.now().astimezone())
+
+        if len(future_events) == 0:
+            self.speak_dialog('no.appointments.number')
+        else:
+            if number > len(future_events):
+                self.speak(f"You have only {len(future_events)} upcoming events and they are")
+                number = len(future_events)
+            else:
+                self.speak("Your following events are")
+
+            for i in range(number):
+                next_event = future_events[i].instance.vevent
+
+                self.helper_speak_event(next_event)
+
+# Bonus "DELETE"
+
+'''
+    @intent_file_handler('ask.delete.event.intent')
+    def delete_events(self,message):
+
+        date = message.data['date']
+
+        start_date = extract_datetime(date)[0]
+        end_date = datetime.combine(start_date,start_date.max.time())
+        calendar = self.current_calendar
+        if calendar is None:
+            self.speak('No calendar accessible')
+            return
+        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+        spoken_date = nice_date(start_date)
+
+        if len(events) == 0:
+            self.speak_dialog('no.appointments')
+        elif len(events) == 1:
+            next_event = events[0].instance.vevent
+            summary = self.get_event_title(next_event
+
+            shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
+            if shall_be_deleted == 'yes':
+                # TODO: try deletion
+                self.speak_dialog('successfully deleted')
+                delete_specific_event(next_event)
+            elif shall_be_deleted == 'no':
+                self.speak_dialog('Canceled deletetion')
+            else:
+                self.speak_dialog('I could not understand you.') # TODO: is this really neccesary?
+            # ask if the user wants to delete a specific event
+
+        else:
+            event_names = list()
+
+            for event in events:
+                next_event = event.instance.vevent
+                summary = self.get_event_title(next_event)
+
+                event_names.append(summary)
+
+            event_position = 0
+            counter = 0
+            self.speak_dialog('Which of the following events do you want to delete?')
+            selection = self.ask_selection(options=event_names, numeric= True)
+
+            for event in events:
+                next_event = event.instance.vevent
+                summary = self.get_event_title(next_event)
+
+                if summary == selection:
+                    event_position = counter
+                counter += 1
+
+            if selection is not None:
+                selected_event = events[event_position]
+                self.speak(f"You chose {selected_event.name}")
+                # delete specific
+
+            else:
+                self.speak(f"Cancled selection.")
+
+        def delete_specific_event(self, event):
+            try:
+                event.delete()
+            except:
+                self.speak('An error occured and thus selected event could not be deleted')
+'''
+
+
 
 def create_skill():
+    """Create the MyCroft Calender Manager Skill.
+
+    Returns:
+        Returns the Calender Manager object.
+    """
+
     return CalendarManager()
