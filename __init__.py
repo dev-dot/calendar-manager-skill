@@ -442,13 +442,16 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.create.event.intent')
     def handle_create_event(self):
-        """summray
+        """Handler intent to create a new event and adds to nextcloud calendar.
 
-
-        Args:
-            message: Optional; Ther User can say the date, on which he want to delete an event.
-            If the date is not given, Mycroft will ask the date he should delete an event.
+        Gets executed with the right user input.
+        This method allows the user to create an appointment.
+        Mycroft will first ask how to name the event.
+        After that Mycroft asks when the appointment should start.
+        The user can say spefic dates and times or that the event is an all day event.
+        After creating the event Mycroft will confirm it.
         """
+
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
@@ -506,6 +509,7 @@ END:VCALENDAR
     def delete_events(self,message):
         """Intend handler to delete an event.
 
+        Gets executed with the right user input.
         This method allows the user to delete any appointments from his nextcloud calendar.
         The user can optional say a date or will be asked. When there is only one appointment,
         Mycroft will ask directy if he should delete the event.
@@ -514,8 +518,8 @@ END:VCALENDAR
         should delete.
 
         Args:
-            message: Optional; Ther User can say the date, on which he want to delete an event.
-            If the date is not given, Mycroft will ask the date he should delete an event.
+            message: Optional; The user can say the date, on which he wants to delete an event.
+            If the date is not given, Mycroft will ask the for the date he should delete an event.
         """
 
         date = message.data.get('date',None)
@@ -599,10 +603,19 @@ END:VCALENDAR
 
     @intent_file_handler('ask.rename.event.intent')
     def rename_event(self,message):
-        """[summary]
+        """Handle intent for renaming events.
+
+        Gets executed with the right user input.
+        This method allows the user to rename any appointments from his nextcloud calendar.
+        The user can optional say a date or will be asked. When there is only one appointment,
+        Mycroft will ask directy if he should rename the event.
+        When there is more than one appointment, Mycroft will create a list of the events
+        and the user can choose with saying the number of the list which appointment Mycroft
+        should rename.
 
         Args:
-            message ([type]): [description]
+            message: Optional; The user can say the date, on which he wants to rename an event.
+            If the date is not given, Mycroft will ask for the date he should rename an event.
         """
 
         date = message.data.get('date',None)
