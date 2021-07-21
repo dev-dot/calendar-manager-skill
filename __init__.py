@@ -617,7 +617,7 @@ END:VCALENDAR
 
                 shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
                 if shall_be_renamed == 'yes':
-                    if summary is "without a title":
+                    if summary == "without a title":
                         next_event.instance.vevent.add('summary')
                     new_name = self.get_response("How do you want to call it?")
                     next_event.instance.vevent.summary.value = new_name
