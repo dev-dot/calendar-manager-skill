@@ -457,14 +457,13 @@ class CalendarManager(MycroftSkill):
         if len(events) == 0:
             self.speak_dialog('no.appointments')
         elif len(events) == 1:
-            next_event = events[0].instance.vevent
-            summary = self.get_event_title(next_event)
+            next_event = events[0]
+            summary = self.get_event_title(next_event.instance.vevent)
 
             shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
             if shall_be_deleted == 'yes':
                 # TODO: try deletion
-                calendar.delete(next_event)
-                calendar.save()
+                next_event.delete()
                 self.speak_dialog('successfully deleted')
 
             elif shall_be_deleted == 'no':
