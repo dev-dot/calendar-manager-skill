@@ -573,7 +573,7 @@ END:VCALENDAR
                 if selection is not None:
                     selected_event = events[event_position]
                     self.speak(f"You chose {selection}")
-                    shall_be_deleted = self.ask_yesno(f"Are you sure to delete this event? ")
+                    shall_be_deleted = self.ask_yesno("Are you sure to delete this event? ")
                     if shall_be_deleted == 'yes':
 
                         selected_event.delete()
@@ -681,7 +681,7 @@ END:VCALENDAR
                         self.speak_dialog('I could not understand you. Renaming is canceled')
 
                 else:
-                    self.speak(f"Cancled selection.")
+                    self.speak("Cancled selection.")
         except TypeError as type_error:
 
             self.log.error(type_error)
