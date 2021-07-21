@@ -440,7 +440,6 @@ class CalendarManager(MycroftSkill):
 
 # Bonus "DELETE"
 
-'''
     @intent_file_handler('ask.delete.event.intent')
     def delete_events(self,message):
 
@@ -459,13 +458,15 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments')
         elif len(events) == 1:
             next_event = events[0].instance.vevent
-            summary = self.get_event_title(next_event
+            summary = self.get_event_title(next_event)
 
             shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
             if shall_be_deleted == 'yes':
                 # TODO: try deletion
+                calendar.delete(next_event)
+                calendar.save()
                 self.speak_dialog('successfully deleted')
-                delete_specific_event(next_event)
+
             elif shall_be_deleted == 'no':
                 self.speak_dialog('Canceled deletetion')
             else:
@@ -502,12 +503,11 @@ class CalendarManager(MycroftSkill):
             else:
                 self.speak(f"Cancled selection.")
 
-        def delete_specific_event(self, event):
-            try:
-                event.delete()
-            except:
-                self.speak('An error occured and thus selected event could not be deleted')
-'''
+   #     def delete_specific_event(self, event):
+     #       try:
+       #         event.delete()
+         #   except:
+         #      self.speak('An error occured and thus selected event could not be deleted')
 
 
 
