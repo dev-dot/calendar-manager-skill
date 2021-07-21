@@ -617,6 +617,7 @@ END:VCALENDAR
 
                 shall_be_deleted = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
                 if shall_be_deleted == 'yes':
+                    next_event.instance.vevent.add('SUMMARY:filler')
                     new_name = self.get_response("How do you want to call it?")
                     next_event.instance.vevent.summary.value = new_name
                     next_event.save()
@@ -658,7 +659,7 @@ END:VCALENDAR
                         selected_event.instance.vevent.summary.value = new_name
                         selected_event.save()
 
-                        self.speak_dialog('Successfully deleted')
+                        self.speak_dialog('Successfully renamed')
 
                     elif shall_be_deleted == 'no':
                         self.speak_dialog('Canceled renaming')
