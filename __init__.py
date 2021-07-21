@@ -485,7 +485,7 @@ class CalendarManager(MycroftSkill):
             counter = 0
             self.speak_dialog('Which of the following events do you want to delete?')
             selection = self.ask_selection(options=event_names, numeric= True)
-
+            self.log.info(selection)
             for event in events:
                 next_event = event.instance.vevent
                 summary = self.get_event_title(next_event)
@@ -496,17 +496,14 @@ class CalendarManager(MycroftSkill):
 
             if selection is not None:
                 selected_event = events[event_position]
-                self.speak(f"You chose {selected_event.name}")
+                self.speak(f"You chose {selection}")
+                selected_event.delete()
                 # delete specific
 
             else:
                 self.speak(f"Cancled selection.")
 
-   #     def delete_specific_event(self, event):
-     #       try:
-       #         event.delete()
-         #   except:
-         #      self.speak('An error occured and thus selected event could not be deleted')
+
 
 
 
