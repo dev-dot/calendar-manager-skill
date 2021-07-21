@@ -443,11 +443,11 @@ class CalendarManager(MycroftSkill):
     @intent_file_handler('ask.delete.event.intent')
     def delete_events(self,message):
 
-        date = message.data['date']
+        date = message.data.get('date',None)
 
         if date is None:
            date = self.get_response('Please tell me the date of the event')
-            
+
 
         start_date = extract_datetime(date)[0]
         end_date = datetime.combine(start_date,start_date.max.time())
