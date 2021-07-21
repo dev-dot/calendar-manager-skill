@@ -14,14 +14,17 @@ from tzlocal import get_localzone
 from caldav.lib.error import AuthorizationError
 
 class CalendarManager(MycroftSkill):
-    """[summary]
+    """A Mycroft skill for a nextcloud calendar with 4 intent handler.
 
-    Args:
-        MycroftSkill ([type]): [description]
+    This class includes all important intent and helper function for the nextcloud calendar skill.
+    The user can change his calendar, ask what's his next appointment,
+    appointments on specific dates and his next e.g five appointments.
     """
+
     def __init__(self):
-        """[summary]
+        """Inits class TODO
         """
+
         super().__init__()
         self.current_calendar = None
       # self.local_tz = pytz.timezone('Europe/Berlin')
@@ -29,15 +32,25 @@ class CalendarManager(MycroftSkill):
 
 
     def initialize(self):
-        """[summary]
+        """A lifecycle method from Mycroft.
+
+        The user data is automatically retrieved online if anything has changed.
         """
+
         self.settings_change_callback = self.on_settings_changed
         self.on_settings_changed()
 
 
     def on_settings_changed(self):
-        """[summary]
+        """Get all credentials for the nextcloud calendar and change it.
+
+        This method changes the settings.js with the credentials,
+        if the user changes the credentials online.
+        With correct credentilas we can connect to the calendar.
+        We catch the authorization error if the credentials are wrong
+        and we are not able to connect to the calendar.
         """
+
         caldav_url = self.settings.get('ical_url')
         username = self.settings.get('username')
         password = self.settings.get('password')
@@ -55,16 +68,17 @@ class CalendarManager(MycroftSkill):
 
 
     def get_client(self, caldav_url, username, password):
-        """[summary]
+        """Connects to a calendar with caldav.
 
         Args:
-            caldav_url ([type]): [description]
-            username ([type]): [description]
-            password ([type]): [description]
+            caldav_url: valid caldav url from nextcloud calender.
+            username: username from nextcloud.
+            password: password from nextcloud.
 
         Returns:
-            [type]: [description]
+            Returns a client if the user input was successful and a connection could be established.
         """
+
         try:
             client = caldav.DAVClient(url=caldav_url, username=username, password=password)
 
@@ -76,21 +90,32 @@ class CalendarManager(MycroftSkill):
 
 
     def get_calendars(self):
+        """Get all calenders from nextcloud client
+
+        Returns:
+            Returns a list of all calenders
+        """
+
         calendars = self.client.principal().calendars()
         return calendars
 
 
     def get_all_events(self, calendar: Calendar, start: datetime = None, end: datetime = None):
-        """[summary]
+        """Get all events from nextcloud calendar.
+
+        If the start is None the calendar returns all events.
+        If the start and endtime are not None, we are getting all events from this time period.
 
         Args:
-            calendar (Calendar): [description]
-            start (datetime, optional): [description]. Defaults to None.
-            end (datetime, optional): [description]. Defaults to None.
+            calendar : The nextcloud calendar
+            start: Optional; Search starttime for the events.
+            If not set we get all events. Defaults to None.
+            end: Optional; Search endtime for the events. Defaults to None.
 
         Returns:
-            [type]: [description]
+            list: Returns a list with the events from the calendar.
         """
+
         all_events = []
 
         if start is None:
@@ -115,44 +140,32 @@ class CalendarManager(MycroftSkill):
 
 
     def get_event_title(self,event):
-        """[summary]
+        """Gets the event title from event.
 
         Args:
             event ([type]): [description]
 
         Returns:
-            [type]: [description]
+            Returns a string with the summary value or if not existing a string.
+            For example:
+
+            SUMMARY:Speech Interaction
         """
+
         try:
             return event.summary.value
         except:
             return "without a title"
 
 
-    def date_to_string(self,vevent_date: datetime, with_time: bool =True):
-        """[summary]
-
-        Args:
-            vevent_date (datetime): [description]
-            with_time (bool, optional): [description]. Defaults to True.
-
-        Returns:
-            [type]: [description]
-        """
-        #vevent_date
-        date_string = f"{vevent_date.strftime('%B')} {vevent_date.strftime('%d')}, {vevent_date.strftime('%Y')}"
-        if with_time: date_string = date_string + f" at {vevent_date.strftime('%H:%M')}"
-        return date_string
-
-
     def get_time_string(self, vevent_date: datetime):
-        """[summary]
+        """Get the time und returns only the the hour and minutes.
 
         Args:
-            vevent_date (datetime): [description]
+            vevent_date: A datetime object.
 
         Returns:
-            [type]: [description]
+            Returns a string with the hour and minutes for the event as a string.
         """
 
         try:
@@ -163,14 +176,18 @@ class CalendarManager(MycroftSkill):
 
 
     def get_ordinal_number(self,i):
-        """[summary]
+        """Changes integer numbers to written numbers.
 
         Args:
-            i ([type]): [description]
+            i: The Numbers for the days of the month.
 
         Returns:
-            [type]: [description]
+            Returns a day of the month as written numbers.
+            For Example:
+            1 as first.
+            2 as second.
         """
+
         switcher={
             1: 'first',
             2: 'second',
@@ -208,13 +225,17 @@ class CalendarManager(MycroftSkill):
 
 
 
-    def helper_speak_event(self, event, is_handle_specific = False):
-        """[summary]
+    def helper_speak_event(self, event):
+        """Helper method for the Mycroft dialogs.
+
+        This Method checks if the event is an all day event,
+        goes over more than a day or only for a period of time.
+        For every specific case Mycroft has his dialog to speak.
 
         Args:
-            event ([type]): [description]
-            is_handle_specific (bool, optional): [description]. Defaults to False.
+            event: The event object from the nextcloud calendar.
         """
+
         audio.wait_while_speaking()
 
         start_date = event.dtstart.value
@@ -233,8 +254,6 @@ class CalendarManager(MycroftSkill):
             if start_date.day == end_date.day:
                 self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
 
-                if is_handle_specific:
-                    self.speak_dialog('specific.yes.same.day.appointment.with.times')
             else:
                 self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate': end_date_string, 'endtime' : endtime })
 
@@ -257,8 +276,18 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.calendar.change.intent')
     def choose_calendar(self):
-        """[summary]
+        """User can change the current calendar
+
+        The method returns a selection of calendars to the user,
+        who can then select them numerically. After the user has
+        selected a new calendar, it becomes the new current calendar.
+        For Example:
+        Choose from one of the following calendars by saying the number
+        >> one, Persönlich
+        >> two, SpeeceInteraction
+        >> three, Arbeit
         """
+
         calendar_names = list()
 
         for calendar in self.get_calendars():
@@ -289,8 +318,13 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.intent')
     def handle_next_appointment(self):
-        """[summary]
+        """Intent handler to tell the user his next appointment.
+
+        Gets executed with the right user input.
+        The user gets his next appointment in the calendar.
+        If there is no appointments left, the user gets a dialog with a fitting message.
         """
+
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
@@ -311,11 +345,17 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.appointment.specific.intent')
     def handle_ask_specific(self, message):
-        """[summary]
+        """Intent handler to tell the user his appointments on specific days.
+
+        Gets executed with the right user input.
+        The user can ask e.g for a specific day, or if he has any appointments in two weeks.
+
 
         Args:
-            message ([type]): [description]
+            message: A message object, which contains the user inputs.
+                     In this case the message contains the specific date.
         """
+
         date = message.data['date']
 
         try:
@@ -361,11 +401,18 @@ class CalendarManager(MycroftSkill):
 
     @intent_file_handler('ask.next.number.intent')
     def handle_ask_number(self,message):
-        """[summary]
+        """Intend handler that the user can ask for the next number/amounts of events.
+
+        Gets executed with the right user input.
+        The user can ask a specific number of events.
+        For example what's his next five events.
+        If there es less events than the user asked, Mycroft will tell the remaining events.
 
         Args:
-            message ([type]): [description]
+            message: A message object, which contains the user inputs.
+                     In this case the message contains the asked amounts of events. .
         """
+
         number_speak = message.data['number']
 
         number = extract_number(number_speak)
@@ -465,4 +512,10 @@ class CalendarManager(MycroftSkill):
 
 
 def create_skill():
+    """Create the MyCroft Calender Manager Skill.
+
+    Returns:
+        Returns the Calender Manager object.
+    """
+
     return CalendarManager()

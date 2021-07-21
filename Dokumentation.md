@@ -90,9 +90,9 @@ Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kam
 Innerhalb der Entwicklungszeit wurden zwei Zwischenberichte erstellt. Diese Zwischenberichte erstellt, welche die ersten Schritte wie auch Probleme, Besonderheiten und das weitere Vorgehen beschreiben. <br>
 Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und können auch unter folgendem Github [Bericht](LINK) gefunden werden 
 
-## Besondere Erkenntnisse 
+## Besondere Erkenntnisse
 
-## Probleme 
+## Probleme
 
 ## Weiteres
 
