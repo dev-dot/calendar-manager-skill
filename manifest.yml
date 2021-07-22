@@ -10,12 +10,12 @@ dependencies:
   python:
     - requests
     - caldav
-				- lingua-franca
-				- DateTime
-				- icalendar
-				- pytz
-				- tzlocal
-				- python-dateutil
+    - lingua-franca
+    - DateTime
+    - icalendar
+    - pytz
+    - tzlocal
+    - python-dateutil
 #  - gensim
 #   # Install packages with the system package manager
 #   # This searches for the provided executable and uses the package names
