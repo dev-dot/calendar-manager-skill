@@ -156,12 +156,30 @@ Innerhalb der Entwicklungszeit wurden zwei Zwischenberichte erstellt. Diese Zwis
 Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und können auch unter folgendem Github [Link](https://github.com/dev-dot/calendar_manager_skill/tree/master/Berichte_Konzeption_Informationen) gefunden werden
 
 ## Vorgehensweise
-* 1. Nextcloud Verbindung herstellen
-* 2. Caldav-Objekte verstehen und verarbeiten
-* 3. Sortieren der Events nach Datum
-* 4. Erstellen der Intents
-* 5. Bonusaufgaben
-* 6. Dokumentieren
+1. Nextcloud <br>
+    * Zuerst haben wir eine Verbindung zum Nextcloud Kalender aufgebaut.
+ 2. CalDAV
+    * Mithilfe des CalDAV Packages konnten wir auf unseren Kalender zugreifen und eine Liste an Event-Objekte erstellen.<br>
+    Desweiteren haben wir uns mit CalDAV auseinandergesetzt um die Funktionalitäten des Packages für unseren Skill besser einsetzen zu können.
+ 3. Behandeln der Events
+    * Es werden immer nur die gewünschte Menge an Events abgerufen und je nach Funktion behandelt.
+        * Ausgeben
+        * Umbenennen
+        * Erstellen
+        * Löschen
+ 4. Erstellen der Intents
+    * Damit Mycroft auf die Intents zugreifen kann müssen Methoden vorher mit `@intent_file_handler()` deklariert werden. Im Ordner `locale/en-us` müssen dann die Textfiles (`.intent`) mit den Aufruf Befehl gepeichert werden.
+    Dialoge die Mycorft ausgibt müssen mit `.dialog` erstellt werden um im selben Ordner hinterlegt.
+ 5. Bonusaufgaben
+    * Nachdem die Hauptfunktionalitäten entwickelt waren, haben wir uns an die Bonusaufgaben gesetzt. Zuerst haben wir die Zusatzfunktion `erstellen eines Termins ` programmiert und danach die restlichen beiden Skills `löschen und umbenennen`
+ 6. Weitere Zusatzfunktionen
+    * Als weitere Zusatzfunktion bietet unser Skill dem Benutzer die Möglichkeit seinen Kalender in seiner
+ Nextcloud zu wechseln und wenn gewünscht einen weiteren Kalender zu erstellen.
+ 7. Dokumention
+    * Während der Entwicklung haben wir uns an die vorher dokumentierten Konzeption gehalten und wenn nötig leicht angepasst. Die Grundvoraussetzungen sind weiterhin gegeben.<br>
+    Jedes Package welches wir verwenden haben wir zeitnah direkt dokumentiert um einen Überblick zu behalten.
+    <br>
+    Code Dokumentation wurden mit Docstrings durchgeführt.
 
 ## Probleme
  * Die Zeitzone festzulegen war eine große Herausforderung, da die Termine nicht mit der richtigen Uhrzeit wiedergegeben werden. <br>
@@ -169,6 +187,13 @@ Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und könn
 
 * Die Credentials aus der Website wurden zu beginn nicht korrekt geladen. Sobald der Nutzer seine Daten auf der Webseite verändert hat, wurden die aktualisierten Daten nicht in die `settings.js` geschrieben, auch nicht bei einem Neustart des Geräts. <br>
 Gelöst wurde es mit Hilfe einer Lifecyclemethode. Sobald neue Daten auf der Website für den Skill eingetragen werden, oder der Skill neugetartet wird, wird die `initialize` Methode aufgerufen. Diese führt eine Callbackmethode aus und schreibt wenn benötigt die aktualisierten Daten in die `settings.js`. Wenn alles korrekt ist wird die Verbindung zum Kalender bestätigt, falls nicht wird eine passende Fehlermeldung ausgegeben.
+
+
 ## Weiteres
 
 ## Pylint
+
+Zum überprüfen unseres Codes haben wir `pylint` verwendet. Pylint dient dazu Fehler im Code anzuzeigen. Leider funktioniert pylint nicht perfekt mit Mycroft, weshalb wir manche Warnungen und Anmerkungen von Pylint deaktiviert haben. Der Grund dafür ist das Mycroft anders auf Funktionen und Zeilen zugreift. 
+
+[Pylint Score from the final commit - run on the Raspberry Pi running mycroft](./Pylint_Screenshot_Score_22072021.png)
+<img src="./Pylint_Screenshot_Score_22072021.png"/>

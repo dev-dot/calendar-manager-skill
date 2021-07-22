@@ -30,4 +30,4 @@
 
 <br>
 
-[**<- Zurück zur Dokumentation**](../Dokumentation.md) 
+[**<- Zurück zur Dokumentation**](./Dokumentation.md) 
