@@ -292,7 +292,7 @@ class CalendarManager(MycroftSkill):
         for calendar in self.get_calendars():
             calendar_names.append(calendar.name)
 
-
+        calendar_names.append("create a new calendar")
         calendar_position = 0
         counter = 0
         self.speak('Choose from one of the following calendars by saying the number')
@@ -304,6 +304,11 @@ class CalendarManager(MycroftSkill):
             counter += 1
 
         if selection is not None:
+            if selection == "create a new calendar":
+                new_calendar = self.get_response("How do you want to call the calendar")
+                self.current_calendar =  self.client.principal().make_calendar(name=new_calendar)
+                self.speak(f"new calendar {new_calendar} was created and selected")
+                return
             selected_calendar = self.get_calendars()[calendar_position]
             self.speak(f"You chose {selected_calendar.name}")
             self.current_calendar = selected_calendar
