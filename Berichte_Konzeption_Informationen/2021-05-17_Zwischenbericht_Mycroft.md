@@ -16,4 +16,5 @@ Auf unserem Pi:
 * Danach konnte der Skill ohne Fehler (Modul import error) geladen werden. 
 * Der Title vom Termin kann aus dem Terminkalender abegrufen und von Mycroft ausgegeben werden.
 
+[**<- Zurück zur Dokumentation**](./Dokumentation.md)
 

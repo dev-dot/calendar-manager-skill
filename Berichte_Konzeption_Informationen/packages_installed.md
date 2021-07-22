@@ -1,5 +1,5 @@
 # Wichtige Packages <br>
-* Die folgenden Packages müssen auf dem Raspberry Pi installiert werden damit der Calendar Manager Skill nicht von Mycroft deaktiviert wird, wegen fehlender Dependencies
+Die folgenden Packages müssen auf dem Raspberry Pi installiert werden, damit der Calendar Manager Skill nicht von Mycroft deaktiviert wird, wegen fehlender Dependencies.
 
 
 ## Packages Installed
@@ -25,7 +25,7 @@
 ### tzlocal
 * `pip install tzlocal`
 
-### msk (Falls nicht schon vorhanden)
+### msk
 * `pip install msk`
 
 <br>

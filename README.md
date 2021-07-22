@@ -1,7 +1,7 @@
 # <img src="https://raw.githack.com/FortAwesome/Font-Awesome/master/svgs/solid/calendar-check.svg" card_color="#22A7F0" width="50" height="50" style="vertical-align:bottom"/> Calendar Manager
 
 ## About
-Mycorft `Calendar_Manager_Skill` zur Verwaltung eines caldavs Kalendars z.B. Nextcloud
+Mycorft `Calendar_Manager_Skill` zur Verwaltung eines CaldDAVs Kalendars z.B. Nextcloud
 
 
 ## Dokumentation

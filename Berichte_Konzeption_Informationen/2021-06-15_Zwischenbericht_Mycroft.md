@@ -29,3 +29,5 @@ Beispiel <br>
 * Wochentage werden als ints 0-6 gepeichert
 * Datum wird im Dialog als Wort ausgesprochen und nicht als Zahl
 * Über Remote-SSH mit dem Pie verbunden.
+
+[**<- Zurück zur Dokumentation**](./Dokumentation.md)

@@ -1,7 +1,7 @@
 # Speech Interaction - Mycroft Kalendar Skill
 # (Benutzer)-Dokumentation
 # Einleitung
-Die Folgende Dokumentation beinhaltet die Anweisungen für die Installation eines Mycroft Skill und die Installation des Kalendar Skills. <br>
+Die folgende Dokumentation beinhaltet die Anweisungen für die Installation eines Mycroft Skills und die Installation des Kalendar Skills. <br>
 Desweiteren werden wichtige Methoden, Inputs und das Vorgehen erläutert.
 
 ## Aufgabenstellung
@@ -30,11 +30,11 @@ Für diese Aufgabe wurde dementsprechend eine zur Verfügung gestellte Nextcloud
 
 # Erstellen eines Mycroft Skills
 
-Um einen Mycroft Skill zu erstellen kann mit Hilfe des `mycroft-msk create` Befehl, ein Template erstellt werden, welches anhand verschiedener Fragen einen Skill erstellt. Unteranderem wird nach dem Skillnamen und einem Beispiel Dialog gefragt, die der Benutzer vom Skill erwartet. Weitere Informationen und genauere Details können auf der offizielen Mycroft [**Seite**](https://mycroft-ai.gitbook.io/docs/skill-development/introduction/your-first-skill) nachgelesen werden.
+Mit dem Befehl `mycroft-msk create` lässt sich ein Mycroft Skill erstellen. Hierbei wird man durch ein Template geführt, in dem man den Skillnamen, Kategorien und ein Beispiel Dialog eintragen soll. Weitere Informationen und genauere Details können auf der offizielen Mycroft [**Seite**](https://mycroft-ai.gitbook.io/docs/skill-development/introduction/your-first-skill) nachgelesen werden.
 
 Nach dem das Template erstellt wurde, wird der Skill automatisch auf der Githubseite veröffentlicht und auf dem Raspberry Pi installiert.
 
-Alle installierten Skills befinden sich im Raspberry Pi im Verzeichnis `/opt/mycroft/skills`.
+Alle installierten Skills befinden sich im Raspberry Pi unter dem Verzeichnis `/opt/mycroft/skills`.
 
 # Installation des `calendar_manager_skill`
 
@@ -42,7 +42,7 @@ Alle installierten Skills befinden sich im Raspberry Pi im Verzeichnis `/opt/myc
 
 Um den Calendar Manager Skill lauffähig zu installieren müssen bestimmte Vorraussetzungen erfüllt werden.
 
-* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Für den Fall das bei der Installation die Packages nicht installiert wurden können die Packages manuell installiert werden. <br>
+* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Für den Fall, dass bei der Installation die Packages nicht installiert wurden, können die Packages manuell installiert werden. <br>
 Eine Liste der erfoderlichen Packages sind [**hier**](./packages_installed.md) mit den passenden befehlen zu finden.
 
 * Ein Nextcloud Account muss vorhanden sein. <br> Für diesen Skill wurde ein Nextcloud Kalendar zur Verfügung gestellt. <br>
@@ -50,10 +50,10 @@ Den Kalendar kann unter folgendem [**Link**](https://si-nextcloud.social-robot.i
 Mit diesem Kalendar werden die Termine erstellt wie auch die ical-url generiert werden.
 
 * Ein Account bei Mycroft wird benötigt um die Skills und Mycroft selbst zu konfigurieren. <br>
-Die Mycroft Seite kann über [**Link**](https://account.mycroft.ai/) erreicht werden.
+Die Mycroft Seite kann über diesen [**Link**](https://account.mycroft.ai/) erreicht werden.
 
 * Über den Skill Dashboard können alle installierten Skills eingesehen werden. <br>
-Für den Calendar Manager Skill müssen die folgedenden erforderlichen Daten über die Webseite eingetragen werden: <br>
+Für den Calendar Manager Skill müssen die folgenden Daten über die Webseite eingetragen werden: <br>
     * `Ical-Url` vom Nextcloud Kalender
     * `Username` des Nextcloud Accounts
     * `Password` des Nextcloud Accounts
@@ -71,7 +71,7 @@ Man muss in den  `/opt/mycroft/skills` Verzeichnis navigieren und den Skill mith
 # Calendar Manager Skill
 
 ## Beschreibung
-Der Calendar Manager Skill bietet verschiedene Befehle und Funktionen an um einen Termin aus dem Nextcloud Kalender abzufragen
+Der Calendar Manager Skill bietet verschiedene Befehle und Funktionen um einen Termin aus dem Nextcloud Kalender abzufragen, zu modifizieren, zu erstellen und zu löschen.
 
 ## Helper Methoden
 
@@ -96,24 +96,24 @@ Als Startzeitpunkt für die Suche wird der Moment der abfrage verwendet.
 * Mit dieser Methode kann der Benutzer nach einem Termin an einem bestimmten Datum fragen. Wenn an diesem Tag mehrere Termine vorhanden sind werden alle der Reihe nach vorgelesen.<br>
 Existiert an dem Tag kein Termin teilt Mycroft das dem Benutzer mit und gibt zusätzlich den daraufhin nächsten Termin an welche beispielsweise ein Tag später wäre.
 ### `handle_ask_number()`
-* Mit der `handle_ask_number()` Methode kann der Benutzer nach einer bestimmten Anzahl an Terminen frage. Der Benutzer gibt die gewünschte Anzahl mit und wenn genau so viele oder mehr Termine vorhanden sind, dann gibt Mycorft die exakt gewünschte Anzahl an Terminen aus.<br>
-Sind weniger Termine wie angefragt vorhanden, teilt Mycroft dem Benutzer mit, dass beispielsweise nur vier anstatt der gewünschten Anzahl an Termine vorhanden sind und gibt diese daraufhin aus.
+* Mit dieser Methode kann der Benutzer nach einer bestimmten Anzahl an Terminen frage. Der Benutzer gibt die gewünschte Anzahl mit und wenn genau so viele oder mehr Termine vorhanden sind, dann gibt Mycorft die exakt gewünschte Anzahl an Terminen aus.<br>
+Sind weniger Termine wie angefragt vorhanden, teilt Mycroft dem Benutzer mit, dass beispielsweise nur vier anstatt der gewünschten Anzahl an Terminen vorhanden sind und gibt diese daraufhin aus.
 ### `handle_choose_calendar())`
-* Bei der `handle_choose_calendar())` Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man kann per Spracheingabe seinen neuen Kalender wählen. Desweiteren besteht auch die Möglichkeit bei der Auswahl einen neuen Kalender zu erstellen.
+* Bei dieser Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man kann per Spracheingabe seinen neuen Kalender wählen. Desweiteren besteht auch die Möglichkeit bei der Auswahl einen neuen Kalender zu erstellen.
 ### `handle_create_event()`
 * Mit dieser Methode kann der Benutzer einen neuen Termin anlegen. Hierfür wird vom Benutzer ein `Name`, `Startdatum` und das `Enddatum` verlangt. Wenn der Benutzer einen ganztags Termin erstellen möchte, dann muss der Benutzer nach dem `Startdatum` noch `all day` sagen. Nachdem die Eingaben vollständig sind wird der Termin dem Kalender hinzugefügt.
 
 ### `handle_delete_event()`
 * Mit dieser Methode kann der Benutzer ein Termin löschen. <br>
-Gibt der Benutzer keinen spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich gelöscht werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
-Werden mehrere Termine an einen Tag gefunden, wird eine Liste erstellt und Mycroft liest diese vor. Anhand der ausgegebenen Position kann dann ein Event zum löschen ausgewählt werden. Der Ausgwählte Event muss dann vom Benutzer bestätigt werden.
+Gibt der Benutzer kein spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich gelöscht werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
+Werden mehrere Termine an einen Tag gefunden, wird eine Liste erstellt und Mycroft liest diese vor. Anhand der ausgegebenen Position kann dann ein Event zum löschen ausgewählt werden. Das Ausgwählte Event muss dann vom Benutzer bestätigt werden.
 Wurde das Event gelöscht bestätigt dies Mycroft.
 
 ### `handle_rename_event()`
 * Mit dieser Methode kann der Benutzer ein Termin umbenennen. <br>
-Gibt der Benutzer keinen spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich umbennent werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
+Gibt der Benutzer kein spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich umbennent werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
 Werden mehrere Termine an einen Tag gefunden, wird eine Liste erstellt und Mycroft liest diese vor. Anhand der ausgegebenen Position kann dann ein Event zum umbenennen ausgewählt werden.
-<br> Sobald der Nutzer ein Termin zum umbennen ausgewählt hat, fragt Mycroft wie der Termin genannt werden soll und nimmt den Benutzer input.<br>
+<br> Sobald der Nutzer ein Termin zum umbennen ausgewählt hat, fragt Mycroft wie der Termin genannt werden soll und nimmt den Benutzer Input.<br>
 Wurder der Termin erfolgreich umbenannt und im Kalendar gespeichert, bestätigt dies Mycroft.
 
 
@@ -124,7 +124,7 @@ Wurder der Termin erfolgreich umbenannt und im Kalendar gespeichert, bestätigt 
 ### `What's my next appointment`
 * Auf die Frage, beantwortet Mycroft die Frage mit dem nächstmöglich Termin im Kalender. Die Einträge werden chronologisch sortiert.
 <br><br>
-Beispiel:<br>
+**Beispiel**<br>
 "Your next event is" <br>
 "Speech Interaction will start on the twenty-third of July at 15:00 o'clock and will end at 16:00 o'clock."
 
@@ -138,11 +138,11 @@ rock ballad and will start on the twenty-sixth of July at 16:00 o'clock and will
 
 ### `Tell me my next {Number} events`
 * Mycroft sucht nach der bestimmten Anzahl an Terminen. Werden für die angefragten Anzahl an Terminen  gleich viele gefunden gibt Mycroft diese aus.  <br>
-Werden weniger Termine gefunden, gibt Mycroft die tatsächliche Nummer als Input an und gibt die gefundene Anzahl an Terminen aus. <br><br>
+Werden weniger Termine gefunden, gibt Mycroft die tatsächliche Nummer als Input an und gibt die gefundene Anzahl an Terminen aus. <br>
 Werden keine Termine gefunden, da keine Termine mehr vorhanden sind, gibt Mycroft dies ebenfalls aus.
-<br>
+<br> <br>
 **Beispiel** <br>
-Frage nach drei Terminen.
+Frage nach drei Terminen.<br>
 "You have only 2 upcoming events and they are" <br>
 "Meeting will start on the twenty-third of July at 15:00 o'clock and will end at 16:00 o'clock. <br>
 basketball will start on the twenty-sixth of July and is an all day event."
@@ -169,29 +169,28 @@ basketball will start on the twenty-sixth of July and is an all day event."
 "Successfully renamed"
 
 ### `I want to delete an appointment`
-* Mycroft fragt, falls nicht gegeben, nach dem Datum, dann welches Event gelöscht werden soll.
+* Mycroft fragt, falls nicht gegeben, nach dem Datum, und dann welches Event gelöscht werden soll.
 <br> <br>
 **Beispiel**<br>
-" >> Please tell me the date of the event" - monday <br>
-" Do you want to delete this appointment tennis? " - yes <br>
-"How do you want to call it?" - tennis <br>
+"Please tell me the date of the event" - monday <br>
+"Do you want to delete this appointment tennis? " - yes <br>
 "Successfully deleted"
 
-## Kalender wechseln
+## Kalender wechseln oder einen neuen Kalendar erstellen (Zusatzfunktion)
+### `I want to change my calendar`
 * Mycroft kann wenn gewünscht den Kalendar wechseln oder einen neuen erstellen.
 <br> <br>
-
 **Beispiel** <br>
 "Choose from one of the following calendars by saying the number" <br>
 "one, Persönlich" <br>
 "two, Speech Interaction" <br>
 "three, Arbeit" <br>
-"four, create a new calendar" <br> - four
+"four, create a new calendar"  - four<br>
 "How do you want to call the calendar?"  sport <br>
 "New calendar sport was created and selected"
 
 
-# Wissenwertes während der Entwicklung (Title WIP)
+# Erkenntnisse der Entwicklung
 
 Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kamen, werden hier detailierter erläutert.
 
@@ -199,13 +198,15 @@ Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kam
 ## Zwischenberichte während der Entwicklung
 
 Innerhalb der Entwicklungszeit wurden zwei Zwischenberichte erstellt. Diese Zwischenberichte beschreiben,  die ersten Schritte wie auch Probleme, Besonderheiten und das weitere Vorgehen. <br>
-Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und können auch unter folgendem Github [Link](https://github.com/dev-dot/calendar_manager_skill/tree/master/Berichte_Konzeption_Informationen) gefunden werden
+Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information`. <br>
+* Zwischenbericht 1:  [2021-05-17_Zwischenbericht_Mycroft.md](./2021-05-17_Zwischenbericht_Mycroft.md)
+* Zwischenbericht 2:  [2021-06-15_Zwischenbericht_Mycroft.md](./2021-06-15_Zwischenbericht_Mycroft.md)
 
 ## Vorgehensweise
 1. Nextcloud <br>
     * Zuerst haben wir eine Verbindung zum Nextcloud Kalender aufgebaut.
  2. CalDAV
-    * Mithilfe des CalDAV Packages konnten wir auf unseren Kalender zugreifen und eine Liste an Event-Objekte erstellen.<br>
+    * Mithilfe des CalDAV Packages konnten wir auf unseren Kalender zugreifen und eine Liste an Event Objekten erstellen.<br>
     Desweiteren haben wir uns mit CalDAV auseinandergesetzt um die Funktionalitäten des Packages für unseren Skill besser einsetzen zu können.
  3. Behandeln der Events
     * Es werden immer nur die gewünschte Menge an Events abgerufen und je nach Funktion behandelt.
@@ -222,27 +223,26 @@ Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und könn
     * Als weitere Zusatzfunktion bietet unser Skill dem Benutzer die Möglichkeit seinen Kalender in seiner
  Nextcloud zu wechseln und wenn gewünscht einen weiteren Kalender zu erstellen.
  7. Dokumention
-    * Während der Entwicklung haben wir uns an die vorher dokumentierten Konzeption gehalten und wenn nötig leicht angepasst. Die Grundvoraussetzungen sind weiterhin gegeben.<br>
-    Jedes Package welches wir verwenden haben wir zeitnah direkt dokumentiert um einen Überblick zu behalten.
+    * Während der Entwicklung haben wir uns an der vorher dokumentierten Konzeption orientiert.<br>
+    Jedes Package welches wir verwenden, haben wir zeitnah direkt dokumentiert um einen Überblick zu behalten.
     <br>
     Code Dokumentation wurden mit Docstrings durchgeführt.
 
 ## Probleme
- * Die Zeitzone festzulegen war eine große Herausforderung, da die Termine nicht mit der richtigen Uhrzeit wiedergegeben werden. <br>
+ * Die Zeitzone festzulegen war eine große Herausforderung, da die Termine nicht mit der richtigen Uhrzeit wiedergegeben wurden. <br>
  Gelöst wurde es mithilfe des Packages `tzlocal` und der Methode `get_localzone()`. Wir verwenden dementsprechend die Zeitzone des Raspberri Pi's. Dies bietet den Vorteil das die Zeitzone jederzeit vom Nutzer auf Wunsch auf seinem Gerät gewechselt werden kann.
 
-* Die Credentials aus der Website wurden zu beginn nicht korrekt geladen. Sobald der Nutzer seine Daten auf der Webseite verändert hat, wurden die aktualisierten Daten nicht in die `settings.js` geschrieben, auch nicht bei einem Neustart des Geräts. <br>
-Gelöst wurde es mit Hilfe einer Lifecyclemethode. Sobald neue Daten auf der Website für den Skill eingetragen werden, oder der Skill neugetartet wird, wird die `initialize` Methode aufgerufen. Diese führt eine Callbackmethode aus und schreibt wenn benötigt die aktualisierten Daten in die `settings.js`. Wenn alles korrekt ist wird die Verbindung zum Kalender bestätigt, falls nicht wird eine passende Fehlermeldung ausgegeben.
+* Die Credentials aus der Website wurden zu beginn nicht korrekt geladen. Sobald der Nutzer seine Daten auf der Webseite verändert hat, wurden die aktualisierten Daten nicht in die `settings.json` geschrieben, auch nicht bei einem Neustart des Geräts. <br>
+Gelöst wurde es mit Hilfe einer Lifecycle Methode von Mycroft. Sobald neue Daten auf der Website für den Skill eingetragen werden, oder der Skill neugetartet wird, wird die `initialize` Methode aufgerufen. Diese führt eine Callbackmethode aus und schreibt wenn nötig die aktualisierten Daten in die `settings.json`. Wenn alles korrekt ist wird die Verbindung zum Kalender bestätigt, falls nicht wird eine passende Fehlermeldung ausgegeben.
 
 
-## Weiteres
 
 ## Pylint
 
-Zum überprüfen unseres Codes haben wir `pylint` verwendet. Pylint dient dazu Fehler im Code anzuzeigen. Leider funktioniert pylint nicht perfekt mit Mycroft, weshalb wir manche Warnungen und Anmerkungen von Pylint deaktiviert haben. Der Grund dafür ist das Mycroft anders auf Funktionen und Zeilen zugreift.
+Zum Überprüfen unseres Codes haben wir `pylint` verwendet. Pylint dient dazu Fehler im Code anzuzeigen. Leider funktioniert pylint nicht perfekt mit Mycroft, weshalb wir manche Warnungen und Anmerkungen von Pylint deaktiviert haben. Der Grund dafür ist das Mycroft anders auf Funktionen und Zeilen zugreift.
 <br>
 Um Pylint auszufühen kann man in den Skill Ordner navigieren und `pylint __init__.py` ausführen.
 
+Pylint Score des finalen commits - Ausgeführt auf einem Raspberry Pi mit Mycroft:
 <img src="./Pylint_Screenshot_Score_22072021.png"/>
 
-[Pylint Score from the final commit - run on the Raspberry Pi running mycroft](./Pylint_Screenshot_Score_22072021.png)
