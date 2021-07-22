@@ -1,10 +1,8 @@
+
+
 from time import gmtime
-import time
 from datetime import date, datetime, timedelta, tzinfo
 from mycroft import MycroftSkill, intent_file_handler, audio
-
-from dateutil import relativedelta
-
 import caldav
 from caldav.objects import Calendar
 import pytz
@@ -27,8 +25,10 @@ class CalendarManager(MycroftSkill):
 
         super().__init__()
         self.current_calendar = None
-      # self.local_tz = pytz.timezone('Europe/Berlin')
         self.local_tz = get_localzone()
+        # If the PI cant change timezone of the device use this variable
+       #self.local_tz = pytz.timezone('Europe/Berlin')
+
 
 
     def initialize(self):
@@ -438,77 +438,270 @@ class CalendarManager(MycroftSkill):
 
                 self.helper_speak_event(next_event)
 
-# Bonus "DELETE"
 
-'''
-    @intent_file_handler('ask.delete.event.intent')
-    def delete_events(self,message):
 
-        date = message.data['date']
+    @intent_file_handler('ask.create.event.intent')
+    def handle_create_event(self):
+        """Handler intent to create a new event and adds to nextcloud calendar.
 
-        start_date = extract_datetime(date)[0]
-        end_date = datetime.combine(start_date,start_date.max.time())
+        Gets executed with the right user input.
+        This method allows the user to create an appointment.
+        Mycroft will first ask how to name the event.
+        After that Mycroft asks when the appointment should start.
+        The user can say spefic dates and times or that the event is an all day event.
+        After creating the event Mycroft will confirm it.
+        """
+
         calendar = self.current_calendar
         if calendar is None:
             self.speak('No calendar accessible')
             return
-        events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
-        spoken_date = nice_date(start_date)
+        try:
+            event_name = self.get_response('Please tell me the name of the event?')
 
-        if len(events) == 0:
-            self.speak_dialog('no.appointments')
-        elif len(events) == 1:
-            next_event = events[0].instance.vevent
-            summary = self.get_event_title(next_event
+            event_start = self.get_response('What date and time does the event start?')
 
-            shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
-            if shall_be_deleted == 'yes':
-                # TODO: try deletion
-                self.speak_dialog('successfully deleted')
-                delete_specific_event(next_event)
-            elif shall_be_deleted == 'no':
-                self.speak_dialog('Canceled deletetion')
+            if   'all day' in event_start:
+
+                start = extract_datetime(event_start)[0].strftime("%Y%m%d")
+                end = (extract_datetime(event_start)[0] + timedelta(days=1)).strftime("%Y%m%d")
             else:
-                self.speak_dialog('I could not understand you.') # TODO: is this really neccesary?
-            # ask if the user wants to delete a specific event
 
-        else:
-            event_names = list()
+                event_end =  self.get_response('At what date and time ended the event?')
+                end = extract_datetime(event_end)[0].strftime("%Y%m%dT%H%M%S")
+                start =extract_datetime(event_start)[0].strftime("%Y%m%dT%H%M%S")
 
-            for event in events:
-                next_event = event.instance.vevent
-                summary = self.get_event_title(next_event)
+            create_date = datetime.now().strftime("%Y%m%dT%H%M%S")
 
-                event_names.append(summary)
+            new_event = f"""BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTAMP:{create_date}
+DTSTART:{start}
+DTEND:{end}
+SUMMARY:{event_name}
+END:VEVENT
+END:VCALENDAR
+"""
 
-            event_position = 0
-            counter = 0
-            self.speak_dialog('Which of the following events do you want to delete?')
-            selection = self.ask_selection(options=event_names, numeric= True)
+            if start<end :
 
-            for event in events:
-                next_event = event.instance.vevent
-                summary = self.get_event_title(next_event)
-
-                if summary == selection:
-                    event_position = counter
-                counter += 1
-
-            if selection is not None:
-                selected_event = events[event_position]
-                self.speak(f"You chose {selected_event.name}")
-                # delete specific
-
+                calendar.add_event(new_event)
+                self.speak(f"Succesfully created the event {event_name}")
             else:
-                self.speak(f"Cancled selection.")
 
-        def delete_specific_event(self, event):
-            try:
-                event.delete()
-            except:
-                self.speak('An error occured and thus selected event could not be deleted')
-'''
+                self.speak(f"Your event {event_name} will end in the past. Please create a correct event")
 
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak("not a valid input. Please rephrase your question.")
+        except Exception as exception:
+
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
+
+
+
+
+
+    @intent_file_handler('ask.delete.event.intent')
+    def delete_events(self,message):
+        """Intend handler to delete an event.
+
+        Gets executed with the right user input.
+        This method allows the user to delete any appointments from his nextcloud calendar.
+        The user can optional say a date or will be asked. When there is only one appointment,
+        Mycroft will ask directy if he should delete the event.
+        When there is more than one appointment, Mycroft will create a list of the events
+        and the user can choose with saying the number of the list which appointment Mycroft
+        should delete.
+
+        Args:
+            message: Optional; The user can say the date, on which he wants to delete an event.
+            If the date is not given, Mycroft will ask the for the date he should delete an event.
+        """
+
+        date = message.data.get('date',None)
+        try:
+
+            if date is None:
+                date = self.get_response('Please tell me the date of the event')
+
+
+            start_date = extract_datetime(date)[0]
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+
+            if len(events) == 0:
+                self.speak_dialog(f"You have no appointments  {date}")
+            elif len(events) == 1:
+                next_event = events[0]
+                summary = self.get_event_title(next_event.instance.vevent)
+
+                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
+                if shall_be_deleted == 'yes':
+
+                    next_event.delete()
+                    self.speak_dialog('Successfully deleted')
+
+                elif shall_be_deleted == 'no':
+                    self.speak_dialog('Canceled deletion')
+                else:
+                    self.speak_dialog('I could not understand you. Deletion is canceled')
+            else:
+                event_names = list()
+
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    event_names.append(summary)
+
+                event_position = 0
+                counter = 0
+                self.speak_dialog('Which of the following events do you want to delete?')
+                selection = self.ask_selection(options=event_names, numeric= True)
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    if summary == selection:
+                        event_position = counter
+                    counter += 1
+
+                if selection is not None:
+                    selected_event = events[event_position]
+                    self.speak(f"You chose {selection}")
+                    shall_be_deleted = self.ask_yesno("Are you sure to delete this event? ")
+                    if shall_be_deleted == 'yes':
+
+                        selected_event.delete()
+                        self.speak_dialog('Successfully deleted')
+
+                    elif shall_be_deleted == 'no':
+                        self.speak_dialog('Canceled deletion')
+                    else:
+                        self.speak_dialog('I could not understand you. Deletion is canceled')
+
+                else:
+                    self.speak(f"Cancled selection.")
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
+
+
+
+
+    @intent_file_handler('ask.rename.event.intent')
+    def rename_event(self,message):
+        """Handle intent for renaming events.
+
+        Gets executed with the right user input.
+        This method allows the user to rename any appointments from his nextcloud calendar.
+        The user can optional say a date or will be asked. When there is only one appointment,
+        Mycroft will ask directy if he should rename the event.
+        When there is more than one appointment, Mycroft will create a list of the events
+        and the user can choose with saying the number of the list which appointment Mycroft
+        should rename.
+
+        Args:
+            message: Optional; The user can say the date, on which he wants to rename an event.
+            If the date is not given, Mycroft will ask for the date he should rename an event.
+        """
+
+        date = message.data.get('date',None)
+        try:
+
+            if date is None:
+                date = self.get_response('Please tell me the date of the event you want to rename')
+
+
+            start_date = extract_datetime(date)[0]
+            end_date = datetime.combine(start_date,start_date.max.time())
+            calendar = self.current_calendar
+            if calendar is None:
+                self.speak('No calendar accessible')
+                return
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+
+            if len(events) == 0:
+                self.speak_dialog(f"You have no appointments  {date}")
+            elif len(events) == 1:
+                next_event = events[0]
+                summary = self.get_event_title(next_event.instance.vevent)
+
+                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
+                if shall_be_renamed == 'yes':
+                    if summary == "without a title":
+                        next_event.instance.vevent.add('summary')
+                    new_name = self.get_response("How do you want to call it?")
+                    next_event.instance.vevent.summary.value = new_name
+                    next_event.save()
+                    self.speak_dialog('Successfully renamed')
+
+                elif shall_be_renamed == 'no':
+                    self.speak_dialog('Canceled renaming')
+                else:
+                    self.speak_dialog('I could not understand you. Renaming is canceled')
+            else:
+                event_names = list()
+
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    event_names.append(summary)
+
+                event_position = 0
+                counter = 0
+                self.speak_dialog('Which of the following events do you want to rename?')
+                selection = self.ask_selection(options=event_names, numeric= True)
+                for event in events:
+                    next_event = event.instance.vevent
+                    summary = self.get_event_title(next_event)
+
+                    if summary == selection:
+                        event_position = counter
+                    counter += 1
+
+                if selection is not None:
+                    selected_event = events[event_position]
+                    self.speak(f"You chose {selection}")
+                    shall_be_renamed = self.ask_yesno(f"Are you sure to rename this event? ")
+                    if shall_be_renamed == 'yes':
+                        if selection == "without a title":
+                            selected_event.instance.vevent.add('summary')
+
+                        new_name = self.get_response("How do you want to call it?")
+
+                        selected_event.instance.vevent.summary.value = new_name
+                        selected_event.save()
+
+                        self.speak_dialog('Successfully renamed')
+
+                    elif shall_be_renamed == 'no':
+                        self.speak_dialog('Canceled renaming')
+                    else:
+                        self.speak_dialog('I could not understand you. Renaming is canceled')
+
+                else:
+                    self.speak("Cancled selection.")
+        except TypeError as type_error:
+
+            self.log.error(type_error)
+            self.speak(f"{date} is not a valid input. Please rephrase your question.")
+        except Exception as exception:
+            self.log.error(exception)
+            self.speak("Unexpected error! Check Logs!")
 
 
 def create_skill():
