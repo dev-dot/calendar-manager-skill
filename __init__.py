@@ -303,9 +303,9 @@ class CalendarManager(MycroftSkill):
 
         if selection is not None:
             if selection == "create a new calendar":
-                new_calendar = self.get_response("How do you want to call the calendar")
+                new_calendar = self.get_response("How do you want to call the calendar?")
                 self.current_calendar =  self.client.principal().make_calendar(name=new_calendar)
-                self.speak(f"new calendar {new_calendar} was created and selected")
+                self.speak(f"New calendar {new_calendar} was created and selected")
                 return
             selected_calendar = self.get_calendars()[calendar_position]
             self.speak(f"You chose {selected_calendar.name}")

@@ -19,9 +19,10 @@ Der Skill besitzt folgende Bonusfähigkeiten:
 * Einen Termin löschen
 
 Folgende Fähigkeiten sind zusätzlich eingbaut:
-* Einen Kalender wechseln
+* Einen Kalender wechseln oder wenn gewünscht einen weiteren Kalender in Nextcloud hinzufügen.
 
-Eine Konzeption der Aufgabenstellung kann in dem Ordner `Berichte_Konzeption_Information` unter folgenden Github [Link](https://github.com/dev-dot/calendar_manager_skill/tree/master/Berichte_Konzeption_Informationen) eingesehen werden.
+
+Eine Konzeption der Aufgabenstellung kann in dem Ordner `Berichte_Konzeption_Information` unter folgenden Github [Link](./Konzeption_1.pdf) eingesehen werden.
 
 # Grundsetzliche Mycroft Installation
 Für diese Aufgabe wurde dementsprechend eine zur Verfügung gestellte Nextcloud und der Open-Source-Sprachassisten MyCroft verwendet. Zum Vorgehen wie man diesen auf dem RaspberryPi installiert findet man unter [**diesem Link**](https://mycroft-ai.gitbook.io/docs/using-mycroft-ai/get-mycroft/linux) eine Anleitung.
@@ -41,7 +42,8 @@ Alle installierten Skills befinden sich im Raspberry Pi im Verzeichnis `/opt/myc
 
 Um den Calendar Manager Skill lauffähig zu installieren müssen bestimmte Vorraussetzungen erfüllt werden.
 
-* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Eine Liste der erfoderlichen Packages sind [**hier**](./packages_installed.md) mit den passenden befehlen zu finden.
+* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Für den Fall das bei der Installation die Packages nicht installiert wurden können die Packages manuell installiert werden. <br>
+Eine Liste der erfoderlichen Packages sind [**hier**](./packages_installed.md) mit den passenden befehlen zu finden.
 
 * Ein Nextcloud Account muss vorhanden sein. <br> Für diesen Skill wurde ein Nextcloud Kalendar zur Verfügung gestellt. <br>
 Den Kalendar kann unter folgendem [**Link**](https://si-nextcloud.social-robot.info/index.php/login) erreicht werden. <br>
@@ -99,7 +101,7 @@ Sind weniger Termine wie angefragt vorhanden, teilt Mycroft dem Benutzer mit, da
 ### `handle_choose_calendar())`
 * Bei der `handle_choose_calendar())` Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man kann per Spracheingabe seinen neuen Kalender wählen. Desweiteren besteht auch die Möglichkeit bei der Auswahl einen neuen Kalender zu erstellen.
 ### `handle_create_event()`
-* Mit dieser Methode kann der Benutzer einen neuen Termin anlegen. Hierfür wird vom Benutzer ein `Name`, `Startdatum` und das `Enddatum` verlangt. Wenn der Benutzer einen ganztags Termin erstellen möchte, dann muss der Benutzer nach dem `Startdatum` noch `all day` sagen. Nachdem die Eingaben vollständig sind wird der Termin dem Kalender hinzugefügt. 
+* Mit dieser Methode kann der Benutzer einen neuen Termin anlegen. Hierfür wird vom Benutzer ein `Name`, `Startdatum` und das `Enddatum` verlangt. Wenn der Benutzer einen ganztags Termin erstellen möchte, dann muss der Benutzer nach dem `Startdatum` noch `all day` sagen. Nachdem die Eingaben vollständig sind wird der Termin dem Kalender hinzugefügt.
 
 ### `handle_delete_event()`
 * Mit dieser Methode kann der Benutzer ein Termin löschen. <br>
@@ -116,35 +118,79 @@ Wurder der Termin erfolgreich umbenannt und im Kalendar gespeichert, bestätigt 
 
 
 
-## wichtige Inputs / Befehle
+# Beispiele für die Inputs und Outputs
 
-### "What's my next appointment"
+## Kalender Ausgaben
+### `What's my next appointment`
 * Auf die Frage, beantwortet Mycroft die Frage mit dem nächstmöglich Termin im Kalender. Die Einträge werden chronologisch sortiert.
-<br>
+<br><br>
 Beispiel:<br>
-"Your next appointment will start on the fifteenth of June at 01:10 o'clock and will end on the   fifteenth of June at 02:10 o'clock and is entitled Dentist"
+"Your next event is" <br>
+"Speech Interaction will start on the twenty-third of July at 15:00 o'clock and will end at 16:00 o'clock."
 
-### "Do I have an appointment next {weekday}"
+### `Do I have any appointments next {weekday}`
 * Mycroft sucht nach dem Datum und gibt an wie viele Termine an diesem Tag im Kalender stehen und gibt diese auch direkt aus.
-Für den Fall das an dem Tag kein Termin steht, sagt Mycroft das an dem Tag keine Termine vorhanden sind.
-<br>
-Beispiel <br>
-"Yes, you have 2 appointments on wednesday the sixteenth of June. Your appointments are:
- Meeting with friends, starts at at 08:00 o'clock and will end at at 09:00 o'clock
- Dentist, starts at at 16:00 o'clock and will end at at 17:00 o'clock "
+Für den Fall das an dem Tag kein Termin steht, sagt Mycroft das an dem Tag keine Termine vorhanden sind. <br> <br>
+**Beispiel** <br>
+"Yes, you have 2 appointments on the monday, july twenty-sixth, twenty twenty one. Your appointments are:" <br>
+"basketball will start on the twenty-sixth of July and is an all day event. <br>
+rock ballad and will start on the twenty-sixth of July at 16:00 o'clock and will end on the twenty-seventh of July at 19:00 o'clock."
 
-### "Tell me my next {Number} events"
-* Mycroft sucht nach der bestimmten Anzahl an Terminen. Werden für die angefragten Anzahl an Terminen auch gleich viele gefunden gibt Mycroft diese aus.  <br>
-Werden weniger Termine gefunden, gibt Mycroft die tatsächliche Nummer als Input an und gibt die gefundene Anzahl an Terminen aus. <br>
+### `Tell me my next {Number} events`
+* Mycroft sucht nach der bestimmten Anzahl an Terminen. Werden für die angefragten Anzahl an Terminen  gleich viele gefunden gibt Mycroft diese aus.  <br>
+Werden weniger Termine gefunden, gibt Mycroft die tatsächliche Nummer als Input an und gibt die gefundene Anzahl an Terminen aus. <br><br>
 Werden keine Termine gefunden, da keine Termine mehr vorhanden sind, gibt Mycroft dies ebenfalls aus.
+<br>
+**Beispiel** <br>
+Frage nach drei Terminen.
+"You have only 2 upcoming events and they are" <br>
+"Meeting will start on the twenty-third of July at 15:00 o'clock and will end at 16:00 o'clock. <br>
+basketball will start on the twenty-sixth of July and is an all day event."
 
-## Zusätzliche Methoden (Bonusaufgabe)
-### "I want to create an appointment"
-* 
-### "I want to rename an appointment"
-* 
-### "I want to delete an appointment"
-* 
+
+
+
+## Termine Manipulieren (Bonusaufgabe)
+### `I want to create an appointment`
+* Mycroft fragt, falls nicht direkt mitgegeben, nach dem gewünschten Datum, Startzeit, Endzeit und Titel.<br> <br>
+**Beispiel**<br>
+"Please tell me the name of the event?" - meeting <br>
+"What date and time does the event start?" - friday 2 p.m. <br>
+"At what date and time ended the event?" - friday 5 p.m. <br>
+"Succesfully created the event lesson"
+
+### `I want to rename an appointment`
+* Mycroft fragt, falls nicht gegeben, nach dem Datum, dann welches Event umbenannt wird und wie es genannt werden soll.
+<br> <br>
+**Beispiel**<br>
+"Please tell me the date of the event you want to rename" - monday <br>
+"Do you want to rename this appointment basketball?" - yes <br>
+"How do you want to call it?" - tennis <br>
+"Successfully renamed"
+
+### `I want to delete an appointment`
+* Mycroft fragt, falls nicht gegeben, nach dem Datum, dann welches Event gelöscht werden soll.
+<br> <br>
+**Beispiel**<br>
+" >> Please tell me the date of the event" - monday <br>
+" Do you want to delete this appointment tennis? " - yes <br>
+"How do you want to call it?" - tennis <br>
+"Successfully deleted"
+
+## Kalender wechseln
+* Mycroft kann wenn gewünscht den Kalendar wechseln oder einen neuen erstellen.
+<br> <br>
+
+**Beispiel** <br>
+"Choose from one of the following calendars by saying the number" <br>
+"one, Persönlich" <br>
+"two, Speech Interaction" <br>
+"three, Arbeit" <br>
+"four, create a new calendar" <br> - four
+"How do you want to call the calendar?"  sport <br>
+"New calendar sport was created and selected"
+
+
 # Wissenwertes während der Entwicklung (Title WIP)
 
 Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kamen, werden hier detailierter erläutert.
@@ -193,7 +239,10 @@ Gelöst wurde es mit Hilfe einer Lifecyclemethode. Sobald neue Daten auf der Web
 
 ## Pylint
 
-Zum überprüfen unseres Codes haben wir `pylint` verwendet. Pylint dient dazu Fehler im Code anzuzeigen. Leider funktioniert pylint nicht perfekt mit Mycroft, weshalb wir manche Warnungen und Anmerkungen von Pylint deaktiviert haben. Der Grund dafür ist das Mycroft anders auf Funktionen und Zeilen zugreift. 
+Zum überprüfen unseres Codes haben wir `pylint` verwendet. Pylint dient dazu Fehler im Code anzuzeigen. Leider funktioniert pylint nicht perfekt mit Mycroft, weshalb wir manche Warnungen und Anmerkungen von Pylint deaktiviert haben. Der Grund dafür ist das Mycroft anders auf Funktionen und Zeilen zugreift.
+<br>
+Um Pylint auszufühen kann man in den Skill Ordner navigieren und `pylint __init__.py` ausführen.
+
+<img src="./Pylint_Screenshot_Score_22072021.png"/>
 
 [Pylint Score from the final commit - run on the Raspberry Pi running mycroft](./Pylint_Screenshot_Score_22072021.png)
-<img src="./Pylint_Screenshot_Score_22072021.png"/>
