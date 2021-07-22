@@ -13,7 +13,7 @@ Der Skill soll folgende Hauptfähigkeiten besitzen:
 * Wenn kein Termin vorhanden ist, den nächstmöglichen Termin ausgeben
 * Eine gezielte Anzahl an Termin ausgeben
 
-Der Skill kann folgende Bonusfähigkeiten besitzen:
+Der Skill besitzt folgende Bonusfähigkeiten:
 * Einen Termin anlegen
 * Einen Termin umbennen
 * Einen Termin löschen
@@ -29,19 +29,19 @@ Für diese Aufgabe wurde dementsprechend eine zur Verfügung gestellte Nextcloud
 
 # Erstellen eines Mycroft Skills
 
-Um einen Mycroft Skill zu erstellen kann mit Hilfe des `mycroft-msk create` Befehl, ein Template erstellt werden, welches anhand verschiedener Fragen einen Skill erstellt. Unteranderem wird nach dem Skillnamen und einem Beispiel Dialog gefragt, die der User vom Skill erwartet. Weitere Informationen und genauere Details können auf der offizielen Mycroft [**Seite**](https://mycroft-ai.gitbook.io/docs/skill-development/introduction/your-first-skill) nachgelesen werden.
+Um einen Mycroft Skill zu erstellen kann mit Hilfe des `mycroft-msk create` Befehl, ein Template erstellt werden, welches anhand verschiedener Fragen einen Skill erstellt. Unteranderem wird nach dem Skillnamen und einem Beispiel Dialog gefragt, die der Benutzer vom Skill erwartet. Weitere Informationen und genauere Details können auf der offizielen Mycroft [**Seite**](https://mycroft-ai.gitbook.io/docs/skill-development/introduction/your-first-skill) nachgelesen werden.
 
 Nach dem das Template erstellt wurde, wird der Skill automatisch auf der Githubseite veröffentlicht und auf dem Raspberry Pi installiert.
 
 Alle installierten Skills befinden sich im Raspberry Pi im Verzeichnis `/opt/mycroft/skills`.
 
-# Installation des `Calendar-Manager-Skill`
+# Installation des `calendar_manager_skill`
 
 ## Voraussetzungen
 
 Um den Calendar Manager Skill lauffähig zu installieren müssen bestimmte Vorraussetzungen erfüllt werden.
 
-* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Eine Liste der erfoderlichen Packages sind [**hier**](**Link der Packege liste einfügen**) mit den passenden befehlen zu finden.
+* Alle erforderlichen Packages müssen auf dem Raspberri Pi (falls nicht vorhanden) installiert werden. <br> Eine Liste der erfoderlichen Packages sind [**hier**](./packages_installed.md) mit den passenden befehlen zu finden.
 
 * Ein Nextcloud Account muss vorhanden sein. <br> Für diesen Skill wurde ein Nextcloud Kalendar zur Verfügung gestellt. <br>
 Den Kalendar kann unter folgendem [**Link**](https://si-nextcloud.social-robot.info/index.php/login) erreicht werden. <br>
@@ -60,33 +60,62 @@ Für den Calendar Manager Skill müssen die folgedenden erforderlichen Daten üb
 ## Installation
 Um den den hier beschriebenen Calendar Manager Skill zu installieren gibt es zwei Möglichkeiten: <br>
 * Möglichkeit 1: <br> Mithilfe des `mycroft-msm install <Github_Repo>` einen Skill installieren. <br>
-In diesem Fall lautet der Befehl: `mycroft-msm install https://github.com/dev-dot/calendar-manager-skill` <br>
+In diesem Fall lautet der Befehl: `mycroft-msm install https://github.com/dev-dot/calendar_manager_skill.git` <br>
 Der Skill wird dann im oben beschriebenen Verzeichnis installiert.
 
 * Möglichkeit 2: <br>
-Man muss in den  `/opt/mycroft/skills` Verzeichnis navigieren und den Skill mithilfe von Git clonen. `git clone https://github.com/dev-dot/calendar-manager-skill `
+Man muss in den  `/opt/mycroft/skills` Verzeichnis navigieren und den Skill mithilfe von Git clonen. `git clone https://github.com/dev-dot/calendar_manager_skill `
 
 # Calendar Manager Skill
 
 ## Beschreibung
 Der Calendar Manager Skill bietet verschiedene Befehle und Funktionen an um einen Termin aus dem Nextcloud Kalender abzufragen
 
-## Helpermethoden
+## Helper Methoden
 
-### "get_all_events()"
-* Mit der Methode get_all_events() können wir, mit den Parametern "Calendar", optional "Startdatum" und optional "Enddatum", die Kalendereinträge abrufen und die Methode gibt uns eine Liste mit allen gefundenen Events zurück.
+### `get_all_events()`
+* Mit der Methode `get_all_events()` können wir, mit den Parametern `calendar`, optional `start` und `end`, die Kalendereinträge abrufen und die Methode gibt uns eine Liste mit allen gefundenen Events zurück.
+Die Paramater geben den genutzten Kalender und einen Zeitraum an.
 
-### "helper_speak_event()"
-* Diese Methode hilft dabei die passenden Mycraft Dialoge auszugeben. Man übergibt ein Event, dass ausgegeben weredn soll und die Methode überprüft anahand der Eventeigenschaften, ob es ein ganztagiges Event oder ein einstündiges Event ist und gibt dem entsprechend den passenden Dialog aus.
+### `helper_speak_event()`
+* Diese Methode hilft dabei die passenden Mycroft Dialoge auszugeben. Man übergibt ein Event, dass ausgegeben werden soll und die Methode überprüft anhand der Eventeigenschaften, ob es ein ganztägiges Event oder ein einstündiges Event ist und gibt dementsprechend den passenden Dialog aus.
 
-### "get_ordinal_number()"
+### `get_ordinal_number()`
 * Mit dieser Methode werden Zahlen für die englische Sprache ausgabefähig umgewandelt. Zum Beispiel aus 1 -> "first" und in der Aussgabe heißt es dann "first of july" statt "one of july".
 
-### Intenthandler Methoden
-Mit den Intenthandler Methoden kann der Benutzer nach bestimmten Dingen fragen. Wenn der User den richtigen Input gibt, wird eine spezifische Methode ausgelöst und der User bekommt ein Feedback.
+## Intenthandler Methoden
+Mit den Intenthandler Methoden kann der Benutzer nach bestimmten Aktionen fragen. Wenn der Benutzer den richtigen Input gibt, wird eine spezifische Methode ausgelöst und der Benutzer bekommt ein passende Aussage von Mycroft.
 
-### "handle_next_appointment()"
-* Wenn der User nach seinen nächsten Termin fragt, wird sein nächster Termin ausgegeben. Falls kein Event in der Zukunft liegt, bekommt der User das auch mitgeteilt.
+### `handle_next_appointment()`
+* Wenn der Benutzer nach seinen zeitlich nächstmöglichen Termin fragt, wird sein nächster Termin ausgegeben. Falls kein Event in der Zukunft liegt, bekommt der Benutzer das auch mitgeteilt.<br>
+Als Startzeitpunkt für die Suche wird der Moment der abfrage verwendet.
+
+### `handle_ask_specific()`
+* Mit dieser Methode kann der Benutzer nach einem Termin an einem bestimmten Datum fragen. Wenn an diesem Tag mehrere Termine vorhanden sind werden alle der Reihe nach vorgelesen.<br>
+Existiert an dem Tag kein Termin teilt Mycroft das dem Benutzer mit und gibt zusätzlich den daraufhin nächsten Termin an welche beispielsweise ein Tag später wäre.
+### `handle_ask_number()`
+* Mit der `handle_ask_number()` Methode kann der Benutzer nach einer bestimmten Anzahl an Terminen frage. Der Benutzer gibt die gewünschte Anzahl mit und wenn genau so viele oder mehr Termine vorhanden sind, dann gibt Mycorft die exakt gewünschte Anzahl an Terminen aus.<br>
+Sind weniger Termine wie angefragt vorhanden, teilt Mycroft dem Benutzer mit, dass beispielsweise nur vier anstatt der gewünschten Anzahl an Termine vorhanden sind und gibt diese daraufhin aus.
+### `handle_choose_calendar())`
+* Bei der `handle_choose_calendar())` Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man per Spracheeingabe sein neuen Kalender wählen.
+### `handle_create_event()`
+* Mit dieser Methode kann der Benutzer einen neuen Termin anlegen. Hierfür wird vom Benutzer ein `Name`, `Startdatum` und das `Enddatum` verlangt. Wenn der Benutzer einen ganztags Termin erstellen möchte, dann muss der Benutzer nach dem `Startdatum` noch `all day` sagen. Nachdem die Eingaben vollständig sind wird der Termin dem Kalender hinzugefügt. 
+
+### `handle_delete_event()`
+* Mit dieser Methode kann der Benutzer ein Termin löschen. <br>
+Gibt der Benutzer keinen spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich gelöscht werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
+Werden mehrere Termine an einen Tag gefunden, wird eine Liste erstellt und Mycroft liest diese vor. Anhand der ausgegebenen Position kann dann ein Event zum löschen ausgewählt werden. Der Ausgwählte Event muss dann vom Benutzer bestätigt werden.
+Wurde das Event gelöscht bestätigt dies Mycroft.
+
+### `handle_rename_event()`
+* Mit dieser Methode kann der Benutzer ein Termin umbenennen. <br>
+Gibt der Benutzer keinen spezifisches Datum mit, fragt Mycroft nach dem Datum. Existiert nur ein Termin fragt Mycroft nochmal nach ob dieser Termin wirklich umbennent werden soll, der Benutzer kann den Vorgang dann bestätigen oder abbrechen.<br>
+Werden mehrere Termine an einen Tag gefunden, wird eine Liste erstellt und Mycroft liest diese vor. Anhand der ausgegebenen Position kann dann ein Event zum umbenennen ausgewählt werden.
+<br> Sobald der Nutzer ein Termin zum umbennen ausgewählt hat, fragt Mycroft wie der Termin genannt werden soll und nimmt den Benutzer input.<br>
+Wurder der Termin erfolgreich umbenannt und im Kalendar gespeichert, bestätigt dies Mycroft.
+
+
+
 ## wichtige Inputs / Befehle
 
 ### "What's my next appointment"
@@ -121,7 +150,13 @@ Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kam
 Innerhalb der Entwicklungszeit wurden zwei Zwischenberichte erstellt. Diese Zwischenberichte beschreiben,  die ersten Schritte wie auch Probleme, Besonderheiten und das weitere Vorgehen. <br>
 Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und können auch unter folgendem Github [Link](https://github.com/dev-dot/calendar_manager_skill/tree/master/Berichte_Konzeption_Informationen) gefunden werden
 
-## Besondere Erkenntnisse
+## Vorgehensweise
+* 1. Nextcloud verbindung
+* 2. Caldav-Objekte verstehen und verarbeiten
+* 3. Sortieren der Events nach Datum
+* 4. Erstellen der Intents
+* 5. Bonusaufgen
+* 6. Dokumentieren
 
 ## Probleme
  * Die Zeitzone festzulegen war eine große Herausforderung, da die Termine nicht mit der richtigen Uhrzeit wiedergegeben werden. <br>

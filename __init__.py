@@ -292,7 +292,6 @@ class CalendarManager(MycroftSkill):
         for calendar in self.get_calendars():
             calendar_names.append(calendar.name)
 
-        self.log.info(calendar_names)
 
         calendar_position = 0
         counter = 0
@@ -306,8 +305,6 @@ class CalendarManager(MycroftSkill):
 
         if selection is not None:
             selected_calendar = self.get_calendars()[calendar_position]
-            self.log.info(selected_calendar.name)
-            self.log.info(calendar_position)
             self.speak(f"You chose {selected_calendar.name}")
             self.current_calendar = selected_calendar
 
@@ -337,7 +334,6 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments')
         else:
             self.speak('Your next event is')
-            self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             self.helper_speak_event(next_event)
 
