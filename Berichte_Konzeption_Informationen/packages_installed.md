@@ -5,11 +5,11 @@
 ## Packages Installed
 ### lingua-franca 0.4.2
 * `pip install lingua-franca`
-### caldav 
+### caldav
 * `sudo apt-get install libxml2-dev libxslt-dev python-dev` für die Einrichtung <br>
 * `pip install caldav`
 
-### icalendar 
+### icalendar
 * `pip install icalendar`
 
 ### datetime (date, datetime, timedelta, tzinfo) | Version 4.3
@@ -30,4 +30,4 @@
 
 <br>
 
-[**<- Zurück zur Dokumentation**](./Dokumentation.md) 
+[**<- Zurück zur Dokumentation**](./Dokumentation.md)
