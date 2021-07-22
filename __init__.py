@@ -584,7 +584,7 @@ END:VCALENDAR
                         self.speak_dialog('I could not understand you. Deletion is canceled')
 
                 else:
-                    self.speak(f"Cancled selection.")
+                    self.speak("Cancled selection.")
         except TypeError as type_error:
 
             self.log.error(type_error)
@@ -671,7 +671,7 @@ END:VCALENDAR
                 if selection is not None:
                     selected_event = events[event_position]
                     self.speak(f"You chose {selection}")
-                    shall_be_renamed = self.ask_yesno(f"Are you sure to rename this event? ")
+                    shall_be_renamed = self.ask_yesno("Are you sure to rename this event? ")
                     if shall_be_renamed == 'yes':
                         if selection == "without a title":
                             selected_event.instance.vevent.add('summary')

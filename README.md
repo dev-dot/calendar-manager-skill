@@ -24,5 +24,8 @@ Information
 
 ## Important Sentences
  do i have an appointment on the "1st of july"
-  
+
+## Dokumentation
+
+Die Dokumentation kann im Verzeichnis `Berichte_Konzeptoin_Information` und unter dem [**Link**](/Berichte_Konzeption_Informationen/Dokumentation.md) gefunden werden.
 
