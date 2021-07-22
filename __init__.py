@@ -1,15 +1,12 @@
-
-
-from time import gmtime
-from datetime import date, datetime, timedelta, tzinfo
-from mycroft import MycroftSkill, intent_file_handler, audio
+# pylint: disable=missing-docstring
+from datetime import date, datetime, timedelta
 import caldav
-from caldav.objects import Calendar
-import pytz
-from lingua_franca.parse import extract_datetime, normalize, extract_number
-from lingua_franca.format import nice_date
-from tzlocal import get_localzone
 from caldav.lib.error import AuthorizationError
+from caldav.objects import Calendar
+from lingua_franca.parse import extract_datetime, extract_number
+from lingua_franca.format import nice_date
+from mycroft import MycroftSkill, intent_file_handler, audio
+from tzlocal import get_localzone
 
 class CalendarManager(MycroftSkill):
     """A Mycroft skill for a nextcloud calendar with 4 intent handler.
@@ -25,9 +22,9 @@ class CalendarManager(MycroftSkill):
 
         super().__init__()
         self.current_calendar = None
+        self.client = None
         self.local_tz = get_localzone()
-        # If the PI cant change timezone of the device use this variable
-       #self.local_tz = pytz.timezone('Europe/Berlin')
+
 
 
 
@@ -58,11 +55,11 @@ class CalendarManager(MycroftSkill):
         if self.client is not None:
             try:
                 self.current_calendar = self.get_calendars()[0]
-                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}")
+                self.speak(f"You are successfully connected to your calendar: {self.current_calendar.name}") # Mycroft needs full lenght. pylint: disable=line-too-long
             except AuthorizationError as authorization_error:
                 self.log.error(authorization_error)
-                self.speak("A connection to your calendar is currently not possible! Check your crendentials!")
-            except Exception as exception:
+                self.speak("A connection to your calendar is currently not possible! Check your crendentials!") # Mycroft needs full lenght. pylint: disable=line-too-long
+            except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
                 self.log.error(exception)
                 self.speak("Unexpected error! Check Logs! Check URL!")
 
@@ -83,10 +80,10 @@ class CalendarManager(MycroftSkill):
             client = caldav.DAVClient(url=caldav_url, username=username, password=password)
 
             return client
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
-            self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!")
-            return
+            self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!") # Mycroft needs full lenght. pylint: disable=line-too-long
+            return None
 
 
     def get_calendars(self):
@@ -120,26 +117,26 @@ class CalendarManager(MycroftSkill):
 
         if start is None:
             return calendar.events()
-        else:
-            event_date = calendar.date_search(start=start, end=end)
 
-            for event in event_date:
-                event_start = event.instance.vevent.dtstart.value
+        event_date = calendar.date_search(start=start, end=end)
 
-                # for all day events
-                if not isinstance(event_start, datetime):
-                    event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time())
+        for event in event_date:
+            event_start = event.instance.vevent.dtstart.value
 
-                if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz):
-                    all_events.append(event)
-            if end is not None:
-                all_events = [i for i in all_events if
-                  i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)]
-            all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))
-            return all_events
+            # for all day events
+            if not isinstance(event_start, datetime):
+                event.instance.vevent.dtstart.value = datetime.combine(event_start, datetime.min.time()) # Mycroft needs full lenght. pylint: disable=line-too-long
+
+            if event.instance.vevent.dtstart.value.astimezone(self.local_tz) >= start.astimezone(self.local_tz): # Mycroft needs full lenght. pylint: disable=line-too-long
+                all_events.append(event)
+        if end is not None:
+            all_events = [i for i in all_events if
+                i.instance.vevent.dtstart.value.astimezone(self.local_tz) <= end.astimezone(self.local_tz)] # Mycroft needs full lenght. pylint: disable=line-too-long
+        all_events.sort(key=lambda event: event.instance.vevent.dtstart.value.astimezone(self.local_tz))  # Mycroft needs full lenght. pylint: disable=line-too-long
+        return all_events
 
 
-    def get_event_title(self,event):
+    def get_event_title(self,event): # Self is needed pylint: disable=no-self-use
         """Gets the event title from event.
 
         Args:
@@ -154,7 +151,7 @@ class CalendarManager(MycroftSkill):
 
         try:
             return event.summary.value
-        except:
+        except: # We want to catch all types of exceptions pylint: disable=broad-except
             return "without a title"
 
 
@@ -171,11 +168,11 @@ class CalendarManager(MycroftSkill):
         try:
             time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
             return time_string
-        except:
+        except: # We want to catch all types of exceptions pylint: disable=broad-except
             return None
 
 
-    def get_ordinal_number(self,i):
+    def get_ordinal_number(self,i): # Self is needed pylint: disable=no-self-use
         """Changes integer numbers to written numbers.
 
         Args:
@@ -242,30 +239,30 @@ class CalendarManager(MycroftSkill):
         end_date = event.dtend.value
 
         title = self.get_event_title(event)
-        start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
+        start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" # Mycroft needs full lenght. pylint: disable=line-too-long
 
         starttime = self.get_time_string(start_date)
         endtime = self.get_time_string(end_date)
 
         if starttime is not None and endtime is not None:
 
-            end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}"
+            end_date_string = f"{self.get_ordinal_number(end_date.day)} of {event.dtend.value.strftime('%B')}" # Mycroft needs full lenght. pylint: disable=line-too-long
 
             if start_date.day == end_date.day:
-                self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime})
+                self.speak_dialog('yes.same.day.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'endtime':endtime}) # Mycroft needs full lenght. pylint: disable=line-too-long
 
             else:
-                self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate': end_date_string, 'endtime' : endtime })
+                self.speak_dialog('yes.multiple.days.appointment.with.times', {'title': title, 'startdate': start_date_string, 'starttime': starttime, 'enddate': end_date_string, 'endtime' : endtime }) # Mycroft needs full lenght. pylint: disable=line-too-long
 
         else:
             # For all day events
-            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}"
+            start_date_string = f"{self.get_ordinal_number(start_date.day)} of {event.dtstart.value.strftime('%B')}" # Mycroft needs full lenght. pylint: disable=line-too-long
 
-            amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day)
+            amount_of_days = date(end_date.year, end_date.month, end_date.day) - date(start_date.year,start_date.month, start_date.day) # Mycroft needs full lenght. pylint: disable=line-too-long
 
-            if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock
+            if amount_of_days.days - 1 == 0: # has to be one day less, because caldav counts till the follwing day at 0 o'clock pylint: disable=line-too-long
                 # case one whole day & no times
-                self.speak_dialog('yes.appointment.same.day.all.day',{'title': title,'startdate': start_date_string})
+                self.speak_dialog('yes.appointment.same.day.all.day',{'title': title,'startdate': start_date_string}) # Mycroft needs full lenght. pylint: disable=line-too-long
             else:
                 # case multiple days & no times
                 self.speak_dialog('yes.appointment.all.day',
@@ -293,8 +290,7 @@ class CalendarManager(MycroftSkill):
         for calendar in self.get_calendars():
             calendar_names.append(calendar.name)
 
-        self.log.info(calendar_names)
-
+        calendar_names.append("create a new calendar")
         calendar_position = 0
         counter = 0
         self.speak('Choose from one of the following calendars by saying the number')
@@ -306,9 +302,12 @@ class CalendarManager(MycroftSkill):
             counter += 1
 
         if selection is not None:
+            if selection == "create a new calendar":
+                new_calendar = self.get_response("How do you want to call the calendar")
+                self.current_calendar =  self.client.principal().make_calendar(name=new_calendar)
+                self.speak(f"new calendar {new_calendar} was created and selected")
+                return
             selected_calendar = self.get_calendars()[calendar_position]
-            self.log.info(selected_calendar.name)
-            self.log.info(calendar_position)
             self.speak(f"You chose {selected_calendar.name}")
             self.current_calendar = selected_calendar
 
@@ -338,7 +337,6 @@ class CalendarManager(MycroftSkill):
             self.speak_dialog('no.appointments')
         else:
             self.speak('Your next event is')
-            self.log.info(future_events[0].instance.vevent)
             next_event = future_events[0].instance.vevent
             self.helper_speak_event(next_event)
 
@@ -373,10 +371,10 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
                 if len(next_event) > 0:
 
-                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}" # Mycroft needs full lenght. pylint: disable=line-too-long
 
                     summary = self.get_event_title(next_event[0].instance.vevent)
 
@@ -385,7 +383,7 @@ class CalendarManager(MycroftSkill):
 
 
             elif len(events)>=1:
-                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
+                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date}) # Mycroft needs full lenght. pylint: disable=line-too-long
                 for event in events:
                     next_event = event.instance.vevent
 
@@ -394,7 +392,7 @@ class CalendarManager(MycroftSkill):
         except TypeError as type_error:
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
 
@@ -437,7 +435,6 @@ class CalendarManager(MycroftSkill):
                 next_event = future_events[i].instance.vevent
 
                 self.helper_speak_event(next_event)
-
 
 
     @intent_file_handler('ask.create.event.intent')
@@ -490,19 +487,16 @@ END:VCALENDAR
                 self.speak(f"Succesfully created the event {event_name}")
             else:
 
-                self.speak(f"Your event {event_name} will end in the past. Please create a correct event")
+                self.speak(f"Your event {event_name} will end in the past. Please create a correct event") # Mycroft needs full lenght. pylint: disable=line-too-long
 
         except TypeError as type_error:
 
             self.log.error(type_error)
             self.speak("not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
 
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
-
-
-
 
 
     @intent_file_handler('ask.delete.event.intent')
@@ -528,14 +522,13 @@ END:VCALENDAR
             if date is None:
                 date = self.get_response('Please tell me the date of the event')
 
-
             start_date = extract_datetime(date)[0]
             end_date = datetime.combine(start_date,start_date.max.time())
             calendar = self.current_calendar
             if calendar is None:
                 self.speak('No calendar accessible')
                 return
-            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
 
             if len(events) == 0:
                 self.speak_dialog(f"You have no appointments  {date}")
@@ -543,7 +536,7 @@ END:VCALENDAR
                 next_event = events[0]
                 summary = self.get_event_title(next_event.instance.vevent)
 
-                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
+                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?") # Mycroft needs full lenght. pylint: disable=line-too-long
                 if shall_be_deleted == 'yes':
 
                     next_event.delete()
@@ -589,16 +582,14 @@ END:VCALENDAR
                         self.speak_dialog('I could not understand you. Deletion is canceled')
 
                 else:
-                    self.speak(f"Cancled selection.")
+                    self.speak("Cancled selection.")
         except TypeError as type_error:
 
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
-
-
 
 
     @intent_file_handler('ask.rename.event.intent')
@@ -624,14 +615,13 @@ END:VCALENDAR
             if date is None:
                 date = self.get_response('Please tell me the date of the event you want to rename')
 
-
             start_date = extract_datetime(date)[0]
             end_date = datetime.combine(start_date,start_date.max.time())
             calendar = self.current_calendar
             if calendar is None:
                 self.speak('No calendar accessible')
                 return
-            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
 
             if len(events) == 0:
                 self.speak_dialog(f"You have no appointments  {date}")
@@ -639,7 +629,7 @@ END:VCALENDAR
                 next_event = events[0]
                 summary = self.get_event_title(next_event.instance.vevent)
 
-                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
+                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?") # Mycroft needs full lenght. pylint: disable=line-too-long
                 if shall_be_renamed == 'yes':
                     if summary == "without a title":
                         next_event.instance.vevent.add('summary')
@@ -676,7 +666,7 @@ END:VCALENDAR
                 if selection is not None:
                     selected_event = events[event_position]
                     self.speak(f"You chose {selection}")
-                    shall_be_renamed = self.ask_yesno(f"Are you sure to rename this event? ")
+                    shall_be_renamed = self.ask_yesno("Are you sure to rename this event? ")
                     if shall_be_renamed == 'yes':
                         if selection == "without a title":
                             selected_event.instance.vevent.add('summary')
@@ -699,7 +689,7 @@ END:VCALENDAR
 
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
 
