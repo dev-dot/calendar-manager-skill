@@ -97,7 +97,7 @@ Existiert an dem Tag kein Termin teilt Mycroft das dem Benutzer mit und gibt zus
 * Mit der `handle_ask_number()` Methode kann der Benutzer nach einer bestimmten Anzahl an Terminen frage. Der Benutzer gibt die gewünschte Anzahl mit und wenn genau so viele oder mehr Termine vorhanden sind, dann gibt Mycorft die exakt gewünschte Anzahl an Terminen aus.<br>
 Sind weniger Termine wie angefragt vorhanden, teilt Mycroft dem Benutzer mit, dass beispielsweise nur vier anstatt der gewünschten Anzahl an Termine vorhanden sind und gibt diese daraufhin aus.
 ### `handle_choose_calendar())`
-* Bei der `handle_choose_calendar())` Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man per Spracheeingabe sein neuen Kalender wählen.
+* Bei der `handle_choose_calendar())` Methode kann der Benutzer sein Kalender wechseln wenn er verschiedene Kalender in der Nextcloud hat. Alle Kalender werden als Auswahl vorgelesen und man kann per Spracheingabe seinen neuen Kalender wählen. Desweiteren besteht auch die Möglichkeit bei der Auswahl einen neuen Kalender zu erstellen.
 ### `handle_create_event()`
 * Mit dieser Methode kann der Benutzer einen neuen Termin anlegen. Hierfür wird vom Benutzer ein `Name`, `Startdatum` und das `Enddatum` verlangt. Wenn der Benutzer einen ganztags Termin erstellen möchte, dann muss der Benutzer nach dem `Startdatum` noch `all day` sagen. Nachdem die Eingaben vollständig sind wird der Termin dem Kalender hinzugefügt. 
 
@@ -139,7 +139,12 @@ Werden weniger Termine gefunden, gibt Mycroft die tatsächliche Nummer als Input
 Werden keine Termine gefunden, da keine Termine mehr vorhanden sind, gibt Mycroft dies ebenfalls aus.
 
 ## Zusätzliche Methoden (Bonusaufgabe)
-asd <br>
+### "I want to create an appointment"
+* 
+### "I want to rename an appointment"
+* 
+### "I want to delete an appointment"
+* 
 # Wissenwertes während der Entwicklung (Title WIP)
 
 Interessante Erkenntnisse und Probleme die während der Entwicklung zustande kamen, werden hier detailierter erläutert.
@@ -151,11 +156,11 @@ Innerhalb der Entwicklungszeit wurden zwei Zwischenberichte erstellt. Diese Zwis
 Die Berichte befinden sich im Ordner `Berichte_Konzeption_Information` und können auch unter folgendem Github [Link](https://github.com/dev-dot/calendar_manager_skill/tree/master/Berichte_Konzeption_Informationen) gefunden werden
 
 ## Vorgehensweise
-* 1. Nextcloud verbindung
+* 1. Nextcloud Verbindung herstellen
 * 2. Caldav-Objekte verstehen und verarbeiten
 * 3. Sortieren der Events nach Datum
 * 4. Erstellen der Intents
-* 5. Bonusaufgen
+* 5. Bonusaufgaben
 * 6. Dokumentieren
 
 ## Probleme

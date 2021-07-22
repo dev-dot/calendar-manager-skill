@@ -1,11 +1,12 @@
-from datetime import date, datetime, timedelta, tzinfo # pylint: disable=missing-module-docstring
-from mycroft import MycroftSkill, intent_file_handler, audio
+# pylint: disable=missing-docstring
+from datetime import date, datetime, timedelta
 import caldav
-from caldav.objects import Calendar
-from lingua_franca.parse import extract_datetime, normalize, extract_number
-from lingua_franca.format import nice_date
-from tzlocal import get_localzone
 from caldav.lib.error import AuthorizationError
+from caldav.objects import Calendar
+from lingua_franca.parse import extract_datetime, extract_number
+from lingua_franca.format import nice_date
+from mycroft import MycroftSkill, intent_file_handler, audio
+from tzlocal import get_localzone
 
 class CalendarManager(MycroftSkill):
     """A Mycroft skill for a nextcloud calendar with 4 intent handler.
@@ -58,7 +59,7 @@ class CalendarManager(MycroftSkill):
             except AuthorizationError as authorization_error:
                 self.log.error(authorization_error)
                 self.speak("A connection to your calendar is currently not possible! Check your crendentials!") # Mycroft needs full lenght. pylint: disable=line-too-long
-            except Exception as exception:
+            except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
                 self.log.error(exception)
                 self.speak("Unexpected error! Check Logs! Check URL!")
 
@@ -79,10 +80,10 @@ class CalendarManager(MycroftSkill):
             client = caldav.DAVClient(url=caldav_url, username=username, password=password)
 
             return client
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Wrong credentials for calendar access! Please check your Password and Username and your ical url!") # Mycroft needs full lenght. pylint: disable=line-too-long
-            return
+            return None
 
 
     def get_calendars(self):
@@ -135,7 +136,7 @@ class CalendarManager(MycroftSkill):
         return all_events
 
 
-    def get_event_title(self,event):
+    def get_event_title(self,event): # Self is needed pylint: disable=no-self-use
         """Gets the event title from event.
 
         Args:
@@ -150,7 +151,7 @@ class CalendarManager(MycroftSkill):
 
         try:
             return event.summary.value
-        except:
+        except: # We want to catch all types of exceptions pylint: disable=broad-except
             return "without a title"
 
 
@@ -167,11 +168,11 @@ class CalendarManager(MycroftSkill):
         try:
             time_string = f"{vevent_date.astimezone(self.local_tz).strftime('%H:%M')}"
             return time_string
-        except:
+        except: # We want to catch all types of exceptions pylint: disable=broad-except
             return None
 
 
-    def get_ordinal_number(self,i):
+    def get_ordinal_number(self,i): # Self is needed pylint: disable=no-self-use
         """Changes integer numbers to written numbers.
 
         Args:
@@ -391,7 +392,7 @@ class CalendarManager(MycroftSkill):
         except TypeError as type_error:
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
 
@@ -434,7 +435,6 @@ class CalendarManager(MycroftSkill):
                 next_event = future_events[i].instance.vevent
 
                 self.helper_speak_event(next_event)
-
 
 
     @intent_file_handler('ask.create.event.intent')
@@ -493,13 +493,10 @@ END:VCALENDAR
 
             self.log.error(type_error)
             self.speak("not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
 
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
-
-
-
 
 
     @intent_file_handler('ask.delete.event.intent')
@@ -524,7 +521,6 @@ END:VCALENDAR
 
             if date is None:
                 date = self.get_response('Please tell me the date of the event')
-
 
             start_date = extract_datetime(date)[0]
             end_date = datetime.combine(start_date,start_date.max.time())
@@ -591,11 +587,9 @@ END:VCALENDAR
 
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
-
-
 
 
     @intent_file_handler('ask.rename.event.intent')
@@ -620,7 +614,6 @@ END:VCALENDAR
 
             if date is None:
                 date = self.get_response('Please tell me the date of the event you want to rename')
-
 
             start_date = extract_datetime(date)[0]
             end_date = datetime.combine(start_date,start_date.max.time())
@@ -696,7 +689,7 @@ END:VCALENDAR
 
             self.log.error(type_error)
             self.speak(f"{date} is not a valid input. Please rephrase your question.")
-        except Exception as exception:
+        except Exception as exception: # We want to catch all types of exceptions pylint: disable=broad-except
             self.log.error(exception)
             self.speak("Unexpected error! Check Logs!")
 
