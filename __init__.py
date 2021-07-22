@@ -1,11 +1,10 @@
 
 
-from time import gmtime
+
 from datetime import date, datetime, timedelta, tzinfo
 from mycroft import MycroftSkill, intent_file_handler, audio
 import caldav
 from caldav.objects import Calendar
-import pytz
 from lingua_franca.parse import extract_datetime, normalize, extract_number
 from lingua_franca.format import nice_date
 from tzlocal import get_localzone
@@ -25,9 +24,9 @@ class CalendarManager(MycroftSkill):
 
         super().__init__()
         self.current_calendar = None
+        self.client = None
         self.local_tz = get_localzone()
-        # If the PI cant change timezone of the device use this variable
-       #self.local_tz = pytz.timezone('Europe/Berlin')
+
 
 
 
