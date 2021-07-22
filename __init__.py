@@ -1,7 +1,4 @@
-
-
-
-from datetime import date, datetime, timedelta, tzinfo
+from datetime import date, datetime, timedelta, tzinfo # pylint: disable=missing-module-docstring
 from mycroft import MycroftSkill, intent_file_handler, audio
 import caldav
 from caldav.objects import Calendar
@@ -373,10 +370,10 @@ class CalendarManager(MycroftSkill):
             if len(events)==0:
 
                 self.speak_dialog('no.appointments.specific', {'date':spoken_date})
-                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz))
+                next_event = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
                 if len(next_event) > 0:
 
-                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}"
+                    start_date_string = f"{self.get_ordinal_number(next_event[0].instance.vevent.dtstart.value.day)} of {next_event[0].instance.vevent.dtstart.value.strftime('%B')}" # Mycroft needs full lenght. pylint: disable=line-too-long
 
                     summary = self.get_event_title(next_event[0].instance.vevent)
 
@@ -385,7 +382,7 @@ class CalendarManager(MycroftSkill):
 
 
             elif len(events)>=1:
-                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date})
+                self.speak_dialog('yes.appointments.specific', {'number': len(events),'date':spoken_date}) # Mycroft needs full lenght. pylint: disable=line-too-long
                 for event in events:
                     next_event = event.instance.vevent
 
@@ -490,7 +487,7 @@ END:VCALENDAR
                 self.speak(f"Succesfully created the event {event_name}")
             else:
 
-                self.speak(f"Your event {event_name} will end in the past. Please create a correct event")
+                self.speak(f"Your event {event_name} will end in the past. Please create a correct event") # Mycroft needs full lenght. pylint: disable=line-too-long
 
         except TypeError as type_error:
 
@@ -535,7 +532,7 @@ END:VCALENDAR
             if calendar is None:
                 self.speak('No calendar accessible')
                 return
-            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
 
             if len(events) == 0:
                 self.speak_dialog(f"You have no appointments  {date}")
@@ -543,7 +540,7 @@ END:VCALENDAR
                 next_event = events[0]
                 summary = self.get_event_title(next_event.instance.vevent)
 
-                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?")
+                shall_be_deleted = self.ask_yesno(f"Do you want to delete this appointment {summary}?") # Mycroft needs full lenght. pylint: disable=line-too-long
                 if shall_be_deleted == 'yes':
 
                     next_event.delete()
@@ -631,7 +628,7 @@ END:VCALENDAR
             if calendar is None:
                 self.speak('No calendar accessible')
                 return
-            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz))
+            events = self.get_all_events(calendar= calendar, start= start_date.astimezone(self.local_tz), end= end_date.astimezone(self.local_tz)) # Mycroft needs full lenght. pylint: disable=line-too-long
 
             if len(events) == 0:
                 self.speak_dialog(f"You have no appointments  {date}")
@@ -639,7 +636,7 @@ END:VCALENDAR
                 next_event = events[0]
                 summary = self.get_event_title(next_event.instance.vevent)
 
-                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?")
+                shall_be_renamed = self.ask_yesno(f"Do you want to rename this appointment {summary}?") # Mycroft needs full lenght. pylint: disable=line-too-long
                 if shall_be_renamed == 'yes':
                     if summary == "without a title":
                         next_event.instance.vevent.add('summary')
